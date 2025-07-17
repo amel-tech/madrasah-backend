@@ -1,0 +1,24 @@
+{
+  "name": "@madrasah/common",
+  "version": "1.0.0",
+  "description": "Common DTOs and utilities for Madrasah services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["madrasah", "dto", "common"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/swagger": "^8.0.5",
+    "class-validator": "^0.14.1",
+    "class-transformer": "^0.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "typescript": "^5.8.3"
+  }
+}

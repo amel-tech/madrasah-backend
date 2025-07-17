@@ -1,0 +1,29 @@
+{
+  "monorepo": true,
+  "root": "apps/apps/madrasah-backend",
+  "sourceRoot": "apps/apps/madrasah-backend/src",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/apps/madrasah-backend/tsconfig.app.json"
+  },
+  "projects": {
+    "teskilat": {
+      "type": "application",
+      "root": "apps/teskilat",
+      "entryFile": "main",
+      "sourceRoot": "apps/teskilat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/teskilat/tsconfig.app.json"
+      }
+    },
+    "tedrisat": {
+      "type": "application",
+      "root": "apps/tedrisat",
+      "entryFile": "main",
+      "sourceRoot": "apps/tedrisat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/tedrisat/tsconfig.app.json"
+      }
+    }
+  }
+}

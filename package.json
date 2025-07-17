@@ -1,0 +1,26 @@
+{
+  "name": "madrasah-backend",
+  "version": "1.0.0",
+  "description": "Online Medrese Projesinin backend reposudur.",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "start": "turbo start",
+    "clean": "turbo clean",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "test": "turbo test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "npm@10.2.4",
+  "devDependencies": {
+    "turbo": "^2.5.5"
+  }
+}
