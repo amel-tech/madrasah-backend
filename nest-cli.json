@@ -1,10 +1,10 @@
 {
   "monorepo": true,
-  "root": "apps/apps/madrasah-backend",
-  "sourceRoot": "apps/apps/madrasah-backend/src",
+  "root": "apps/madrasah-backend",
+  "sourceRoot": "apps/madrasah-backend/src",
   "compilerOptions": {
     "webpack": true,
-    "tsConfigPath": "apps/apps/madrasah-backend/tsconfig.app.json"
+    "tsConfigPath": "apps/madrasah-backend/tsconfig.app.json"
   },
   "projects": {
     "teskilat": {
