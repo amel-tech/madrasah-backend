@@ -4,40 +4,162 @@ Online Medrese Projesinin backend reposudur.
 
 ## Tech Stack
 
-Nest.js
-PostgreSQL
-RabbitMQ
-Drizzle? (ORM)
+- **Nest.js** - Backend framework
+- **PostgreSQL** - Database (configured for future use)
+- **RabbitMQ** - Message queue (configured for future use)
+- **Turborepo** - Monorepo management
+- **TypeScript** - Type-safe development
+- **Docker & Docker Compose** - Containerization
 
-## Project Bootstrap Requirements
+## Services
 
-- Should be able to run in a continer & docker-compose support
-- Should include working example codes for interacting other technologies listed above
-- Testing setup with Jest
-- Configurations and helper tooling should be complete
-- Base configuration & .env
-- This README should be edited properly
+### Current Services
+- **teskilat** - Organization management service (Port: 3001)
+- **tedrisat** - Education management service (Port: 3002)
 
-## Example Folder Structure
+Each service provides:
+- `GET /` - Hello World endpoint
+- `GET /health` - Health check endpoint
+
+## Quick Start
+
+### Prerequisites
+- Node.js 22+ 
+- npm
+- Docker & Docker Compose (optional)
+
+### Local Development
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Build all services:**
+   ```bash
+   npm run build
+   ```
+
+3. **Start all services in development mode:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Start individual service:**
+   ```bash
+   # Teskilat service
+   cd apps/teskilat && npm run dev
+   
+   # Tedrisat service  
+   cd apps/tedrisat && npm run dev
+   ```
+
+### Using Docker Compose
+
+1. **Start all services with dependencies:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Stop all services:**
+   ```bash
+   docker-compose down
+   ```
+
+## API Endpoints
+
+### Teskilat Service (http://localhost:3001)
+- `GET /` - Returns "Hello World from Teskilat Service!"
+- `GET /health` - Health check
+- `GET /swagger` - Swagger API documentation
+
+### Tedrisat Service (http://localhost:3002)  
+- `GET /` - Returns "Hello World from Tedrisat Service!"
+- `GET /health` - Health check
+- `GET /swagger` - Swagger API documentation
+
+## API Documentation
+
+Both services include interactive Swagger documentation:
+
+- **Teskilat Service**: [http://localhost:3001/swagger](http://localhost:3001/swagger)
+- **Tedrisat Service**: [http://localhost:3002/swagger](http://localhost:3002/swagger)
+
+The Swagger documentation provides:
+- Interactive API explorer
+- Request/response schemas
+- Try-it-out functionality
+- Complete endpoint documentation
+
+## Configuration
+
+The project uses a shared configuration system with environment variable validation:
+
+- **Shared Config**: Located in `shared/config/` 
+- **Environment Variables**: Centralized in root `.env` file
+- **Override Support**: Apps can override configs via `PORT` environment variable
+- **Validation**: Uses Joi schema validation for type safety
+
+### Environment Variables
+
+Default values from `.env`:
+- `TESKILAT_PORT=3001` - Teskilat service port
+- `TEDRISAT_PORT=3002` - Tedrisat service port  
+- `DATABASE_URL` - PostgreSQL connection (for future use)
+- `RABBITMQ_URL` - RabbitMQ connection (for future use)
+
+## Available Scripts
+
+- `npm run build` - Build all services
+- `npm run dev` - Start all services in development mode
+- `npm run start` - Start all services in production mode
+- `npm run clean` - Clean build artifacts
+- `npm run type-check` - Type check all services
+
+## Environment Variables
+
+Copy `.env` file and adjust ports if needed:
+- `TESKILAT_PORT=3001`
+- `TEDRISAT_PORT=3002`
+
+## Project Structure
 
 ```
 .
-├── apps/                    # Her bağımsız proje (örneğin servis) buraya eklenir
-│   └── api/                 # Başlangıç projesi (Nest.js backend)
+├── apps/                    # Independent services
+│   ├── teskilat/           # Organization service
+│   │   ├── src/
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   └── tedrisat/           # Education service
 │       ├── src/
-│       └── ...
+│       ├── Dockerfile
+│       ├── package.json
+│       └── tsconfig.json
 │
-├── shared/                  # Tüm projeler tarafından paylaşılan ortak kodlar
-│   ├── config/              # Ortak konfigürasyonlar (.env schema, Nest config modules vs.)
-│   ├── dto/                 # Ortak DTO’lar
-│   ├── types/               # Ortak TypeScript tipleri
-│   ├── utils/               # Yardımcı fonksiyonlar
-│   ├── rabbitmq/            # Queue konfigürasyonu ve event tanımları
-│   └── ...
+├── libs/                   # Shared libraries
+│   └── common/            # Common DTOs and utilities
+│       ├── src/dto/
+│       ├── package.json
+│       └── tsconfig.json
 │
-├── .env                     # Ortak .env (her proje kendi .env’ini override edebilir)
-├── docker-compose.yml       # Tüm ortamı ayağa kaldırmak için
-├── turbo.json               # Turborepo yapılandırması
-├── package.json             # Ortak bağımlılıklar (monorepo root)
-└── tsconfig.base.json       # Ortak TypeScript yapılandırması
+├── shared/                 # Shared configuration
+│   └── config/            # Environment and configuration management
+│
+├── .env                   # Environment variables
+├── docker-compose.yml     # Docker services configuration
+├── turbo.json            # Turborepo configuration
+├── package.json          # Root dependencies
+└── tsconfig.base.json    # Base TypeScript configuration
 ```
+
+## Future Enhancements
+
+The project is structured to easily add:
+- Database integration with Drizzle ORM
+- RabbitMQ message queues
+- Shared utilities and types
+- Authentication and authorization
+- API documentation with Swagger
+- Testing setup with Jest
