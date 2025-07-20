@@ -4,20 +4,38 @@
   "description": "Common DTOs and utilities for Madrasah services",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "package.json",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["madrasah", "dto", "common"],
+  "keywords": [
+    "madrasah",
+    "dto",
+    "common"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nestjs/swagger": "^8.0.5",
+    "@nestjs/common": "^11.1.5",
+    "@nestjs/swagger": "^11.2.0",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "class-transformer": "^0.5.1"
+    "compression": "^1.8.1",
+    "helmet": "^8.1.0",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/compression": "^1.8.1",
     "@types/node": "^24.0.14",
     "typescript": "^5.8.3"
   }

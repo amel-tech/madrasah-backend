@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./libs/common"
+    },
+    {
+      "path": "./apps/tedrisat"
+    },
+    {
+      "path": "./apps/teskilat"
+    }
+  ]
+}

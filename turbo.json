@@ -3,22 +3,36 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "inputs": ["src/**/*.ts", "tsconfig*.json", "package.json"]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "start": {
+      "dependsOn": ["^build", "build"],
+      "cache": false,
+      "persistent": true
+    },
+    "start:dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "test": {
-      "dependsOn": ["^test"],
-      "outputs": ["coverage/**", "test-results/**"]
+      "dependsOn": ["^build", "build"],
+      "outputs": ["coverage/**", "test-results/**"],
+      "inputs": ["src/**/*.ts", "test/**/*.ts", "jest.config.*", "package.json"]
     },
-    "lint": {},
-    "type-check": {},
+    "lint": {
+      "inputs": ["src/**/*.ts", "test/**/*.ts", "eslint.config.*", "package.json"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**/*.ts", "tsconfig*.json", "package.json"]
+    },
     "clean": {
       "cache": false
     }
