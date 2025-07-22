@@ -1,38 +1,38 @@
+import './otel';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import {
-  applyGlobalMiddleware,
-  LoggerFactory,
-  LoggerType,
-} from '@madrasah/common';
+import { applyGlobalMiddleware, LoggerFactory } from '@madrasah/common';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-// Load environment variables from root .env file
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: LoggerFactory.create(), // Use LoggerFactory to create a logger instance
   });
 
+  const config = app.get(ConfigService);
+
   applyGlobalMiddleware(app);
-
-  const port = process.env.TEDRISAT_PORT || 3002;
-
   // Swagger configuration
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Tedrisat Service API')
-    .setDescription('Education management service for Madrasah platform')
-    .setVersion('1.0.0')
-    .addTag('tedrisat', 'Education management endpoints')
-    .build();
+  const swaggerEnabled = config.get<boolean>('swagger.enabled');
+  if (swaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Tedrisat Service API')
+      .setDescription('Education management service for Madrasah platform')
+      .setVersion('1.0.0')
+      .addTag('tedrisat', 'Education management endpoints')
+      .build();
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('swagger', app, document);
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    const swaggerEndpoint =
+      config.get<string>('swagger.endpoint') || '/swagger';
+    SwaggerModule.setup(swaggerEndpoint, app, document);
+  }
+
+  const port = config.get<number>('port') || 3001;
 
   await app.listen(port);
   console.log(`Tedrisat service is running on port ${port}`);
 }
+
 bootstrap();
