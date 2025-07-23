@@ -1,4 +1,4 @@
-name: Tedrisat API Docker Build and Push
+name: Tedrisat API
 
 on:
   workflow_dispatch:

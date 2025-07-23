@@ -20,6 +20,4 @@ jobs:
           release-type: simple
           package-name: release
           target-branch: release
-          bump-minor-pre-major: true
-          bump-patch-for-minor-pre-major: true
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.MADRASAH_BACKEND_PAT }}
