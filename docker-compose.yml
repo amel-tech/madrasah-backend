@@ -1,19 +1,24 @@
 version: '3.8'
 
-services:
-  teskilat:
-    build:
-      context: .
-      dockerfile: apps/teskilat/Dockerfile
-    ports:
-      - "${TESKILAT_PORT:-3001}:3001"
 
+services:
   tedrisat:
     build:
       context: .
       dockerfile: apps/tedrisat/Dockerfile
     ports:
-      - "${TEDRISAT_PORT:-3002}:3002"
+      - "${TEDRISAT_PORT:-3001}:3001"
+    env_file:
+      - ./apps/tedrisat/.env
+
+  teskilat:
+    build:
+      context: .
+      dockerfile: apps/teskilat/Dockerfile
+    ports:
+      - "${TESKILAT_PORT:-3002}:3002"
+    env_file:
+      - ./apps/teskilat/.env
 
 volumes:
   postgres_data:

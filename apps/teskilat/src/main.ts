@@ -1,29 +1,38 @@
+import './otel';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { applyGlobalMiddleware, LoggerFactory } from '@madrasah/common';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-// Load environment variables from root .env file
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  const port = process.env.TESKILAT_PORT || 3001;
+  const app = await NestFactory.create(AppModule, {
+    logger: LoggerFactory.create(), // Use LoggerFactory to create a logger instance
+  });
+  const config = app.get(ConfigService);
 
-  // Swagger configuration
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Teskilat Service API')
-    .setDescription('Organization management service for Madrasah platform')
-    .setVersion('1.0.0')
-    .addTag('teskilat', 'Organization management endpoints')
-    .build();
-  
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('swagger', app, document);
-  
+  // Apply global middleware
+  applyGlobalMiddleware(app);
+
+  const swaggerEnabled = config.get<boolean>('swagger.enabled');
+  if (swaggerEnabled) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Tedrisat Service API')
+      .setDescription('Education management service for Madrasah platform')
+      .setVersion('1.0.0')
+      .addTag('tedrisat', 'Education management endpoints')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    const swaggerEndpoint =
+      config.get<string>('swagger.endpoint') || '/swagger';
+    SwaggerModule.setup(swaggerEndpoint, app, document);
+  }
+
+  const port = config.get<number>('port') || 3002;
+
   await app.listen(port);
-  console.log(`Teskilat service is running on port ${port}`);
+  console.log(`Tedrisat service is running on port ${port}`);
 }
+
 bootstrap();

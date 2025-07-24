@@ -10,7 +10,11 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:tedrisat": "npm run start:dev --workspace=tedrisat",
+    "dev:teskilat": "npm run start:dev --workspace=teskilat",
     "start": "turbo start",
+    "start:tedrisat": "npm run start --workspace=tedrisat",
+    "start:teskilat": "npm run start --workspace=teskilat",
     "clean": "turbo clean",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
