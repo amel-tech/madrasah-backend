@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { HealthCheckDto } from '@madrasah/common';
+import { HealthCheckDto, AuthGuard } from '@madrasah/common';
 
 @ApiTags('Tedrisat Service')
 @Controller()
@@ -34,5 +34,15 @@ export class AppController {
   })
   getHealth(): HealthCheckDto {
     return this.appService.getHealth();
+  }
+
+  @Get('secure')
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Secure endpoint',
+    description: 'This endpoint is protected by JWT authentication',
+  })
+  getSecureData() {
+    return { message: 'Bu endpoint JWT ile korunuyor.' };
   }
 }
