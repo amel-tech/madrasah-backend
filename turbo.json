@@ -33,6 +33,18 @@
       "dependsOn": ["^build"],
       "inputs": ["src/**/*.ts", "tsconfig*.json", "package.json"]
     },
+    "audit": {
+      "cache": false,
+      "inputs": ["package.json", "package-lock.json"]
+    },
+    "audit:ci": {
+      "cache": false,
+      "inputs": ["package.json", "package-lock.json"]
+    },
+    "depcheck": {
+      "cache": false,
+      "inputs": ["package.json", "src/**/*.ts", "test/**/*.ts"]
+    },
     "clean": {
       "cache": false
     }

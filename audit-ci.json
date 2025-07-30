@@ -1,0 +1,18 @@
+{
+  "low": false,
+  "moderate": false,
+  "high": true,
+  "critical": true,
+  "report-type": "summary",
+  "allowlist": [],
+  "advisories": [],
+  "package-manager": "npm",
+  "directory": "./",
+  "skip-dev": false,
+  "show-found": true,
+  "show-not-found": false,
+  "retry": {
+    "count": 3,
+    "delay": 1000
+  }
+}
