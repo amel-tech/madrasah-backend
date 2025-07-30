@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { HealthCheckDto, AuthGuard } from '@madrasah/common';
 
+
 @ApiTags('Tedrisat Service')
 @Controller()
 export class AppController {

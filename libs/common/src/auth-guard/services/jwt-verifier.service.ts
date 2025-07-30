@@ -1,23 +1,21 @@
-
 import { IJwtVerifier } from '../interfaces/jwt-verifier.interface';
 import { IPublicKeyProvider } from '../interfaces/public-key-provider.interface';
 import { JwtDecodeError, JwtMissingKidError, JwtVerificationError } from '../exceptions/exceptions';
-import { Inject, Logger} from '@nestjs/common';
+import { Inject, Injectable, Logger} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-
-
+import { PUBLIC_KEY_PROVIDER } from '../auth-guard.module';
 
 export class JwtVerifierService implements IJwtVerifier {
     private readonly logger = new Logger(JwtVerifierService.name);
-    constructor(@Inject('PublicKeyProvider') private keyProvider: IPublicKeyProvider)
+    constructor(@Inject(PUBLIC_KEY_PROVIDER) private keyProvider: IPublicKeyProvider)
     {}
 
     async verifyToken(token: string): Promise<any> {
-        const decodedHeader = jwt.decode(token, { complete: true });
-        if (!decodedHeader || typeof decodedHeader === 'string') 
+        const decodedCompleteJwt = jwt.decode(token, { complete: true });
+        if (!decodedCompleteJwt || typeof decodedCompleteJwt === 'string') 
             throw new JwtDecodeError();
 
-        const kid = decodedHeader.header.kid;
+        const kid = decodedCompleteJwt.header.kid;
         if (!kid)
             throw new JwtMissingKidError();
 
