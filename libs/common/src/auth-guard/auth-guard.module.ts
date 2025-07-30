@@ -1,23 +1,21 @@
-import { Module, Global } from "@nestjs/common";
-import { AuthGuard } from './auth-guard.guard';
+import { Module, DynamicModule } from "@nestjs/common";
+import { AuthGuard } from './auth-guard';
 import { JwtVerifierService } from './services/jwt-verifier.service';
 import { DummyPublicKeyProvider } from './key-providers/dummy-provider';
-
-export const JWT_VERIFIER = 'JWT_VERIFIER';
-export const PUBLIC_KEY_PROVIDER = 'PUBLIC_KEY_PROVIDER';
+import { PUBLIC_KEY_PROVIDER, JWT_VERIFIER } from "./auth-guard.tokens";
 
 @Module({
   providers: [
-    {
-      provide: PUBLIC_KEY_PROVIDER,
-      useClass: DummyPublicKeyProvider,
-    },
-    {
-      provide: JWT_VERIFIER,
-      useClass: JwtVerifierService,
-    },
-    AuthGuard,
+      {
+        provide: PUBLIC_KEY_PROVIDER,
+        useClass: DummyPublicKeyProvider,
+      },
+      {
+        provide: JWT_VERIFIER,
+        useClass: JwtVerifierService,
+      },
+      AuthGuard
   ],
-  exports: [AuthGuard],
+  exports: [AuthGuard, PUBLIC_KEY_PROVIDER, JWT_VERIFIER],
 })
 export class AuthGuardModule {}

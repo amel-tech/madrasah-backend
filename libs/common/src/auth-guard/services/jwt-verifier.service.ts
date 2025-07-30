@@ -2,11 +2,11 @@ import { IJwtVerifier } from '../interfaces/jwt-verifier.interface';
 import { IPublicKeyProvider } from '../interfaces/public-key-provider.interface';
 import { JwtDecodeError, JwtMissingKidError, JwtVerificationError } from '../exceptions/exceptions';
 import { Inject, Injectable, Logger} from '@nestjs/common';
+import { PUBLIC_KEY_PROVIDER } from '../auth-guard.tokens';
 import * as jwt from 'jsonwebtoken';
-import { PUBLIC_KEY_PROVIDER } from '../auth-guard.module';
 
+@Injectable()
 export class JwtVerifierService implements IJwtVerifier {
-    private readonly logger = new Logger(JwtVerifierService.name);
     constructor(@Inject(PUBLIC_KEY_PROVIDER) private keyProvider: IPublicKeyProvider)
     {}
 

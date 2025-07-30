@@ -1,5 +1,6 @@
 import { IPublicKeyProvider } from '../interfaces/public-key-provider.interface';
 import { Injectable } from '@nestjs/common';
+
 @Injectable()
 export class DummyPublicKeyProvider implements IPublicKeyProvider {
   private readonly keyCache = new Map<string, string>();
