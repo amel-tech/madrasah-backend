@@ -9,7 +9,7 @@ export class AppService {
 
   getHello(): string {
     this.logger.log('getHello called');
-    return 'Tedrisat Hizmetinden Selamun Aleyküm! sadffasdfdfsdfssadfdf';
+    return 'Tedrisat Hizmetinden Selamun Aleyküm!';
   }
 
   getHealth(): HealthCheckDto {

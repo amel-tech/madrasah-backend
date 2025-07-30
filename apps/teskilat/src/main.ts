@@ -29,7 +29,7 @@ async function bootstrap() {
     SwaggerModule.setup(swaggerEndpoint, app, document);
   }
 
-  const port = config.get<number>('port') || 4002;
+  const port = config.get<number>('port') || 3002;
 
   await app.listen(port);
   console.log(`Tedrisat service is running on port ${port}`);

@@ -12,7 +12,7 @@
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "audit": "npm audit",
@@ -35,7 +35,8 @@
     "helmet": "^8.1.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "jsonwebtoken": "^9.0.0"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
