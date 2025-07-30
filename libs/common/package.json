@@ -33,14 +33,16 @@
     "class-validator": "^0.14.1",
     "compression": "^1.8.1",
     "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
-    "winston": "^3.17.0",
-    "jsonwebtoken": "^9.0.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/compression": "^1.8.1",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.10.7",
+    "rimraf": "^6.0.1",
     "typescript": "^5.8.3"
   }
 }

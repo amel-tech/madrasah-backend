@@ -14,8 +14,8 @@ Online Medrese Projesinin backend reposudur.
 ## Services
 
 ### Current Services
-- **teskilat** - Organization management service (Port: 3001)
-- **tedrisat** - Education management service (Port: 3002)
+- **tedrisat** - Education management service (Port: 3001)
+- **teskilat** - Organization management service (Port: 3002)
 
 Each service provides:
 - `GET /` - Hello World endpoint
@@ -68,22 +68,22 @@ Each service provides:
 
 ## API Endpoints
 
-### Teskilat Service (http://localhost:3001)
+### Tedrisat Service (http://localhost:3001)  
+- `GET /` - Returns "Hello World from Tedrisat Service!"
+- `GET /health` - Health check
+- `GET /swagger` - Swagger API documentation
+### Teskilat Service (http://localhost:3002)
 - `GET /` - Returns "Hello World from Teskilat Service!"
 - `GET /health` - Health check
 - `GET /swagger` - Swagger API documentation
 
-### Tedrisat Service (http://localhost:3002)  
-- `GET /` - Returns "Hello World from Tedrisat Service!"
-- `GET /health` - Health check
-- `GET /swagger` - Swagger API documentation
 
 ## API Documentation
 
 Both services include interactive Swagger documentation:
 
-- **Teskilat Service**: [http://localhost:3001/swagger](http://localhost:3001/swagger)
-- **Tedrisat Service**: [http://localhost:3002/swagger](http://localhost:3002/swagger)
+- **Tedrisat Service**: [http://localhost:3001/swagger](http://localhost:3001/swagger)
+- **Teskilat Service**: [http://localhost:3002/swagger](http://localhost:3002/swagger)
 
 The Swagger documentation provides:
 - Interactive API explorer
@@ -103,8 +103,8 @@ The project uses a shared configuration system with environment variable validat
 ### Environment Variables
 
 Default values from `.env`:
-- `TESKILAT_PORT=3001` - Teskilat service port
-- `TEDRISAT_PORT=3002` - Tedrisat service port  
+- `TEDRISAT_PORT=3001` - Tedrisat service port  
+- `TESKILAT_PORT=3002` - Teskilat service port
 - `DATABASE_URL` - PostgreSQL connection (for future use)
 - `RABBITMQ_URL` - RabbitMQ connection (for future use)
 
@@ -119,8 +119,8 @@ Default values from `.env`:
 ## Environment Variables
 
 Copy `.env` file and adjust ports if needed:
-- `TESKILAT_PORT=3001`
-- `TEDRISAT_PORT=3002`
+- `TEDRISAT_PORT=3001`
+- `TESKILAT_PORT=3002`
 
 ## Project Structure
 
