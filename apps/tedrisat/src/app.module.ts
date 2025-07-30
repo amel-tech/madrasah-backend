@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { configuration } from './config';
+import { ExampleModule } from './example/example.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { configuration } from './config';
       envFilePath: '.env',
     }),
     LoggerModule.forRoot(),
+    DatabaseModule,
+    ExampleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
