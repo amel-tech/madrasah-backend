@@ -1,3 +1,4 @@
+name: Pull Request Workflow
 # This workflow will be triggered on pull request events
 on:
   pull_request:
