@@ -1,0 +1,51 @@
+{
+  "ignores": [
+    "@madrasah/common",
+    "@nestjs/common",
+    "@nestjs/config",
+    "@nestjs/core",
+    "@nestjs/swagger",
+    "@opentelemetry/*",
+    "@types/*",
+    "eslint-*",
+    "prettier",
+    "@swc/*",
+    "typescript",
+    "ts-node",
+    "tsconfig-paths",
+    "@eslint/*",
+    "globals",
+    "source-map-support",
+    "@nestjs/schematics",
+    "@nestjs/testing",
+    "supertest",
+    "ts-loader",
+    "typescript-eslint"
+  ],
+
+  "ignore-dirs": [
+    "dist",
+    "node_modules",
+    "coverage",
+    ".git",
+    ".turbo"
+  ],
+  "ignore-patterns": [
+    "*.d.ts",
+    "*.test.ts",
+    "*.spec.ts",
+    "*.e2e-spec.ts"
+  ],
+  "parsers": {
+    "*.ts": ["typescript"],
+    "*.js": ["es6"],
+    "*.json": ["json"]
+  },
+  "detectors": [
+    "requireCallExpression",
+    "importDeclaration",
+    "exportDeclaration",
+    "typescriptDecorator"
+  ],
+  "skip-missing": false
+}

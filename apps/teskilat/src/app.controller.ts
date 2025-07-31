@@ -9,28 +9,28 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get hello message',
-    description: 'Returns a greeting message from the Teskilat service'
+    description: 'Returns a greeting message from the Teskilat service',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Greeting message',
-    type: String
+    type: String,
   })
   getHello(): string {
     return this.appService.getHello();
   }
 
   @Get('health')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Health check',
-    description: 'Returns the health status of the Teskilat service'
+    description: 'Returns the health status of the Teskilat service',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Service health information',
-    type: HealthCheckDto
+    type: HealthCheckDto,
   })
   getHealth(): HealthCheckDto {
     return this.appService.getHealth();

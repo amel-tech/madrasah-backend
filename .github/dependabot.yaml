@@ -1,0 +1,90 @@
+version: 2
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/apps/tedrisat"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Istanbul"
+    target-branch: "main"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+        update-types:
+          - "major"
+          - "minor"
+      opentelemetry:
+        patterns:
+          - "@opentelemetry/*"
+        update-types:
+          - "major"
+          - "minor"
+      dev-tools:
+        patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "typescript"
+          - "eslint"
+          - "husky"
+          - "jest"
+          - "lint-staged"
+          - "prettier"
+        update-types:
+          - "major"
+          - "minor"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          
+  - package-ecosystem: "npm"
+    directory: "/apps/teskilat"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Istanbul"
+    target-branch: "main"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+        update-types:
+          - "major"
+          - "minor"
+      opentelemetry:
+        patterns:
+          - "@opentelemetry/*"
+        update-types:
+          - "major"
+          - "minor"
+      dev-tools:
+        patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "typescript"
+          - "eslint"
+          - "husky"
+          - "jest"
+          - "lint-staged"
+          - "prettier"
+        update-types:
+          - "major"
+          - "minor"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
