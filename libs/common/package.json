@@ -12,7 +12,7 @@
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "audit": "npm audit",
@@ -38,6 +38,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "rimraf": "^6.0.1",
     "@types/compression": "^1.8.1",
     "@types/node": "^22.10.7",
     "typescript": "^5.8.3"
