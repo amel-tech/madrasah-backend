@@ -18,13 +18,24 @@
     "clean": "turbo clean",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "test": "turbo test"
+    "test": "turbo test",
+    "audit": "turbo audit",
+    "audit:ci": "turbo audit:ci",
+    "audit:fix": "npm audit fix",
+    "depcheck": "turbo depcheck",
+    "security-check": "npm run audit:ci && npm run depcheck",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "npm@10.2.4",
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "audit-ci": "^7.1.0",
+    "depcheck": "^1.4.7",
+    "husky": "^9.1.7",
     "turbo": "^2.5.5"
   }
 }

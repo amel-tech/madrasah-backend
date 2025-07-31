@@ -39,4 +39,4 @@ async function bootstrap() {
   console.log(`Tedrisat service is running on port ${port}`);
 }
 
-bootstrap();
+void bootstrap();
