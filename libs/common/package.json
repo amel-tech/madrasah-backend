@@ -17,7 +17,7 @@
     "prepublishOnly": "npm run build",
     "audit": "npm audit",
     "audit:ci": "audit-ci --config ../../audit-ci.json",
-    "depcheck": "depcheck --config=../../.depcheckrc.json || true"
+    "depcheck": "depcheck --config=../../.depcheckrc.json"
   },
   "keywords": [
     "madrasah",
