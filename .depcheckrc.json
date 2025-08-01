@@ -5,6 +5,7 @@
     "@nestjs/config",
     "@nestjs/core",
     "@nestjs/swagger",
+    "@nestjs/platform-express",
     "@opentelemetry/*",
     "@types/*",
     "eslint-*",
@@ -20,7 +21,10 @@
     "@nestjs/testing",
     "supertest",
     "ts-loader",
-    "typescript-eslint"
+    "typescript-eslint",
+    "drizzle-orm",
+    "pg",
+    "husky"
   ],
 
   "ignore-dirs": [
