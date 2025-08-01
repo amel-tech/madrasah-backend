@@ -11,7 +11,9 @@
     "source-map-support",
     "ts-loader",
     "typescript-eslint",
-    "pino-pretty"
+    "pino-pretty",
+    "rimraf",
+    "husky"
   ],
   "skip-missing": false
 }
