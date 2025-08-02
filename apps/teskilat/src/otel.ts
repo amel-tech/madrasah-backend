@@ -1,27 +1,27 @@
 import process from 'process';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { configuration } from './config';
 
 const {
-  otel: { enabled, otelEndpoint, serviceName },
+  otel: { enabled, serviceName },
+  environment,
+  version,
 } = configuration();
 
 if (enabled) {
-  const traceExporter = new OTLPTraceExporter({
-    url: `${otelEndpoint}/v1/traces`,
-    compression: CompressionAlgorithm.GZIP,
-  });
+  const traceExporter = new OTLPTraceExporter();
 
   const sdk = new NodeSDK({
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
     resource: resourceFromAttributes({
       [ATTR_SERVICE_NAME]: serviceName,
+      'service.version': version,
+      'deployment.environment': environment,
     }),
   });
 

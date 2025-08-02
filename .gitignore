@@ -6,3 +6,5 @@ dist/
 .vscode/
 .idea/
 .turbo
+.data/
+data/

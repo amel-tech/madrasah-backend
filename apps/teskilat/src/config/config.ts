@@ -24,7 +24,7 @@ export default () => ({
     format: process.env.LOG_FORMAT || 'json',
   },
   otel: {
-    enabled: process.env.OTEL_ENABLED === 'true',
+    enabled: process.env.OTEL_ENABLED === 'true' || false,
     otelEndpoint:
       process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4317',
     serviceName: process.env.SERVICE_NAME || pkg.name,
