@@ -35,4 +35,13 @@ export class AppController {
   getHealth(): HealthCheckDto {
     return this.appService.getHealth();
   }
+
+  @Get('business-exception-sample')
+  businessExceptionSample(): string {
+    return this.appService.businessExceptionSample();
+  }
+  @Get('not-found-sample')
+  notFoundErrorSample(): string {
+    return this.appService.notFoundErrorSample();
+  }
 }
