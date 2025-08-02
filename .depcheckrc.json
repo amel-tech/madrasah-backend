@@ -11,9 +11,12 @@
     "source-map-support",
     "ts-loader",
     "typescript-eslint",
+    "drizzle-orm",
+    "pg",
     "pino-pretty",
     "rimraf",
-    "husky"
+    "husky",
+    "@nestjs/schematics"
   ],
   "skip-missing": false
 }
