@@ -10,9 +10,10 @@ export default () => ({
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    username: process.env.DB_USERNAME || 'user',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'tedrisat',
+    username: process.env.DB_USERNAME || 'tedrisat',
+    password: process.env.DB_PASSWORD || 'tedrisat',
+    database: process.env.DB_NAME || 'tedrisat_db',
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
@@ -32,6 +33,6 @@ export default () => ({
   },
   swagger: {
     enabled: process.env.SWAGGER_ENABLED === 'true',
-    endpoint: process.env.SWAGGER_ENDPOINT || '/docs',
+    endpoint: process.env.SWAGGER_PATH || '/docs',
   },
 });

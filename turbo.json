@@ -47,6 +47,30 @@
     },
     "clean": {
       "cache": false
+    },
+    "db:generate": {
+      "cache": false,
+      "dependsOn": []
+    },
+    "db:migrate": {
+      "cache": false,
+      "dependsOn": ["db:generate"]
+    },
+    "db:check": {
+      "cache": false,
+      "dependsOn": []
+    },
+    "db:push": {
+      "cache": false,
+      "dependsOn": []
+    },
+    "db:studio": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:drop": {
+      "cache": false,
+      "dependsOn": []
     }
   }
 }
