@@ -1,4 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@madrasah/common/';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { HealthCheckDto } from '@madrasah/common';
@@ -34,5 +36,20 @@ export class AppController {
   })
   getHealth(): HealthCheckDto {
     return this.appService.getHealth();
+  }
+
+  @Get('secure')
+  @ApiOperation({
+    summary: 'Get secure hello message',
+    description: 'Returns a secure hello message from the Tedrisat service',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Secure hello message',
+    type: String,
+  })
+  @UseGuards(AuthGuard) // Ensure this endpoint is protected by the AuthGuard
+  getSecureHello(): string {
+    return `Hello this endpoint is secure!`;
   }
 }

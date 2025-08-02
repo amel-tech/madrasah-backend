@@ -27,6 +27,6 @@ RUN cd apps/teskilat && npm run build
 
 WORKDIR /app/apps/teskilat
 
-EXPOSE 3001
+EXPOSE 3002
 
 CMD ["npm", "start"]
