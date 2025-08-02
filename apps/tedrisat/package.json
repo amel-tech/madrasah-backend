@@ -41,6 +41,7 @@
     "@opentelemetry/resources": "^2.0.1",
     "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/semantic-conventions": "^1.36.0",
+    "class-validator": "^0.14.2",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.16.3"
   },

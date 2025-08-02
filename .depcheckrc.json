@@ -15,7 +15,8 @@
     "pg",
     "pino-pretty",
     "rimraf",
-    "husky"
+    "husky",
+    "@nestjs/schematics"
   ],
   "skip-missing": false
 }
