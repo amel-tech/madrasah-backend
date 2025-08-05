@@ -1,7 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IExample } from './example.interface';
 import { ExampleRepository } from './example.repository';
 import { CreateExampleDto } from './dto/create-example.dto';
+import { DomainError } from '@madrasah/common';
+import { TedrisatErrors } from '../constants/error-codes';
 
 @Injectable()
 export class ExampleService {
@@ -14,7 +16,11 @@ export class ExampleService {
   async getExampleById(id: number): Promise<IExample> {
     const example = await this.exampleRepository.findById(id);
     if (!example) {
-      throw new NotFoundException(`Example with id ${id} not found`);
+      throw DomainError.of(
+        TedrisatErrors.EXAMPLE_NOT_FOUND,
+        { id },
+        `Example with id ${id} not found`,
+      );
     }
     return example;
   }
