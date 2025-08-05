@@ -18,7 +18,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "strictPropertyInitialization": false
   },
   "include": ["src/**/*", "drizzle.config.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"],

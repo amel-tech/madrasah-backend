@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { configuration } from './config';
 import { ExampleModule } from './example/example.module';
 import { DatabaseModule } from './database/database.module';
+import { CardModule } from './card/card.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DatabaseModule } from './database/database.module';
     LoggerModule.forRoot(),
     DatabaseModule,
     ExampleModule,
+    CardModule
   ],
   controllers: [AppController],
   providers: [AppService],
