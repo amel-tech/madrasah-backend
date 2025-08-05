@@ -29,7 +29,7 @@
     "db:drop": "drizzle-kit drop"
   },
   "dependencies": {
-    "@madrasah/common": "file:../../libs/common",
+    "@madrasah/common": "1.0.0",
     "@nestjs/common": "^11.1.5",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.5",
