@@ -1,5 +1,5 @@
 import { LoggerService } from '@nestjs/common';
-import { ILogger, LoggerConfig } from './logger.interface';
+import { LoggerConfig } from './logger.interface';
 import { PinoLogger } from './pino.logger';
 import { WinstonLogger } from './winston.logger';
 
