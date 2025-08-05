@@ -23,7 +23,7 @@
     "depcheck": "depcheck . --config=../../.depcheckrc.json"
   },
   "dependencies": {
-    "@madrasah/common": "file:../../libs/common",
+    "@madrasah/common": "workspace:*",
     "@nestjs/common": "^11.1.5",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.5",
