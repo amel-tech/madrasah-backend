@@ -6,7 +6,7 @@ import {
   HttpStatus,
   LoggerService,
 } from '@nestjs/common';
-import { BaseError } from '../base.error';
+import { MedarisError } from '../medaris.error';
 import { ErrorResponse } from '../types/error-response.type';
 
 @Catch()
@@ -19,16 +19,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     let errorResponse: ErrorResponse;
 
-    if (exception instanceof BaseError) {
+    if (exception instanceof MedarisError) {
       errorResponse = {
-        type: exception.type,
+        type: 'APP_ERROR',
         code: exception.code,
         status: exception.status,
         message: exception.message,
         context: exception.context,
         timestamp: new Date().toISOString(),
       };
-      this.logger.error(`${exception.code}(${exception.type}): ${exception.message}`, exception.context);
+      this.logger.error(`${exception.code}: ${exception.message}`, exception.context);
     } else if (exception instanceof HttpException) {
       const httpResponse = exception.getResponse();
       const message = typeof httpResponse === 'string' ? httpResponse : (httpResponse as Record<string, unknown>).message as string;
@@ -38,7 +38,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message,
         timestamp: new Date().toISOString(),
       };
-      this.logger.error(`HTTP_ERROR: ${exception.getStatus()} - ${message}`);
+      this.logger.error(`HTTP_ERROR-${exception.getStatus()}: ${message}`);
     } else {
       errorResponse = {
         type: 'UNKNOWN_ERROR',
@@ -46,7 +46,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message: exception instanceof Error ? exception.message : `Internal server error: ${String(exception)}`,
         timestamp: new Date().toISOString(),
       };
-      this.logger.error('Unexpected error occurred', exception);
+      this.logger.error('UNEXPECTED_ERROR', exception);
     }
 
     response.status(errorResponse.status).json(errorResponse);

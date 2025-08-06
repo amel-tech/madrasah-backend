@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { CommonErrors, DomainError, HealthCheckDto } from '@madrasah/common';
+import { CommonErrors, MedarisError, HealthCheckDto } from '@madrasah/common';
 import { TedrisatErrors } from './constants/error-codes';
 
 @ApiTags('Tedrisat Service')
@@ -40,7 +40,7 @@ export class AppController {
   @Get('tedrisat-error')
   @ApiOperation({ summary: 'Throw a dummy TEDRISAT error' })
   throwTedrisatError(): Promise<void> {
-    throw DomainError.of(
+    throw MedarisError.of(
       TedrisatErrors.STUDENT_NOT_FOUND,
       { studentId: 123 },
       'This is a test error to demonstrate error handling, method throwDummyTedrisatError',
@@ -50,7 +50,7 @@ export class AppController {
   @Get('common-error')
   @ApiOperation({ summary: 'Throw a dummy COMMON error' })
   throwCommonError(): Promise<void> {
-    throw DomainError.of(
+    throw MedarisError.of(
       CommonErrors.VALIDATION_ERROR,
       undefined,
       'This is a test error to demonstrate error handling, method throwDummyCommonError',
