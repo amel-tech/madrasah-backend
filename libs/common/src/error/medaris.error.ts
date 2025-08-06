@@ -7,8 +7,8 @@ export class MedarisError extends Error {
 
   protected constructor(
     errorCode: ErrorCode,
-    context?: ErrorContext,
     message?: string,
+    context?: ErrorContext,
   ) {
     super(message || errorCode.code);
     this.code = errorCode.code;
@@ -17,13 +17,13 @@ export class MedarisError extends Error {
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
   }
-  
+
   static of(
     errorCode: ErrorCode,
-    context?: ErrorContext,
     message?: string,
+    context?: ErrorContext,
   ): MedarisError {
-    return new MedarisError(errorCode, context, message);
+    return new MedarisError(errorCode, message, context);
   }
 
   get status(): number {

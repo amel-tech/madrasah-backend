@@ -18,8 +18,8 @@ export class ExampleService {
     if (!example) {
       throw MedarisError.of(
         TedrisatErrors.EXAMPLE_NOT_FOUND,
-        { id },
         `Example with id ${id} not found`,
+        { id },
       );
     }
     return example;

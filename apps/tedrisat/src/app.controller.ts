@@ -42,8 +42,8 @@ export class AppController {
   throwTedrisatError(): Promise<void> {
     throw MedarisError.of(
       TedrisatErrors.STUDENT_NOT_FOUND,
-      { studentId: 123 },
       'This is a test error to demonstrate error handling, method throwDummyTedrisatError',
+      { studentId: 123 },
     ).withStatus(400); // status code can be overridden
   }
 
@@ -52,7 +52,6 @@ export class AppController {
   throwCommonError(): Promise<void> {
     throw MedarisError.of(
       CommonErrors.VALIDATION_ERROR,
-      undefined,
       'This is a test error to demonstrate error handling, method throwDummyCommonError',
     );
   }
