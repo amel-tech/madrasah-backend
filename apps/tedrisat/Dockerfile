@@ -27,6 +27,6 @@ RUN cd apps/tedrisat && npm run build
 
 WORKDIR /app/apps/tedrisat
 
-EXPOSE 3002
+EXPOSE 3001
 
 CMD ["npm", "start"]
