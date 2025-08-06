@@ -10,10 +10,10 @@ import { HadeethContentDto } from "./content/hadeeth-content.dto"
 
 abstract class CreateCardBaseDto {
     @IsEnum(CardType)
-    type: CardType
+    type!: CardType
 
     @IsBoolean()
-    is_public: boolean
+    is_public!: boolean
 
     @IsOptional()
     @IsUrl()
@@ -26,7 +26,7 @@ export class CreateVocabCardDto extends CreateCardBaseDto {
     @IsDefined()
     @ValidateNested()
     @Type(() => VocabContentDto)
-    content: VocabContentDto
+    content!: VocabContentDto
 }
 
 
@@ -34,7 +34,7 @@ export class CreateHadeethCardDto extends CreateCardBaseDto {
     @IsDefined()
     @ValidateNested()
     @Type(() => HadeethContentDto)
-    content: HadeethContentDto
+    content!: HadeethContentDto
 }
 
 
