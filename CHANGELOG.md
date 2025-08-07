@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0](https://github.com/amel-tech/madrasah-backend/compare/v1.1.0...v1.2.0) (2025-08-07)
+
+
+### Features
+
+* base error renamed as MedarisError and removed overcomplicated error types ([7375235](https://github.com/amel-tech/madrasah-backend/commit/73752354eff1383a997eb415f9c7020c3a8cfb6b))
+* improve error definitions by refactoring for better readibility and usage ([a8fc6ac](https://github.com/amel-tech/madrasah-backend/commit/a8fc6ac7b8711f1ecc6e83cba1fa873ea26ddec9))
+* improve usage of MedarisError ([26716a5](https://github.com/amel-tech/madrasah-backend/commit/26716a5dd9067d7c28ca80390bba3891e68c896e))
+
 ## [1.1.0](https://github.com/amel-tech/madrasah-backend/compare/v1.0.1...v1.1.0) (2025-08-05)
 
 
