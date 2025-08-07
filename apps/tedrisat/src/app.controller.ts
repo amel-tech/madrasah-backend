@@ -1,10 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@madrasah/common/';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { CommonErrors, MedarisError, HealthCheckDto } from '@madrasah/common';
-import { TedrisatErrors } from './constants/error-codes';
+import { AuthGuard, HealthCheckDto, ValidationError } from '@madrasah/common';
 
 @ApiTags('Tedrisat Service')
 @Controller()
@@ -39,22 +37,12 @@ export class AppController {
     return this.appService.getHealth();
   }
 
-  @Get('tedrisat-error')
-  @ApiOperation({ summary: 'Throw a dummy TEDRISAT error' })
-  throwTedrisatError(): Promise<void> {
-    throw MedarisError.of(
-      TedrisatErrors.STUDENT_NOT_FOUND,
-      'This is a test error to demonstrate error handling, method throwDummyTedrisatError',
-      { studentId: 123 },
-    ).withStatus(400); // status code can be overridden
-  }
-
-  @Get('common-error')
-  @ApiOperation({ summary: 'Throw a dummy COMMON error' })
-  throwCommonError(): Promise<void> {
-    throw MedarisError.of(
-      CommonErrors.VALIDATION_ERROR,
-      'This is a test error to demonstrate error handling, method throwDummyCommonError',
+  @Get('throw-error')
+  @ApiOperation({ summary: 'Throw a dummy error' })
+  throwError(): Promise<void> {
+    throw new ValidationError(
+      'This is a test error to demonstrate error handling',
+      { testCtx: 'testCtx' },
     );
   }
 

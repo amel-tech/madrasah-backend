@@ -6,7 +6,7 @@ import {
   HttpStatus,
   LoggerService,
 } from '@nestjs/common';
-import { MedarisError } from '../medaris.error';
+import { MedarisError } from '../errors/base/medaris.error';
 import { ErrorResponse } from '../types/error-response.type';
 
 @Catch()
