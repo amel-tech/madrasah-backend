@@ -1,9 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@madrasah/common/';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { HealthCheckDto } from '@madrasah/common';
+import { AuthGuard, HealthCheckDto, ValidationError } from '@madrasah/common';
 
 @ApiTags('Tedrisat Service')
 @Controller()
@@ -36,6 +35,15 @@ export class AppController {
   })
   getHealth(): HealthCheckDto {
     return this.appService.getHealth();
+  }
+
+  @Get('throw-error')
+  @ApiOperation({ summary: 'Throw a dummy error' })
+  throwError(): Promise<void> {
+    throw new ValidationError(
+      'This is a test error to demonstrate error handling',
+      { testCtx: 'testCtx' },
+    );
   }
 
   @Get('secure')
