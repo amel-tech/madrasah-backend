@@ -11,7 +11,8 @@
       "pull-request-title-pattern": "chore(tedrisat): release ${version}",
       "pull-request-header": "Release for Tedrisat API",
       "component": "tedrisat",
-      "path": "apps/tedrisat"
+      "path": "apps/tedrisat",
+      "extra-files": ["libs/**"]
     },
     "apps/teskilat": {
       "release-type": "node", 
@@ -20,7 +21,8 @@
       "pull-request-title-pattern": "chore(teskilat): release ${version}",
       "pull-request-header": "Release for Teskilat API",
       "component": "teskilat",
-      "path": "apps/teskilat"
+      "path": "apps/teskilat",
+      "extra-files": ["libs/**"]
     }
   }
 }
