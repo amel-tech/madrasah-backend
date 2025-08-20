@@ -17,6 +17,6 @@ if [ ${#BRANCH_NAME} -gt $MAX_LENGTH ]; then
 fi
 
 # Quality checks
-npm run lint || exit 1
+npm run build || exit 1
 npm run security-check || exit 1
 npm test || exit 1
