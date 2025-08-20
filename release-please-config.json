@@ -1,0 +1,28 @@
+{
+  "release-type": "node",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "separate-pull-requests": true,
+  "packages": {
+    "apps/tedrisat": {
+      "release-type": "node",
+      "package-name": "tedrisat-api",
+      "include-component-in-tag": true,
+      "pull-request-title-pattern": "chore(tedrisat): release ${version}",
+      "pull-request-header": "Release for Tedrisat API",
+      "component": "tedrisat",
+      "path": "apps/tedrisat",
+      "extra-files": ["libs/**"]
+    },
+    "apps/teskilat": {
+      "release-type": "node", 
+      "package-name": "teskilat-api",
+      "include-component-in-tag": true,
+      "pull-request-title-pattern": "chore(teskilat): release ${version}",
+      "pull-request-header": "Release for Teskilat API",
+      "component": "teskilat",
+      "path": "apps/teskilat",
+      "extra-files": ["libs/**"]
+    }
+  }
+}
