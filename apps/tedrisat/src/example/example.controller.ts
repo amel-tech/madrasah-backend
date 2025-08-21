@@ -16,7 +16,7 @@ import {
   ApiParam,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { BaseResponseDto } from '@madrasah/common';
+import { MedarisResponse } from '@madrasah/common';
 import { CreateExampleDto } from './dto/create-example.dto';
 import { ExampleResponseDto } from './dto/example-response.dto';
 import { ExampleService } from './example.service';
@@ -32,11 +32,11 @@ export class ExampleController {
   @ApiResponse({
     status: 200,
     description: 'List of examples',
-    type: BaseResponseDto<ExampleResponseDto[]>,
+    type: MedarisResponse<ExampleResponseDto[]>,
   })
-  async getAllExamples(): Promise<BaseResponseDto<ExampleResponseDto[]>> {
+  async getAllExamples(): Promise<MedarisResponse<ExampleResponseDto[]>> {
     const examples = await this.exampleService.getAllExamples();
-    return BaseResponseDto.success(examples);
+    return MedarisResponse.success(examples);
   }
 
   @Get(':id')
@@ -45,14 +45,14 @@ export class ExampleController {
   @ApiResponse({
     status: 200,
     description: 'Example found',
-    type: BaseResponseDto<ExampleResponseDto>,
+    type: MedarisResponse<ExampleResponseDto>,
   })
   @ApiNotFoundResponse({ description: 'Example not found' })
   async getExampleById(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<BaseResponseDto<ExampleResponseDto>> {
+  ): Promise<MedarisResponse<ExampleResponseDto>> {
     const example = await this.exampleService.getExampleById(id);
-    return BaseResponseDto.success(example);
+    return MedarisResponse.success(example);
   }
 
   @Post()
@@ -61,13 +61,13 @@ export class ExampleController {
   @ApiResponse({
     status: 201,
     description: 'Example created successfully',
-    type: BaseResponseDto<ExampleResponseDto>,
+    type: MedarisResponse<ExampleResponseDto>,
   })
   async createExample(
     @Body() createExampleDto: CreateExampleDto,
-  ): Promise<BaseResponseDto<ExampleResponseDto>> {
+  ): Promise<MedarisResponse<ExampleResponseDto>> {
     const example = await this.exampleService.createExample(createExampleDto);
-    return BaseResponseDto.success(example);
+    return MedarisResponse.success(example);
   }
 
   @Delete(':id')
@@ -76,12 +76,12 @@ export class ExampleController {
   @ApiResponse({
     status: 200,
     description: 'Example deleted successfully',
-    type: BaseResponseDto<boolean>,
+    type: MedarisResponse<boolean>,
   })
   async deleteExample(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<BaseResponseDto<boolean>> {
+  ): Promise<MedarisResponse<boolean>> {
     const result = await this.exampleService.deleteExample(id);
-    return BaseResponseDto.success(result);
+    return MedarisResponse.success(result);
   }
 }

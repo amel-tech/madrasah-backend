@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class BaseResponseDto<T = unknown> {
+export class MedarisResponse<T = unknown> {
   @ApiProperty({
     description: 'Indicates if the request was successful',
     example: true,
@@ -42,14 +42,14 @@ export class BaseResponseDto<T = unknown> {
     data: T,
     message?: string,
     meta?: Record<string, unknown>,
-  ): BaseResponseDto<T> {
-    return new BaseResponseDto<T>(true, message, data, meta);
+  ): MedarisResponse<T> {
+    return new MedarisResponse<T>(true, message, data, meta);
   }
 
   static error(
     message: string,
     meta?: Record<string, unknown>,
-  ): BaseResponseDto<null> {
-    return new BaseResponseDto<null>(false, message, null, meta);
+  ): MedarisResponse<null> {
+    return new MedarisResponse<null>(false, message, null, meta);
   }
 }
