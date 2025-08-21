@@ -1,3 +1,22 @@
-npm run lint
-npm run security-check
-npm test
+# Branch name validation
+BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+MAX_LENGTH=50
+PATTERN="^(feature|bugfix|hotfix|chore|release|experiment)/[a-z0-9-]+$"
+
+if ! echo "$BRANCH_NAME" | grep -Eq "$PATTERN"; then
+  echo "Error: Branch name '$BRANCH_NAME' does not follow the naming convention."
+  echo "Format: {feature|bugfix|hotfix|chore|release|experiment}/{description}"
+  echo "Description should use only lowercase letters, numbers, and hyphens"
+  exit 1
+fi
+
+if [ ${#BRANCH_NAME} -gt $MAX_LENGTH ]; then
+  echo "Error: Branch name is too long (${#BRANCH_NAME} chars)"
+  echo "Maximum allowed length is $MAX_LENGTH characters"
+  exit 1
+fi
+
+# Quality checks
+npm run build || exit 1
+npm run security-check || exit 1
+npm test || exit 1
