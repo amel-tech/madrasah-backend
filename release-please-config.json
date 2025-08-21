@@ -6,20 +6,20 @@
   "packages": {
     "apps/tedrisat": {
       "release-type": "node",
-      "package-name": "tedrisat-api",
+      "package-name": "tedrisat",
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore(tedrisat): release ${version}",
-      "pull-request-header": "Release for Tedrisat API",
+      "pull-request-header": "Release for Tedrisat Service",
       "component": "tedrisat",
       "path": "apps/tedrisat",
       "extra-files": ["libs/**"]
     },
     "apps/teskilat": {
       "release-type": "node", 
-      "package-name": "teskilat-api",
+      "package-name": "teskilat",
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore(teskilat): release ${version}",
-      "pull-request-header": "Release for Teskilat API",
+      "pull-request-header": "Release for Teskilat Service",
       "component": "teskilat",
       "path": "apps/teskilat",
       "extra-files": ["libs/**"]
