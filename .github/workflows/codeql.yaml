@@ -33,12 +33,6 @@ jobs:
           languages: typescript
           queries: +security-extended,security-and-quality
 
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build application
-        run: npm run build
-
       - name: Run CodeQL analysis
         uses: github/codeql-action/analyze@v3
         with:
