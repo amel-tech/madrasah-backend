@@ -35,13 +35,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
     this.db = drizzle(this.pool, { schema });
 
-    await migrate(this.db, { migrationsFolder: './src/database/migrations' })
-      .then(() => {
-        this.logger.log('Migrations completed successfully');
-      })
-      .catch(() => {
-        this.logger.error('Migrations failed');
-      });
+    await this.migrateDatabase();
 
     // Test connection
     try {
@@ -55,5 +49,28 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     await this.pool.end();
+  }
+
+  private async migrateDatabase() {
+    const autoMigrations = this.configService.get<{
+      enabled: boolean;
+      migrationsFolder: string;
+    }>('autoMigrations', { enabled: false, migrationsFolder: '' });
+
+    const { enabled, migrationsFolder } = autoMigrations;
+
+    if (enabled) {
+      return migrate(this.db, {
+        migrationsFolder,
+      })
+        .then(() => {
+          this.logger.log('Migrations completed successfully');
+        })
+        .catch(() => {
+          this.logger.error('Migrations failed');
+        });
+    }
+
+    this.logger.log('Auto migrations are disabled');
   }
 }
