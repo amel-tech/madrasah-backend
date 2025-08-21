@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: release-please
         id: release
-        uses: google-github-actions/release-please-action@v4
+        uses: release-please-oss/release-please-action@v5
         with:
           config-file: release-please-config.json
           token: ${{ secrets.MADRASAH_BACKEND_PAT }}
