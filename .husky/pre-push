@@ -1,7 +1,7 @@
 # Branch name validation
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-MAX_LENGTH=50
-PATTERN="^(feature|bugfix|hotfix|chore|release|experiment)/[a-z0-9-]+$"
+MAX_LENGTH=65
+PATTERN="^((feature|bugfix|hotfix|chore|release|experiment)/[a-z0-9-]+)|main|(release-please--branches[a-z0-9-]+)$"
 
 if ! echo "$BRANCH_NAME" | grep -Eq "$PATTERN"; then
   echo "Error: Branch name '$BRANCH_NAME' does not follow the naming convention."
