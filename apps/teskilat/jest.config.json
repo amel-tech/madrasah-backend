@@ -1,0 +1,28 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "rootDir": ".",
+  "testMatch": ["<rootDir>/test/**/*.spec.ts", "<rootDir>/src/**/*.spec.ts"],
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "transform": {
+    "^.+\\.tsx?$": "ts-jest"
+  },
+  "collectCoverageFrom": [
+    "src/**/*.{ts,tsx}",
+    "!src/main.ts",
+    "!src/otel.ts",
+    "!src/config/config.ts",
+    "!src/**/index.ts",
+    "!src/**/constants.ts",
+    "!src/**/enums.ts",
+    "!src/**/dto/**",
+    "!src/**/types/**"
+  ],
+  "coverageDirectory": "./coverage",
+  "coverageReporters": ["json-summary", "text", "html"],
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  },
+  "testPathIgnorePatterns": ["<rootDir>/node_modules/", "<rootDir>/dist/"],
+  "setupFilesAfterEnv": []
+}
