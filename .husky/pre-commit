@@ -1,1 +1,2 @@
 npm run lint || exit 1
+npm run security-check || exit 1
