@@ -19,7 +19,7 @@ import { CardModule } from './card/card.module';
     AuthGuardModule,
     DatabaseModule,
     ExampleModule,
-    CardModule
+    CardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
 export enum CardType {
-    VOCABULARY = "VOCABULARY",
-    HADEETH = "HADEETH"
+  VOCABULARY = 'VOCABULARY',
+  HADEETH = 'HADEETH',
 }
