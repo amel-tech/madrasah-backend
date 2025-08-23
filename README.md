@@ -14,7 +14,6 @@ Online Medrese Projesinin backend reposudur.
 ## Services
 
 ### Current Services
-
 - **tedrisat** - Education management service (Port: 3001)
 - **teskilat** - Organization management service (Port: 3002)
 
@@ -121,17 +120,17 @@ npm run dev
 
 ## API Endpoints
 
-### Tedrisat Service (<http://localhost:3001>)
 
+### Tedrisat Service (<http://localhost:3001>)
 - `GET /` - Returns "Hello World from Tedrisat Service!"
 - `GET /health` - Health check
 - `GET /swagger` - Swagger API documentation
 
 ### Teskilat Service (<http://localhost:3002>)
-
 - `GET /` - Returns "Hello World from Teskilat Service!"
 - `GET /health` - Health check
 - `GET /swagger` - Swagger API documentation
+
 
 ## API Documentation
 
@@ -160,8 +159,9 @@ The project uses a shared configuration system with environment variable validat
 
 Default values from `.env`:
 
-- `TESKILAT_PORT=3001` - Tedrisat service port
-- `TEDRISAT_PORT=3002` - Teskilat service port  
+- `TEDRISAT_PORT=3001` - Tedrisat service port  
+- `TESKILAT_PORT=3002` - Teskilat service port
+
 - `DATABASE_URL` - PostgreSQL connection (for future use)
 - `RABBITMQ_URL` - RabbitMQ connection (for future use)
 

@@ -6,13 +6,16 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
+  const logger = LoggerFactory.create();
   const app = await NestFactory.create(AppModule, {
-    logger: LoggerFactory.create(), // Use LoggerFactory to create a logger instance
+    logger,
   });
+  app.useLogger(logger);
+
+  applyGlobalMiddleware(app, logger);
 
   const config = app.get(ConfigService);
 
-  applyGlobalMiddleware(app);
   // Swagger configuration
   const swaggerEnabled = config.get<boolean>('swagger.enabled');
   if (swaggerEnabled) {

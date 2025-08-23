@@ -6,7 +6,7 @@ export default () => ({
   serviceName: process.env.SERVICE_NAME || pkg.name,
   version,
   environment: process.env.NODE_ENV || 'development',
-  port: process.env.PORT || 3002,
+  port: process.env.PORT || 3001,
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
@@ -34,5 +34,10 @@ export default () => ({
   swagger: {
     enabled: process.env.SWAGGER_ENABLED === 'true',
     endpoint: process.env.SWAGGER_PATH || '/docs',
+  },
+  autoMigrations: {
+    enabled: process.env.AUTO_MIGRATIONS === 'true' || false,
+    migrationsFolder:
+      process.env.AUTO_MIGRATIONS_FOLDER || './src/database/migrations',
   },
 });

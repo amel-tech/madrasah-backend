@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { IExample } from './example.interface';
 import { ExampleRepository } from './example.repository';
 import { CreateExampleDto } from './dto/create-example.dto';
+import { ExampleNotFoundError } from './errors/example-not-found.error';
 
 @Injectable()
 export class ExampleService {
@@ -14,7 +15,7 @@ export class ExampleService {
   async getExampleById(id: number): Promise<IExample> {
     const example = await this.exampleRepository.findById(id);
     if (!example) {
-      throw new NotFoundException(`Example with id ${id} not found`);
+      throw new ExampleNotFoundError(`Example with id ${id} not found`, { id });
     }
     return example;
   }

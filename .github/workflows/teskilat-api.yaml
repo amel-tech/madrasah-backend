@@ -19,6 +19,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || startsWith(github.event.release.tag_name, 'teskilat-') }}
     permissions:
       contents: read
       packages: write
@@ -40,7 +41,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}
+            type=match,pattern=teskilat-v(.+),group=1
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -50,3 +52,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Deploy to Coolify
+        run: | 
+         curl --request GET '${{ secrets.TESKILAT_SERVICE_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}'
