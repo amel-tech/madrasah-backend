@@ -1,7 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AppModule } from '../../src/app.module';
 import { CreateExampleDto } from '../../src/example/dto/create-example.dto';
 import { DatabaseService } from '../../src/database/database.service';
 import { createTestApp } from '../helpers/test-app.helper';

@@ -1,10 +1,5 @@
 // packages/shared/src/bootstrap/setup-middleware.ts
-import {
-  INestApplication,
-  LoggerService,
-  ValidationError,
-  ValidationPipe,
-} from "@nestjs/common";
+import { INestApplication, LoggerService } from "@nestjs/common";
 import helmet from "helmet";
 import compression from "compression";
 import { GlobalExceptionFilter } from "../error";
