@@ -1,22 +1,32 @@
-class JwtDecodeError extends Error {
+import { UnauthorizedError } from "../../error";
+
+class JwtDecodeError extends UnauthorizedError {
   constructor(message?: string) {
-    super(message ?? 'Failed to decode JWT token');
+    super('JWT_DECODE_ERROR', message ?? 'Failed to decode JWT token');
     this.name = 'JwtDecodeError';
   }
 }
 
-class JwtMissingKidError extends Error {
+class JwtMissingKidError extends UnauthorizedError {
   constructor(message?: string) {
-    super(message ?? 'JWT does not contain a valid key ID (kid) in the header');
+    super('JWT_MISSING_KID', message ?? 'JWT does not contain a valid key ID (kid) in the header');
     this.name = 'JwtMissingKidError';
   }
 }
 
-class JwtVerificationError extends Error {
+class JwtVerificationError extends UnauthorizedError {
   constructor(message?: string) {
-    super(message ?? 'JWT verification failed');
+    super('JWT_VERIFICATION_ERROR', message ?? 'JWT verification failed');
     this.name = 'JwtVerificationError';
   }
 }
 
-export { JwtDecodeError, JwtMissingKidError, JwtVerificationError };
+class KeyNotFoundError extends UnauthorizedError {
+  constructor(message?: string) {
+    super('KEY_NOT_FOUND', message ?? 'Signing key not found in JWKS');
+    this.name = 'KeyNotFoundError';
+  }
+}
+
+
+export { JwtDecodeError, JwtMissingKidError, JwtVerificationError, KeyNotFoundError };
