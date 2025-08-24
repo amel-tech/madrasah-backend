@@ -6,7 +6,7 @@ import { NotImplementedException } from '@nestjs/common';
 import { FlashcardService } from './flashcard.service';
 import type { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { FlashcardValidationPipe } from './pipes/flashcard-validation.pipe';
-import { Flashcard } from './interfaces/flashcard.interface';
+import { Flashcard } from './domain/flashcard.entity';
 
 @Controller('flashcard/')
 export class FlashcardController {

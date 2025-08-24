@@ -4,7 +4,7 @@ import { BadRequestException } from '@nestjs/common';
 import { plainToClass, ClassConstructor } from '@nestjs/class-transformer';
 import { validate } from '@nestjs/class-validator';
 
-import { FlashcardType } from '../enums/flashcard-type.enum';
+import { FlashcardType } from '../domain/flashcard-type.enum';
 import {
   CreateHadeethCardDto,
   CreateVocabCardDto,

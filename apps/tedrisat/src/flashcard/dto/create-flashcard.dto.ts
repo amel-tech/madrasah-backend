@@ -2,7 +2,7 @@ import { IsDefined, IsOptional } from '@nestjs/class-validator';
 import { IsBoolean, IsEnum, IsUrl } from '@nestjs/class-validator';
 import { MaxLength, ValidateNested } from '@nestjs/class-validator';
 
-import { FlashcardType } from '../enums/flashcard-type.enum';
+import { FlashcardType } from '../domain/flashcard-type.enum';
 import { Type } from '@nestjs/class-transformer';
 import { VocabContentDto } from './content/flashcard-vocab-content.dto';
 import { HadeethContentDto } from './content/flashcard-hadeeth-content.dto';
