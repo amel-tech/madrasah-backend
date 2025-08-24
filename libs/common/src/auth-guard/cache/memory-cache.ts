@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
-import { ICache } from "auth-guard/interfaces/cache.interface";
+import { ICache } from "../interfaces/cache.interface";
 import { Cache } from "cache-manager";
 
 @Injectable()
