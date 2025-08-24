@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { configuration } from './config';
 import { ExampleModule } from './example/example.module';
 import { DatabaseModule } from './database/database.module';
-import { CardModule } from './card/card.module';
+import { FlashcardModule } from './flashcard/flashcard.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { CardModule } from './card/card.module';
     AuthGuardModule,
     DatabaseModule,
     ExampleModule,
-    CardModule,
+    FlashcardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

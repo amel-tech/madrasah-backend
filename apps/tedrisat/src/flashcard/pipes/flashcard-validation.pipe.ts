@@ -4,15 +4,15 @@ import { BadRequestException } from '@nestjs/common';
 import { plainToClass, ClassConstructor } from '@nestjs/class-transformer';
 import { validate } from '@nestjs/class-validator';
 
-import { CardType } from '../enums/card-type.enum';
+import { FlashcardType } from '../enums/flashcard-type.enum';
 import {
   CreateHadeethCardDto,
   CreateVocabCardDto,
-  CreateCardDto,
-} from '../dto/create-card.dto';
+  CreateFlashcardDto,
+} from '../dto/create-flashcard.dto';
 
 @Injectable()
-export class CardValidationPipe implements PipeTransform<any> {
+export class FlashcardValidationPipe implements PipeTransform<any> {
   async transform(value: Record<string, any>) {
     if (!value || typeof value.type === 'undefined') {
       throw new BadRequestException(
@@ -20,12 +20,12 @@ export class CardValidationPipe implements PipeTransform<any> {
       );
     }
 
-    let cls_dto: ClassConstructor<CreateCardDto>;
+    let cls_dto: ClassConstructor<CreateFlashcardDto>;
     switch (value.type) {
-      case CardType.VOCABULARY:
+      case FlashcardType.VOCABULARY:
         cls_dto = CreateVocabCardDto;
         break;
-      case CardType.HADEETH:
+      case FlashcardType.HADEETH:
         cls_dto = CreateHadeethCardDto;
         break;
       default:

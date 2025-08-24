@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import type { CreateCardDto } from './dto/create-card.dto';
-import { Card } from './interfaces/card.interface';
+import type { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { Flashcard } from './interfaces/flashcard.interface';
 
 @Injectable()
-export class CardService {
-  private cards: Card[] = [];
+export class FlashcardService {
+  private cards: Flashcard[] = [];
 
-  createOne(user_id: number, createCardDto: CreateCardDto): Card {
+  createOne(user_id: number, createCardDto: CreateFlashcardDto): Flashcard {
     const newCardData = {
       id: Math.floor(Math.random() * (10000 - 2000 + 1) + 2000),
       author_id: user_id,
@@ -18,7 +18,7 @@ export class CardService {
     return newCardData;
   }
 
-  findOne(id: number): Card {
+  findOne(id: number): Flashcard {
     const card = this.cards.find((element) => element.id === id);
     if (!card) {
       throw new NotFoundException('Card #' + id + ' Not Found');

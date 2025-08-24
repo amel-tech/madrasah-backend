@@ -2,14 +2,14 @@ import { IsDefined, IsOptional } from '@nestjs/class-validator';
 import { IsBoolean, IsEnum, IsUrl } from '@nestjs/class-validator';
 import { MaxLength, ValidateNested } from '@nestjs/class-validator';
 
-import { CardType } from '../enums/card-type.enum';
+import { FlashcardType } from '../enums/flashcard-type.enum';
 import { Type } from '@nestjs/class-transformer';
-import { VocabContentDto } from './content/vocab-content.dto';
-import { HadeethContentDto } from './content/hadeeth-content.dto';
+import { VocabContentDto } from './content/flashcard-vocab-content.dto';
+import { HadeethContentDto } from './content/flashcard-hadeeth-content.dto';
 
-abstract class CreateCardBaseDto {
-  @IsEnum(CardType)
-  type!: CardType;
+abstract class CreateFlashcardBaseDto {
+  @IsEnum(FlashcardType)
+  type!: FlashcardType;
 
   @IsBoolean()
   is_public!: boolean;
@@ -20,18 +20,18 @@ abstract class CreateCardBaseDto {
   image_source?: string;
 }
 
-export class CreateVocabCardDto extends CreateCardBaseDto {
+export class CreateVocabCardDto extends CreateFlashcardBaseDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => VocabContentDto)
   content!: VocabContentDto;
 }
 
-export class CreateHadeethCardDto extends CreateCardBaseDto {
+export class CreateHadeethCardDto extends CreateFlashcardBaseDto {
   @IsDefined()
   @ValidateNested()
   @Type(() => HadeethContentDto)
   content!: HadeethContentDto;
 }
 
-export type CreateCardDto = CreateVocabCardDto | CreateHadeethCardDto;
+export type CreateFlashcardDto = CreateVocabCardDto | CreateHadeethCardDto;
