@@ -14,25 +14,25 @@ export class FlashcardController {
 
   @Post('add')
   @UsePipes(FlashcardValidationPipe)
-  createOne(@Body() createFlashcardDto: CreateFlashcardDto): Flashcard {
+  create(@Body() createFlashcardDto: CreateFlashcardDto): Flashcard {
     const user_id = 1; // TODO: validate user
-    const new_card = this.cardService.createOne(user_id, createFlashcardDto);
+    const new_card = this.cardService.create(user_id, createFlashcardDto);
     return new_card;
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Flashcard {
-    return this.cardService.findOne(id);
+  findById(@Param('id', ParseIntPipe) id: number): Flashcard {
+    return this.cardService.findById(id);
   }
 
   @Patch(':id')
-  updateOne() {
+  update() {
     // Update one card
     throw new NotImplementedException();
   }
 
   @Delete(':id')
-  deleteOne() {
+  delete() {
     // Delete one card
     throw new NotImplementedException();
   }

@@ -7,11 +7,11 @@ import { Flashcard } from './domain/flashcard.entity';
 export class FlashcardService {
   private cards: Flashcard[] = [];
 
-  createOne(user_id: number, createCardDto: CreateFlashcardDto): Flashcard {
+  create(userId: number, createCardDto: CreateFlashcardDto): Flashcard {
     const newCardData = new Flashcard(
       Math.floor(Math.random() * (10000 - 2000 + 1) + 2000),
       createCardDto.type,
-      user_id,
+      userId,
       createCardDto.is_public,
       createCardDto.content,
       createCardDto.image_source,
@@ -22,7 +22,7 @@ export class FlashcardService {
     return newCardData;
   }
 
-  findOne(id: number): Flashcard {
+  findById(id: number): Flashcard {
     const card = this.cards.find((element) => element.id === id);
     if (!card) {
       throw new NotFoundException('Card #' + id + ' Not Found');
