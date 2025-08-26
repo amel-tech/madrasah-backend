@@ -3,7 +3,7 @@ import { ApiProperty, ApiSchema } from "@nestjs/swagger";
 @ApiSchema({
   description: 'Pagination metadata returned under the meta.pagination field in paginated API responses.'
 })
-export class MetaPaginationResponse {
+export class MedarisMetaPaginationResponse {
     @ApiProperty({
         minimum: 0,
         description: 'Number of items on the current page'

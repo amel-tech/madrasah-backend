@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { MedarisMetaResponse } from './medaris-meta.response';
 
 export class MedarisResponse<T = unknown> {
   @ApiProperty({
@@ -24,13 +25,13 @@ export class MedarisResponse<T = unknown> {
     required: false,
     example: { timestamp: '2024-01-15T10:30:00.000Z', version: '1.0.0' },
   })
-  meta?: Record<string, unknown>;
+  meta?: MedarisMetaResponse;
 
   constructor(
     success: boolean,
     message?: string,
     data?: T,
-    meta?: Record<string, unknown>,
+    meta?: MedarisMetaResponse,
   ) {
     this.success = success;
     this.message = message;
@@ -41,14 +42,14 @@ export class MedarisResponse<T = unknown> {
   static success<T>(
     data: T,
     message?: string,
-    meta?: Record<string, unknown>,
+    meta?: MedarisMetaResponse,
   ): MedarisResponse<T> {
     return new MedarisResponse<T>(true, message, data, meta);
   }
 
   static error(
     message: string,
-    meta?: Record<string, unknown>,
+    meta?: MedarisMetaResponse,
   ): MedarisResponse<null> {
     return new MedarisResponse<null>(false, message, null, meta);
   }
