@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FlashcardService {
+export class FlashcardDeckService {
   constructor() {} // private readonly deckRepo: FlashcardDeckRepository
 }
