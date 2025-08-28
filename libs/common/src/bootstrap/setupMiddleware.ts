@@ -3,10 +3,11 @@ import { INestApplication, LoggerService } from '@nestjs/common';
 import helmet from 'helmet';
 import compression from 'compression';
 import { GlobalExceptionFilter } from '../error/filters/global-exception.filter'
+import { corsConfig } from '../config';
 
 export function applyGlobalMiddleware(app: INestApplication, logger: LoggerService) {
   // Enable CORS
-  app.enableCors();
+  app.enableCors(corsConfig);
 
   // Security Middlewares
   app.use(helmet());
