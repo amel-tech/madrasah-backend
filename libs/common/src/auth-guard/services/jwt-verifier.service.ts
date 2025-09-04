@@ -20,7 +20,7 @@ export class JwtVerifierService implements IJwtVerifier {
             throw new JwtMissingKidError();
 
         const key = await this.keyProvider.getKey(kid);
-
+        
         return new Promise((resolve, reject) => {
             jwt.verify(token, key, {algorithms: ['RS256']}, (err, decoded) => {
             if (err) return reject(new JwtVerificationError(err.message));
