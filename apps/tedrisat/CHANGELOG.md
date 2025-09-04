@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.2](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.1...tedrisat-v0.1.2) (2025-09-04)
+
+
+### Features
+
+* auto migrate at runtime ([0c4a3be](https://github.com/amel-tech/madrasah-backend/commit/0c4a3beb32e11a671ec8e8ef8214924abe9c795d))
+* auto migrate at runtime ([27d44c2](https://github.com/amel-tech/madrasah-backend/commit/27d44c2979f6559e649a1b91e202ac6afa73b880))
+* basic base response model implementation ([9911a11](https://github.com/amel-tech/madrasah-backend/commit/9911a11d54f1cc05ddfa115957d4c4549d045516))
+* basic base response model implementation ([4efdec5](https://github.com/amel-tech/madrasah-backend/commit/4efdec5983432f99a8c5bf74f3cc409913f5aa2e))
+* cors config ([33865ee](https://github.com/amel-tech/madrasah-backend/commit/33865eebcabfe125e49f0dbe0f3cde8446413a69))
+* cors config ([84b8452](https://github.com/amel-tech/madrasah-backend/commit/84b845226a268df53e1ea7893a10ff3986d00cc4))
+* migrations is controlled by config ([607b8f7](https://github.com/amel-tech/madrasah-backend/commit/607b8f7138de321685944d1c0b266f6f62ee8e4e))
+* rename response model to MedarisResponse ([105ce9c](https://github.com/amel-tech/madrasah-backend/commit/105ce9cf7f0aa6ba123897c106d220cd93284568))
+
 ## [0.1.1](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.0...tedrisat-v0.1.1) (2025-08-21)
 
 
