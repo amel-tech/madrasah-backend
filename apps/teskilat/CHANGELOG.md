@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/amel-tech/madrasah-backend/compare/teskilat-v0.1.1...teskilat-v0.1.2) (2025-09-04)
+
+
+### Features
+
+* cors config ([33865ee](https://github.com/amel-tech/madrasah-backend/commit/33865eebcabfe125e49f0dbe0f3cde8446413a69))
+* cors config ([84b8452](https://github.com/amel-tech/madrasah-backend/commit/84b845226a268df53e1ea7893a10ff3986d00cc4))
+
 ## [0.1.1](https://github.com/amel-tech/madrasah-backend/compare/teskilat-v0.1.0...teskilat-v0.1.1) (2025-08-21)
 
 
