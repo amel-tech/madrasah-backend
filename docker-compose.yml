@@ -1,6 +1,5 @@
 version: '3.8'
 
-
 services:
   tedrisat:
     build:
@@ -10,6 +9,9 @@ services:
       - "${TEDRISAT_PORT:-3001}:3001"
     env_file:
       - ./apps/tedrisat/.env
+    depends_on:
+      medaris-db:
+        condition: service_healthy
 
   teskilat:
     build:
@@ -19,17 +21,21 @@ services:
       - "${TESKILAT_PORT:-3002}:3002"
     env_file:
       - ./apps/teskilat/.env
+    depends_on:
+      medaris-db:
+        condition: service_healthy
 
-  tedrisat-db:
+  medaris-db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_USER: ${TEDRISAT_POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${TEDRISAT_POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${TEDRISAT_POSTGRES_DB:-tedrisat}
+      POSTGRES_USER: ${MEDARIS_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${MEDARIS_POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${MEDARIS_POSTGRES_DB:-postgres}
     ports:
-      - "${TEDRISAT_POSTGRES_PORT:-5432}:5432"
+      - "${MEDARIS_POSTGRES_PORT:-5432}:5432"
     volumes:
       - ./.data/postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     command: |
       bash -c '
         docker-entrypoint.sh postgres &
@@ -38,6 +44,12 @@ services:
         psql -U "${TEDRISAT_POSTGRES_USER:-postgres}" -d "$POSTGRES_DB" -c "CREATE DATABASE \"tedrisat-test\";" || true;
         wait $pid
       '
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 7
+      start_period: 15s
 
 volumes:
   postgres_data:

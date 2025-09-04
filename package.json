@@ -10,8 +10,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:tedrisat": "turbo run start:dev --filter=tedrisat",
-    "dev:teskilat": "turbo run start:dev --filter=teskilat",
+    "dev:tedrisat": "turbo dev --filter=tedrisat",
+    "dev:teskilat": "turbo dev --filter=teskilat",
     "start": "turbo start",
     "start:tedrisat": "turbo run start --filter=tedrisat",
     "start:teskilat": "turbo run start --filter=teskilat",
