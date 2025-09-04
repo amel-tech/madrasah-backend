@@ -1,7 +1,7 @@
 import { IJwtVerifier } from '../interfaces/jwt-verifier.interface';
 import { IPublicKeyProvider } from '../interfaces/public-key-provider.interface';
 import { JwtDecodeError, JwtMissingKidError, JwtVerificationError } from '../exceptions/exceptions';
-import { Inject, Injectable, Logger} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PUBLIC_KEY_PROVIDER } from '../auth-guard.tokens';
 import * as jwt from 'jsonwebtoken';
 
