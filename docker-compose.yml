@@ -36,14 +36,6 @@ services:
     volumes:
       - ./.data/postgres_data:/var/lib/postgresql/data
       - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    command: |
-      bash -c '
-        docker-entrypoint.sh postgres &
-        pid=$!;
-        until pg_isready -U "${TEDRISAT_POSTGRES_USER:-postgres}"; do sleep 1; done;
-        psql -U "${TEDRISAT_POSTGRES_USER:-postgres}" -d "$POSTGRES_DB" -c "CREATE DATABASE \"tedrisat-test\";" || true;
-        wait $pid
-      '
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
