@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { configuration } from './config';
 import { ExampleModule } from './example/example.module';
 import { DatabaseModule } from './database/database.module';
+import { FlashcardModule } from './flashcard/flashcard.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DatabaseModule } from './database/database.module';
     AuthGuardModule,
     DatabaseModule,
     ExampleModule,
+    FlashcardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
