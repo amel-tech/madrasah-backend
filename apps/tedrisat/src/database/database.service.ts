@@ -10,6 +10,7 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
 import * as schema from './schema';
 import { ILogger, LOGGER } from '@madrasah/common';
+import { join } from 'path';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -57,11 +58,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       migrationsFolder: string;
     }>('autoMigrations', { enabled: false, migrationsFolder: '' });
 
-    const { enabled, migrationsFolder } = autoMigrations;
+    const { enabled } = autoMigrations;
 
     if (enabled) {
       return migrate(this.db, {
-        migrationsFolder,
+        migrationsFolder: join(__dirname, './migrations'),
       })
         .then(() => {
           this.logger.log('Migrations completed successfully');
