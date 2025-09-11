@@ -28,5 +28,6 @@
     "^@/(.*)$": "<rootDir>/src/$1"
   },
   "testPathIgnorePatterns": ["<rootDir>/node_modules/", "<rootDir>/dist/"],
-  "setupFilesAfterEnv": []
+  "globalTeardown": "<rootDir>/test/helpers/global-teardown.ts",
+  "maxWorkers": 1
 }
