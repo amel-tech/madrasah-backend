@@ -12,7 +12,7 @@ export const flashcardDecks = table('decks', {
   authorId: integer('author_id').notNull(),
   title: text('title').notNull(),
   description: text('description'),
-  isPublic: boolean('is_public').default(false),
+  isPublic: boolean('is_public').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

@@ -11,7 +11,7 @@ export const flashcardTags = table('tags', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   title: text('title').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('last_updated').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export type FlashcardTag = InferSelectModel<typeof flashcardTags>;

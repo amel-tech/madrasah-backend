@@ -5,14 +5,17 @@ import { FlashcardResponse } from './flashcard-response.dto';
 import { Type } from '@nestjs/class-transformer';
 
 export class FlashcardDeckResponse extends OmitType(CreateFlashcardDeckDto, [
+  'description',
   'tagIds',
 ] as const) {
-  @ApiPropertyOptional()
-  tags?: FlashcardTagResponse;
-}
+  @ApiProperty()
+  description!: string | null;
 
-export class FlashcardDeckContentResponse extends FlashcardDeckResponse {
-  @ApiProperty({ type: FlashcardResponse, isArray: true })
+  @ApiPropertyOptional({ type: FlashcardTagResponse, isArray: true })
+  @Type(() => FlashcardTagResponse)
+  tags?: FlashcardTagResponse[];
+
+  @ApiPropertyOptional({ type: FlashcardResponse, isArray: true })
   @Type(() => FlashcardResponse)
-  cards!: FlashcardResponse[];
+  cards?: FlashcardResponse[];
 }

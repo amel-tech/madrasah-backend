@@ -1,4 +1,4 @@
-import { Delete, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Delete, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 import { NotImplementedException } from '@nestjs/common';
 
@@ -48,7 +48,7 @@ export class FlashcardController {
   // PATCH Requests
   @ApiBody({ type: UpdateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
-  @Put('cards/:id')
+  @Patch('cards/:id')
   updateDeck(
     @Param('id', ParseIntPipe) cardId: number,
     @Body() cardDto: CreateFlashcardDto,

@@ -1,9 +1,8 @@
 import {
-  DefaultValuePipe,
   Delete,
   Get,
   Param,
-  ParseBoolPipe,
+  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -13,12 +12,8 @@ import {
 import { Controller, Body } from '@nestjs/common';
 import { NotImplementedException } from '@nestjs/common';
 
-import { FlashcardService } from './flashcard.service';
 import { CreateFlashcardDeckDto } from './dto/create-flashcard-deck.dto';
-import {
-  FlashcardDeckContentResponse,
-  FlashcardDeckResponse,
-} from './dto/flashcard-deck-response.dto';
+import { FlashcardDeckResponse } from './dto/flashcard-deck-response.dto';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -28,56 +23,68 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto ';
+import { FlashcardDeckService } from './flashcard-deck.service';
 
 @ApiTags('flashcard-decks')
 @Controller('flashcard/decks')
 export class FlashcardDeckController {
-  constructor(private readonly cardService: FlashcardService) {}
+  constructor(private readonly deckService: FlashcardDeckService) {}
 
   // GET Requests
 
   @ApiFoundResponse({ type: FlashcardDeckResponse })
   @Get(':id')
-  findByIdDeck(
+  async findByIdDeck(
     @Param('id', ParseIntPipe) deckId: number,
-    @Query('includeTags', new DefaultValuePipe(false), ParseBoolPipe)
-    includeTags: boolean,
-  ): FlashcardDeckResponse {
-    console.log(deckId, includeTags);
-    throw new NotImplementedException();
+    @Query(
+      'include',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    include?: string[],
+  ): Promise<FlashcardDeckResponse | null> {
+    return this.deckService.findById(deckId, include);
   }
 
-  @ApiFoundResponse({ type: FlashcardDeckContentResponse })
+  @ApiFoundResponse({ type: FlashcardDeckResponse })
   @Get(':id/cards')
-  findByIdDeckContent(
+  async findByIdDeckContent(
     @Param('id', ParseIntPipe) deckId: number,
-    @Query('includeTags', new DefaultValuePipe(false), ParseBoolPipe)
-    includeTags: boolean,
-  ): FlashcardDeckContentResponse {
-    console.log(deckId, includeTags);
-    throw new NotImplementedException();
+    @Query(
+      'include',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    include?: string[],
+  ): Promise<FlashcardDeckResponse | null> {
+    const includeWithCards = [...(include || []), 'cards'];
+    return this.deckService.findById(deckId, includeWithCards);
   }
 
   @ApiFoundResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
   findAllDeck(
-    @Query('includeTags', new DefaultValuePipe(false), ParseBoolPipe)
-    includeTags: boolean,
+    @Query(
+      'include',
+      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
+    )
+    include?: string[],
   ): FlashcardDeckResponse[] {
-    console.log(includeTags);
+    console.log(include);
     throw new NotImplementedException();
   }
 
   // POST Requests
 
-  @ApiBody({ type: [CreateFlashcardDeckDto] })
-  @ApiCreatedResponse({ type: FlashcardDeckResponse, isArray: true })
+  @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @Post()
-  createBulkDeck(
-    @Body() decksDto: CreateFlashcardDeckDto[],
-  ): FlashcardDeckResponse[] {
-    console.log(decksDto);
-    throw new NotImplementedException();
+  async createDeck(
+    @Body() deckDto: CreateFlashcardDeckDto,
+  ): Promise<FlashcardDeckResponse> {
+    const { tagIds, ...newDeckContent } = deckDto;
+    const newDeck = { authorId: 1, ...newDeckContent };
+    const createdDeck = await this.deckService.create(newDeck);
+
+    if (tagIds && tagIds.length) console.log('will add tags here'); // await this.tagService.createPairsMany(createdDeck.id, tagIds)
+    return createdDeck;
   }
 
   // PUT Requests
