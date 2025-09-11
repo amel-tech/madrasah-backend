@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
-import { DatabaseService } from 'src/database/database.service';
-import { flashcardDecks } from 'src/database/schema/flashcard-deck.schema';
+import { DatabaseService } from '../database/database.service';
+import { flashcardDecks } from '../database/schema/flashcard-deck.schema';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
@@ -10,7 +10,7 @@ import {
 import {
   flashcardDeckTags,
   flashcardTags,
-} from 'src/database/schema/flashcard-tag.schema';
+} from '../database/schema/flashcard-tag.schema';
 import { IFlashcardTag } from './flashcard-tag.repository.interface';
 
 @Injectable()

@@ -5,7 +5,7 @@ import { FlashcardService } from './flashcard.service';
 import { FlashcardDeckService } from './flashcard-deck.service';
 import { FlashcardController } from './flashcard.controller';
 import { FlashcardDeckRepository } from './flashcard-deck.repository';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../database/database.service';
 
 @Module({
   imports: [DatabaseService],
