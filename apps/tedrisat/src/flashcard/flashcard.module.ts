@@ -8,8 +8,7 @@ import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import { DatabaseService } from '../database/database.service';
 
 @Module({
-  imports: [DatabaseService],
   controllers: [FlashcardController, FlashcardDeckController],
-  providers: [FlashcardService, FlashcardDeckService, FlashcardDeckRepository],
+  providers: [FlashcardService, FlashcardDeckService, FlashcardDeckRepository, DatabaseService],
 })
 export class FlashcardModule {}
