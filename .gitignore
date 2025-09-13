@@ -8,3 +8,4 @@ dist/
 .turbo
 .data/
 data/
+migrations/
