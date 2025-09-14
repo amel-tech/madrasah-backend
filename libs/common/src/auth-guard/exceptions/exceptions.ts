@@ -1,32 +1,48 @@
 import { UnauthorizedError } from "../../error";
+import { ErrorContext } from "../../error/types";
 
-class JwtDecodeError extends UnauthorizedError {
-  constructor(message?: string) {
-    super('JWT_DECODE_ERROR', message ?? 'Failed to decode JWT token');
-    this.name = 'JwtDecodeError';
+abstract class JwtAuthError extends UnauthorizedError {
+  protected constructor(code: string, message: string, context?: ErrorContext) {
+    super(code, message, context);
   }
 }
 
-class JwtMissingKidError extends UnauthorizedError {
-  constructor(message?: string) {
-    super('JWT_MISSING_KID', message ?? 'JWT does not contain a valid key ID (kid) in the header');
-    this.name = 'JwtMissingKidError';
+export class JwtDecodeError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_DECODE_ERROR', 
+      message ?? 'Failed to decode JWT token',
+      context
+    );
   }
 }
 
-class JwtVerificationError extends UnauthorizedError {
-  constructor(message?: string) {
-    super('JWT_VERIFICATION_ERROR', message ?? 'JWT verification failed');
-    this.name = 'JwtVerificationError';
+export class JwtMissingKidError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_MISSING_KID', 
+      message ?? 'JWT does not contain a valid key ID (kid) in the header',
+      context
+    );
   }
 }
 
-class KeyNotFoundError extends UnauthorizedError {
-  constructor(message?: string) {
-    super('KEY_NOT_FOUND', message ?? 'Signing key not found in JWKS');
-    this.name = 'KeyNotFoundError';
+export class JwtVerificationError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_VERIFICATION_ERROR', 
+      message ?? 'JWT verification failed',
+      context
+    );
   }
 }
 
-
-export { JwtDecodeError, JwtMissingKidError, JwtVerificationError, KeyNotFoundError };
+export class KeyNotFoundError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'KEY_NOT_FOUND', 
+      message ?? 'Signing key not found in JWKS',
+      context
+    );
+  }
+}
