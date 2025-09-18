@@ -9,6 +9,11 @@ import { DatabaseService } from '../database/database.service';
 
 @Module({
   controllers: [FlashcardController, FlashcardDeckController],
-  providers: [FlashcardService, FlashcardDeckService, FlashcardDeckRepository, DatabaseService],
+  providers: [
+    FlashcardService,
+    FlashcardDeckService,
+    FlashcardDeckRepository,
+    DatabaseService,
+  ],
 })
 export class FlashcardModule {}

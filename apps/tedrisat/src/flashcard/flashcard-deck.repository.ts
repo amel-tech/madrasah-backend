@@ -1,57 +1,95 @@
 import { Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, SQL } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
-import { flashcardDecks } from '../database/schema/flashcard-deck.schema';
+import { decks } from '../database/schema/flashcard-deck.schema';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
   IFlashcardDeckRepository,
+  IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
-import {
-  flashcardDeckTags,
-  flashcardTags,
-} from '../database/schema/flashcard-tag.schema';
-import { IFlashcardTag } from './flashcard-tag.repository.interface';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
+  private readonly includeMap: Record<string, Record<string, any>> = {
+    tags: {
+      deckTagsDecks: {
+        with: {
+          tag: true,
+        },
+      },
+    },
+    // TODO: add 'cards', 'cards:user_data'
+  } as const;
+
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async findById(id: number): Promise<IFlashcardDeck | null> {
-    return this.databaseService.db
-      .select()
-      .from(flashcardDecks)
-      .where(eq(flashcardDecks.id, id))
-      .then((result) => result[0] || null);
+  async findByFilter(
+    filter: SQL,
+    include?: Set<string>,
+  ): Promise<IFlashcardDeck[]> {
+    const withClause: Record<string, any> = {};
+
+    if (include) {
+      for (const relation of include) {
+        const relationConfig = this.includeMap[relation];
+        if (relationConfig) {
+          Object.assign(withClause, relationConfig);
+        }
+      }
+    }
+
+    // if (include && include.size) {
+    //   throw new NotImplementedException();
+    // }
+
+    return this.databaseService.db.query.decks.findMany({
+      where: filter,
+      with: withClause,
+    });
   }
 
-  async findByIdWithTags(id: number): Promise<IFlashcardDeck | null> {
-    return this.databaseService.db
-      .select()
-      .from(flashcardDecks)
-      .leftJoin(
-        flashcardDeckTags,
-        eq(flashcardDecks.id, flashcardDeckTags.deckId),
-      )
-      .leftJoin(flashcardTags, eq(flashcardDeckTags.tagId, flashcardTags.id))
-      .where(eq(flashcardDecks.id, id))
-      .then((result) => {
-        if (!result.length || !result[0].decks) return null;
-        const deck: IFlashcardDeck = {
-          ...result[0].decks,
-          tags: result
-            .map((r) => r.tags)
-            .filter((tag): tag is IFlashcardTag => tag != null),
-        };
-        return deck;
-      });
+  async findById(
+    id: number,
+    include?: Set<string>,
+  ): Promise<IFlashcardDeck | null> {
+    return this.findByFilter(eq(decks.id, id), include).then(
+      (result) => result[0] || null,
+    );
+  }
+
+  async findAll(include?: Set<string>): Promise<IFlashcardDeck[]> {
+    // TODO: handle pagination
+    return this.findByFilter(eq(decks.isPublic, true), include);
   }
 
   async create(newDeck: ICreateFlashcardDeck): Promise<IFlashcardDeck> {
     const [createdDeck] = await this.databaseService.db
-      .insert(flashcardDecks)
+      .insert(decks)
       .values(newDeck)
       .returning();
     return createdDeck;
+  }
+
+  async update(
+    id: number,
+    updates: IUpdateFlashcardDeck,
+  ): Promise<IFlashcardDeck | null> {
+    // TODO?: verify deck author
+    return this.databaseService.db
+      .update(decks)
+      .set(updates)
+      .where(eq(decks.id, id))
+      .returning()
+      .then((result) => result[0] || null);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const deletedDecks = await this.databaseService.db
+      .delete(decks)
+      .where(eq(decks.id, id))
+      .returning();
+
+    return deletedDecks.length ? true : false;
   }
 }

@@ -1,4 +1,4 @@
-export interface IFlashcardTag {
+export interface IFlashcardDeckTag {
   id: number;
   title: string;
   createdAt: Date;

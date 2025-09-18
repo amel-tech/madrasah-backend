@@ -1,8 +1,9 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
+  IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
 
 @Injectable()
@@ -14,14 +15,26 @@ export class FlashcardDeckService {
     include?: string[],
   ): Promise<IFlashcardDeck | null> {
     const includeSet = new Set(include);
+    return this.deckRepo.findById(id, includeSet);
+  }
 
-    if (!includeSet.size) return this.deckRepo.findById(id);
-    if (includeSet.has('cards')) throw new NotImplementedException();
-    if (includeSet.has('tags')) return this.deckRepo.findByIdWithTags(id);
-    else throw new NotImplementedException();
+  async findAll(include?: string[]): Promise<IFlashcardDeck[]> {
+    const includeSet = new Set(include);
+    return this.deckRepo.findAll(includeSet);
   }
 
   async create(newDeck: ICreateFlashcardDeck): Promise<IFlashcardDeck> {
     return this.deckRepo.create(newDeck);
+  }
+
+  async update(
+    id: number,
+    updates: IUpdateFlashcardDeck,
+  ): Promise<IFlashcardDeck | null> {
+    return this.deckRepo.update(id, updates);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    return this.deckRepo.delete(id);
   }
 }

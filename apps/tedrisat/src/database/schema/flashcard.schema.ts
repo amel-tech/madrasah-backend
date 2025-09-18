@@ -7,7 +7,7 @@ import {
   jsonb,
 } from 'drizzle-orm/pg-core';
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { flashcardDecks } from './flashcard-deck.schema';
+import { decks } from './flashcard-deck.schema';
 
 export const flashcardTypeEnum = pgEnum('flashcard_type', [
   'VOCABULARY',
@@ -19,7 +19,7 @@ export const flashcards = table('flashcards', {
   type: flashcardTypeEnum().notNull(),
   authorId: integer('author_id').notNull(),
   deckId: integer('deck_id')
-    .references(() => flashcardDecks.id, { onDelete: 'cascade' })
+    .references(() => decks.id, { onDelete: 'cascade' })
     .notNull(),
   contentFront: text('content_front').notNull(),
   contentBack: text('content_back').notNull(),

@@ -5,9 +5,11 @@ import {
   timestamp,
   boolean,
 } from 'drizzle-orm/pg-core';
-import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
+import { deckTagsDecks } from './flashcard-deck-tag.schema';
 
-export const flashcardDecks = table('decks', {
+// Tables
+export const decks = table('decks', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   authorId: integer('author_id').notNull(),
   title: text('title').notNull(),
@@ -17,5 +19,7 @@ export const flashcardDecks = table('decks', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export type FlashcardDeck = InferSelectModel<typeof flashcardDecks>;
-export type NewFlashcardDeck = InferInsertModel<typeof flashcardDecks>;
+// ORM Relations
+export const decksRelations = relations(decks, ({ many }) => ({
+  deckTagsDecks: many(deckTagsDecks),
+}));
