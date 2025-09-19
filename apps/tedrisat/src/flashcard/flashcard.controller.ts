@@ -1,11 +1,20 @@
-import { Delete, Param, ParseIntPipe, Patch, Post, Put } from '@nestjs/common';
+import {
+  Delete,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
-import { NotImplementedException } from '@nestjs/common';
 
 import { FlashcardService } from './flashcard.service';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -23,46 +32,60 @@ export class FlashcardController {
   @ApiBody({ type: [CreateFlashcardDto] })
   @ApiCreatedResponse({ type: FlashcardResponse, isArray: true })
   @Post('decks/:deckId/cards')
-  createBulkCard(
+  async createMany(
     @Param('deckId', ParseIntPipe) deckId: number,
     @Body() cardsDto: CreateFlashcardDto[],
-  ): FlashcardResponse[] {
-    console.log(deckId, cardsDto);
-    throw new NotImplementedException();
+  ): Promise<FlashcardResponse[]> {
+    const authorId = 10;
+    return this.cardService.createMany(deckId, authorId, cardsDto);
   }
 
   // PUT Requests
 
   @ApiBody({ type: CreateFlashcardDto })
-  @ApiCreatedResponse({ type: FlashcardResponse })
   @ApiOkResponse({ type: FlashcardResponse })
+  @ApiNotFoundResponse()
   @Put('cards/:id')
-  replaceDeck(
+  async replace(
     @Param('id', ParseIntPipe) cardId: number,
     @Body() cardDto: CreateFlashcardDto,
-  ): FlashcardResponse {
-    console.log(cardId, cardDto);
-    throw new NotImplementedException();
+  ): Promise<FlashcardResponse> {
+    const updatedCard = await this.cardService.update(cardId, cardDto);
+    if (!updatedCard) {
+      throw new HttpException(
+        `could not find card #${cardId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return updatedCard;
   }
 
   // PATCH Requests
   @ApiBody({ type: UpdateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
+  @ApiNotFoundResponse()
   @Patch('cards/:id')
-  updateDeck(
+  async update(
     @Param('id', ParseIntPipe) cardId: number,
-    @Body() cardDto: CreateFlashcardDto,
-  ): FlashcardResponse {
-    console.log(cardId, cardDto);
-    throw new NotImplementedException();
+    @Body() cardDto: UpdateFlashcardDto,
+  ): Promise<FlashcardResponse> {
+    const updatedCard = await this.cardService.update(cardId, cardDto);
+    if (!updatedCard) {
+      throw new HttpException(
+        `could not find card #${cardId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return updatedCard;
   }
 
   // DELETE Requests
 
   @ApiOkResponse()
   @Delete('cards/:id')
-  deleteDeck(@Param('id', ParseIntPipe) cardId: number) {
-    console.log(cardId);
-    throw new NotImplementedException();
+  async deleteDeck(
+    @Param('id', ParseIntPipe) cardId: number,
+  ): Promise<boolean> {
+    return this.cardService.delete(cardId);
   }
 }

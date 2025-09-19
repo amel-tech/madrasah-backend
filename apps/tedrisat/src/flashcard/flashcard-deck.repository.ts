@@ -19,7 +19,10 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
         },
       },
     },
-    // TODO: add 'cards', 'cards:user_data'
+    cards: {
+      flashcards: true,
+    },
+    // TODO: handle 'cards:user_data' logic
   } as const;
 
   constructor(private readonly databaseService: DatabaseService) {}

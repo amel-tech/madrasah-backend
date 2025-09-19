@@ -21,7 +21,6 @@ export interface ICreateFlashcardDeck {
 }
 
 export interface IUpdateFlashcardDeck {
-  authorId?: number;
   title?: string;
   isPublic?: boolean;
   description?: string;

@@ -4,7 +4,7 @@ import {
   IsString,
   MinLength,
 } from '@nestjs/class-validator';
-import { IsBoolean, IsEnum } from '@nestjs/class-validator';
+import { IsEnum } from '@nestjs/class-validator';
 import { MaxLength } from '@nestjs/class-validator';
 
 import { FlashcardType } from '../domain/flashcard-type.enum';
@@ -14,10 +14,6 @@ export class CreateFlashcardDto {
   @ApiProperty({ enum: FlashcardType })
   @IsEnum(FlashcardType)
   type!: FlashcardType;
-
-  @ApiProperty()
-  @IsBoolean()
-  isPublic!: boolean;
 
   @ApiProperty()
   @IsString()
@@ -34,5 +30,5 @@ export class CreateFlashcardDto {
   @ApiPropertyOptional({ type: Object })
   @IsOptional()
   @IsObject()
-  contentMeta?: Record<string, unknown>;
+  contentMeta?: unknown;
 }

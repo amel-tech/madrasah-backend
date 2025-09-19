@@ -6,11 +6,13 @@ import { FlashcardDeckService } from './flashcard-deck.service';
 import { FlashcardController } from './flashcard.controller';
 import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import { DatabaseService } from '../database/database.service';
+import { FlashcardRepository } from './flashcard.repository';
 
 @Module({
   controllers: [FlashcardController, FlashcardDeckController],
   providers: [
     FlashcardService,
+    FlashcardRepository,
     FlashcardDeckService,
     FlashcardDeckRepository,
     DatabaseService,
