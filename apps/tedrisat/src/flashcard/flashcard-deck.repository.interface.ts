@@ -10,7 +10,7 @@ export interface IFlashcardDeck {
   updatedAt: Date;
   description: string | null;
   tags?: IFlashcardDeckTag[];
-  cards?: IFlashcard[];
+  flashcards?: IFlashcard[];
 }
 
 export interface ICreateFlashcardDeck {

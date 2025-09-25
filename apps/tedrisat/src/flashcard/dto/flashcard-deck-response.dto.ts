@@ -17,5 +17,5 @@ export class FlashcardDeckResponse extends OmitType(CreateFlashcardDeckDto, [
 
   @ApiPropertyOptional({ type: FlashcardResponse, isArray: true })
   @Type(() => FlashcardResponse)
-  cards?: FlashcardResponse[];
+  flashcards?: FlashcardResponse[];
 }

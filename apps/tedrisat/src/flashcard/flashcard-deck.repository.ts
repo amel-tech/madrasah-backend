@@ -8,6 +8,8 @@ import {
   IFlashcardDeckRepository,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
+import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
+import { IFlashcard } from './flashcard.repository.interface';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
@@ -19,10 +21,10 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
         },
       },
     },
-    cards: {
+    flashcards: {
       flashcards: true,
     },
-    // TODO: handle 'cards:user_data' logic
+    // TODO: handle 'flashcards:user_data' logic
   } as const;
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -42,14 +44,28 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       }
     }
 
-    // if (include && include.size) {
-    //   throw new NotImplementedException();
-    // }
+    return this.databaseService.db.query.decks
+      .findMany({
+        where: filter,
+        with: withClause,
+      })
+      .then((results) =>
+        results.map((result) => {
+          const { deckTagsDecks, flashcards, ...resultBase } = result;
+          const transformed: IFlashcardDeck = resultBase;
 
-    return this.databaseService.db.query.decks.findMany({
-      where: filter,
-      with: withClause,
-    });
+          if (deckTagsDecks) {
+            transformed.tags = (
+              deckTagsDecks as { tag: IFlashcardDeckTag }[]
+            ).map((dtd) => dtd.tag);
+          }
+          if (flashcards) {
+            transformed.flashcards = flashcards as IFlashcard[];
+          }
+
+          return transformed;
+        }),
+      );
   }
 
   async findById(

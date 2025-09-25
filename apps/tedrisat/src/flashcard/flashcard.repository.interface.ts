@@ -8,6 +8,8 @@ export interface IFlashcard {
   contentFront: string;
   contentBack: string;
   contentMeta: unknown;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ICreateFlashcard {

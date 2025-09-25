@@ -33,8 +33,8 @@ import { FlashcardDeckService } from './flashcard-deck.service';
 
 export enum DeckIncludeEnum {
   Tags = 'tags',
-  Cards = 'cards',
-  CardsUserData = 'cards:user_data',
+  Flashcards = 'flashcards',
+  FlashcardsUserData = 'flashcards:user_data',
 }
 
 @ApiTags('flashcard-decks')
@@ -90,7 +90,7 @@ export class FlashcardDeckController {
     )
     include?: string[],
   ): Promise<FlashcardDeckResponse> {
-    const includeWithCards = [...(include || []), 'cards'];
+    const includeWithCards = [...(include || []), 'flashcards'];
     const deck = await this.deckService.findById(deckId, includeWithCards);
     if (!deck) {
       throw new HttpException(
