@@ -5,7 +5,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Pool } from 'pg';
 import * as schema from './schema';
@@ -15,7 +15,7 @@ import { join } from 'path';
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private pool!: Pool;
-  public db!: ReturnType<typeof drizzle>;
+  public db!: NodePgDatabase<typeof schema>;
 
   constructor(
     private configService: ConfigService,
