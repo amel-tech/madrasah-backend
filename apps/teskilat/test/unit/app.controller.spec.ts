@@ -7,7 +7,6 @@ describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
-    process.env.KEYCLOAK_JWKS_URL="test-url"
     const app: TestingModule = await Test.createTestingModule({
       imports: [LoggerModule.forRoot()],
       controllers: [AppController],

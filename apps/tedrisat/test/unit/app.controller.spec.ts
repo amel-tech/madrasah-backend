@@ -2,14 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from '../../src/app.controller';
 import { AppService } from '../../src/app.service';
 import { AuthGuardModule, LoggerModule } from '@madrasah/common';
+import { ConfigModule } from '@nestjs/config';
 
 describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
-    process.env.KEYCLOAK_JWKS_URL="test-url"
     const app: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot({
+          load: [() => ({
+            keycloak: {
+              jwksUrl: 'test-url'
+            },
+          })],
+          isGlobal: true,
+        }),
         LoggerModule.forRoot(),
         AuthGuardModule
       ],

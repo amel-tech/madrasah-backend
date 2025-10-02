@@ -3,6 +3,7 @@ import { ICACHE } from "../auth-guard.tokens";
 import { ICache } from "../interfaces/cache.interface";
 import { IPublicKeyProvider } from "../interfaces/public-key-provider.interface";
 import { KeyNotFoundError } from "../exceptions/exceptions";
+import { ConfigService } from "@nestjs/config";
 
 interface Jwk {
     kid: string;
@@ -27,18 +28,21 @@ export class KeycloakPublicKeyProvider implements IPublicKeyProvider, OnModuleIn
     private readonly config: KeycloakConfig;
     private readonly notFoundValue = "NOT_FOUND";
 
-    constructor(@Inject(ICACHE) private cacheService: ICache<string>) {
-        this.config = this.loadConfig();
+    constructor(
+        @Inject(ICACHE) private cacheService: ICache<string>,
+        @Inject() private configService: ConfigService
+    ) {
+        this.config = this.loadConfig(configService.get('keycloak.jwksUrl'));
     }
 
-    private loadConfig(): KeycloakConfig {
+    private loadConfig(jwksUrl?: string): KeycloakConfig {
         // Validate required environment variable
-        if (!process.env.KEYCLOAK_JWKS_URL) {
+        if (!jwksUrl) {
             throw new Error(`KEYCLOAK_JWKS_URL environment variable is required`);
         }
 
         return {
-            jwksUrl: process.env.KEYCLOAK_JWKS_URL,
+            jwksUrl: jwksUrl,
             // Make TTL values configurable with sensible defaults
             cacheTtl: parseInt(process.env.KEYCLOAK_CACHE_TTL || '86400'), // 24 hours
             notFoundCacheTtl: parseInt(process.env.KEYCLOAK_NOT_FOUND_CACHE_TTL || '120'), // 2 minutes
