@@ -1,22 +1,48 @@
-class JwtDecodeError extends Error {
-  constructor(message?: string) {
-    super(message ?? 'Failed to decode JWT token');
-    this.name = 'JwtDecodeError';
+import { UnauthorizedError } from "../../error";
+import { ErrorContext } from "../../error/types";
+
+abstract class JwtAuthError extends UnauthorizedError {
+  protected constructor(code: string, message: string, context?: ErrorContext) {
+    super(code, message, context);
   }
 }
 
-class JwtMissingKidError extends Error {
-  constructor(message?: string) {
-    super(message ?? 'JWT does not contain a valid key ID (kid) in the header');
-    this.name = 'JwtMissingKidError';
+export class JwtDecodeError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_DECODE_ERROR', 
+      message ?? 'Failed to decode JWT token',
+      context
+    );
   }
 }
 
-class JwtVerificationError extends Error {
-  constructor(message?: string) {
-    super(message ?? 'JWT verification failed');
-    this.name = 'JwtVerificationError';
+export class JwtMissingKidError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_MISSING_KID', 
+      message ?? 'JWT does not contain a valid key ID (kid) in the header',
+      context
+    );
   }
 }
 
-export { JwtDecodeError, JwtMissingKidError, JwtVerificationError };
+export class JwtVerificationError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'JWT_VERIFICATION_ERROR', 
+      message ?? 'JWT verification failed',
+      context
+    );
+  }
+}
+
+export class KeyNotFoundError extends JwtAuthError {
+  constructor(message?: string, context?: ErrorContext) {
+    super(
+      'KEY_NOT_FOUND', 
+      message ?? 'Signing key not found in JWKS',
+      context
+    );
+  }
+}

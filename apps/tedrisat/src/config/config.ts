@@ -40,4 +40,10 @@ export default () => ({
     migrationsFolder:
       process.env.AUTO_MIGRATIONS_FOLDER || './src/database/migrations',
   },
+  keycloak: {
+    // TODO: Remove this default value, after providing a keycloak container for test in CI.
+    jwksUrl: process.env.KEYCLOAK_JWKS_URL || 'test-url',
+    cacheTtl: process.env.KEYCLOAK_CACHE_TTL || '86400',
+    notFoundCacheTtl: process.env.KEYCLOAK_NOT_FOUND_CACHE_TTL || '120',
+  },
 });

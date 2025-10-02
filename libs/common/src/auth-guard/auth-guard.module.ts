@@ -1,14 +1,21 @@
 import { Module } from "@nestjs/common";
 import { AuthGuard } from './auth-guard';
 import { JwtVerifierService } from './services/jwt-verifier.service';
-import { DummyPublicKeyProvider } from './key-providers/dummy-provider';
-import { PUBLIC_KEY_PROVIDER, JWT_VERIFIER } from "./auth-guard.tokens";
+import { PUBLIC_KEY_PROVIDER, JWT_VERIFIER, ICACHE } from "./auth-guard.tokens";
+import { CacheModule } from "@nestjs/cache-manager";
+import { MemoryCache } from "./cache/memory-cache";
+import { KeycloakPublicKeyProvider } from "./key-providers/keycloak-public-key-provider";
 
 @Module({
+  imports: [CacheModule.register()],
   providers: [
       {
+        provide: ICACHE,
+        useClass: MemoryCache,
+      },
+      {
         provide: PUBLIC_KEY_PROVIDER,
-        useClass: DummyPublicKeyProvider,
+        useClass: KeycloakPublicKeyProvider,
       },
       {
         provide: JWT_VERIFIER,
@@ -16,6 +23,6 @@ import { PUBLIC_KEY_PROVIDER, JWT_VERIFIER } from "./auth-guard.tokens";
       },
       AuthGuard
   ],
-  exports: [AuthGuard, PUBLIC_KEY_PROVIDER, JWT_VERIFIER],
+  exports: [AuthGuard, PUBLIC_KEY_PROVIDER, JWT_VERIFIER, ICACHE],
 })
 export class AuthGuardModule {}
