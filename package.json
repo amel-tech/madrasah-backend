@@ -19,6 +19,7 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "test": "turbo test",
+    "test:coverage": "turbo test:coverage",
     "audit": "turbo audit",
     "audit:ci": "turbo audit:ci",
     "audit:fix": "npm audit fix",
