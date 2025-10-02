@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.1.2](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.1...tedrisat-v0.1.2) (2025-10-02)
+
+
+### Features
+
+* **auth-guard:** add Keycloak public key provider ([be36b26](https://github.com/amel-tech/madrasah-backend/commit/be36b2632b8085c76c45092709030833cc5abd8b))
+* **auth-guard:** use config service to inject keycloak jwks url ([6838bec](https://github.com/amel-tech/madrasah-backend/commit/6838bec3ca76f07c7b77c56cd80d5c7112b2395d))
+* auto migrate at runtime ([0c4a3be](https://github.com/amel-tech/madrasah-backend/commit/0c4a3beb32e11a671ec8e8ef8214924abe9c795d))
+* auto migrate at runtime ([27d44c2](https://github.com/amel-tech/madrasah-backend/commit/27d44c2979f6559e649a1b91e202ac6afa73b880))
+* basic base response model implementation ([9911a11](https://github.com/amel-tech/madrasah-backend/commit/9911a11d54f1cc05ddfa115957d4c4549d045516))
+* basic base response model implementation ([4efdec5](https://github.com/amel-tech/madrasah-backend/commit/4efdec5983432f99a8c5bf74f3cc409913f5aa2e))
+* cors config ([33865ee](https://github.com/amel-tech/madrasah-backend/commit/33865eebcabfe125e49f0dbe0f3cde8446413a69))
+* cors config ([84b8452](https://github.com/amel-tech/madrasah-backend/commit/84b845226a268df53e1ea7893a10ff3986d00cc4))
+* migrations is controlled by config ([607b8f7](https://github.com/amel-tech/madrasah-backend/commit/607b8f7138de321685944d1c0b266f6f62ee8e4e))
+* rename response model to MedarisResponse ([105ce9c](https://github.com/amel-tech/madrasah-backend/commit/105ce9cf7f0aa6ba123897c106d220cd93284568))
+* test coverage with complete test suits ([ec59727](https://github.com/amel-tech/madrasah-backend/commit/ec597277dd444bc718a18976aed5aa4d0a40d759))
+* testcontainers integrated ([353b3b2](https://github.com/amel-tech/madrasah-backend/commit/353b3b2b4c2d44ef6b5a274fd63cf187cc4478af))
+* **tests:** set KEYCLOAK_JWKS_URL for testing environment ([206a7e8](https://github.com/amel-tech/madrasah-backend/commit/206a7e80c039e928849557c6ea0910daa941594b))
+
+
+### Bug Fixes
+
+* remove unused imports and add eslint unused imports ([e8c093d](https://github.com/amel-tech/madrasah-backend/commit/e8c093d6162e8feccdd793cc7ece3d0adb641d41))
+
 ## [0.1.1](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.0...tedrisat-v0.1.1) (2025-08-21)
 
 
