@@ -26,6 +26,10 @@
       "outputs": ["coverage/**", "test-results/**"],
       "inputs": ["src/**/*.ts", "test/**/*.ts", "jest.config.*", "package.json"]
     },
+    "test:coverage": {
+      "dependsOn": ["^build", "build"],
+      "inputs": ["src/**/*.ts", "test/**/*.ts", "jest.config.*", "package.json"]
+    },
     "lint": {
       "inputs": ["src/**/*.ts", "test/**/*.ts", "eslint.config.*", "package.json"]
     },

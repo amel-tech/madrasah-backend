@@ -16,7 +16,8 @@
     "pino-pretty",
     "rimraf",
     "husky",
-    "@nestjs/schematics"
+    "@nestjs/schematics",
+    "testcontainers"
   ],
   "skip-missing": false
 }
