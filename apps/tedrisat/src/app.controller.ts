@@ -13,6 +13,7 @@ export class AppController {
   @ApiOperation({
     summary: 'Get hello message',
     description: 'Returns a greeting message from the Tedrisat service',
+    operationId: 'getHello',
   })
   @ApiResponse({
     status: 200,
@@ -27,6 +28,7 @@ export class AppController {
   @ApiOperation({
     summary: 'Health check',
     description: 'Returns the health status of the Tedrisat service',
+    operationId: 'getHealth',
   })
   @ApiResponse({
     status: 200,
@@ -38,7 +40,12 @@ export class AppController {
   }
 
   @Get('throw-error')
-  @ApiOperation({ summary: 'Throw a dummy error' })
+  @ApiOperation({
+    summary: 'Throw a dummy error',
+    description:
+      'Test endpoint that throws a validation error for demonstration purposes',
+    operationId: 'throwTestError',
+  })
   throwError(): Promise<void> {
     throw new ValidationError(
       'This is a test error to demonstrate error handling',
@@ -50,6 +57,7 @@ export class AppController {
   @ApiOperation({
     summary: 'Get secure hello message',
     description: 'Returns a secure hello message from the Tedrisat service',
+    operationId: 'getSecureHello',
   })
   @ApiResponse({
     status: 200,

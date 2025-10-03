@@ -12,6 +12,7 @@ export class AppController {
   @ApiOperation({
     summary: 'Get hello message',
     description: 'Returns a greeting message from the Teskilat service',
+    operationId: 'getTeskilatHello',
   })
   @ApiResponse({
     status: 200,
@@ -26,6 +27,7 @@ export class AppController {
   @ApiOperation({
     summary: 'Health check',
     description: 'Returns the health status of the Teskilat service',
+    operationId: 'getTeskilatHealth',
   })
   @ApiResponse({
     status: 200,
