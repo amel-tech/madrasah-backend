@@ -22,6 +22,7 @@ import {
   ApiFoundResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
@@ -44,6 +45,12 @@ export class FlashcardDeckController {
 
   // GET Requests
 
+  @ApiOperation({
+    summary: 'Get flashcard deck by ID',
+    description:
+      'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags and flashcards.',
+    operationId: 'getFlashcardDeckById',
+  })
   @ApiFoundResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
   @ApiQuery({
@@ -72,6 +79,12 @@ export class FlashcardDeckController {
     return deck;
   }
 
+  @ApiOperation({
+    summary: 'Get flashcard deck with cards',
+    description:
+      'Retrieves a flashcard deck by its ID with all flashcards automatically included, plus optional additional includes.',
+    operationId: 'getFlashcardDeckWithCards',
+  })
   @ApiFoundResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
   @ApiQuery({
@@ -101,6 +114,12 @@ export class FlashcardDeckController {
     return deck;
   }
 
+  @ApiOperation({
+    summary: 'Get all flashcard decks',
+    description:
+      'Retrieves all flashcard decks with optional includes for related data such as tags and flashcards.',
+    operationId: 'getAllFlashcardDecks',
+  })
   @ApiFoundResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
   @ApiQuery({
@@ -122,6 +141,12 @@ export class FlashcardDeckController {
 
   // POST Requests
 
+  @ApiOperation({
+    summary: 'Create a new flashcard deck',
+    description:
+      'Creates a new flashcard deck with the provided details. Tags can be optionally associated with the deck.',
+    operationId: 'createFlashcardDeck',
+  })
   @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @Post()
   async create(
@@ -137,6 +162,12 @@ export class FlashcardDeckController {
 
   // PUT Requests
 
+  @ApiOperation({
+    summary: 'Replace a flashcard deck completely',
+    description:
+      'Replaces all properties of an existing flashcard deck with new values. This is a complete replacement operation.',
+    operationId: 'replaceFlashcardDeck',
+  })
   @ApiBody({ type: ReplaceFlashcardDeckDto })
   // @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
@@ -157,6 +188,12 @@ export class FlashcardDeckController {
 
   // PATCH Requests
 
+  @ApiOperation({
+    summary: 'Update a flashcard deck partially',
+    description:
+      'Updates specific properties of an existing flashcard deck. Only provided fields will be updated.',
+    operationId: 'updateFlashcardDeck',
+  })
   @ApiBody({ type: UpdateFlashcardDeckDto })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiForbiddenResponse()
@@ -177,6 +214,12 @@ export class FlashcardDeckController {
 
   // DELETE Requests
 
+  @ApiOperation({
+    summary: 'Delete a flashcard deck',
+    description:
+      'Permanently deletes a flashcard deck by its ID. This action cannot be undone and will also remove all associated flashcards.',
+    operationId: 'deleteFlashcardDeck',
+  })
   @ApiOkResponse()
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) deckId: number): Promise<boolean> {

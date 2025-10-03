@@ -27,7 +27,12 @@ export class ExampleController {
   constructor(private readonly exampleService: ExampleService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all examples' })
+  @ApiOperation({
+    summary: 'Get all examples',
+    description:
+      'Retrieves a complete list of all available examples in the system',
+    operationId: 'getAllExamples',
+  })
   @ApiResponse({ status: 200, description: 'List of examples' })
   @ApiResponse({
     status: 200,
@@ -40,7 +45,11 @@ export class ExampleController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get example by ID' })
+  @ApiOperation({
+    summary: 'Get example by ID',
+    description: 'Retrieves a specific example by its unique identifier',
+    operationId: 'getExampleById',
+  })
   @ApiParam({ name: 'id', type: Number, description: 'Example ID' })
   @ApiResponse({
     status: 200,
@@ -57,7 +66,12 @@ export class ExampleController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new example' })
+  @ApiOperation({
+    summary: 'Create a new example',
+    description:
+      'Creates a new example with the provided data and returns the created example',
+    operationId: 'createExample',
+  })
   @ApiResponse({
     status: 201,
     description: 'Example created successfully',
@@ -71,7 +85,12 @@ export class ExampleController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete example by ID' })
+  @ApiOperation({
+    summary: 'Delete example by ID',
+    description:
+      'Permanently deletes an example by its ID. This action cannot be undone.',
+    operationId: 'deleteExample',
+  })
   @ApiParam({ name: 'id', type: Number, description: 'Example ID' })
   @ApiResponse({
     status: 200,

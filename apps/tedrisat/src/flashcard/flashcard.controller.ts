@@ -16,6 +16,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { FlashcardResponse } from './dto/flashcard-response.dto';
@@ -29,6 +30,11 @@ export class FlashcardController {
 
   // POST Requests
 
+  @ApiOperation({
+    summary: 'Create multiple flashcards in a deck',
+    description:
+      'Creates multiple flashcards within a specified deck. All cards will be assigned to the same deck and author.',
+  })
   @ApiBody({ type: [CreateFlashcardDto] })
   @ApiCreatedResponse({ type: FlashcardResponse, isArray: true })
   @Post('decks/:deckId/cards')
@@ -42,6 +48,12 @@ export class FlashcardController {
 
   // PUT Requests
 
+  @ApiOperation({
+    summary: 'Replace a flashcard completely',
+    description:
+      'Replaces all properties of an existing flashcard with new values. This is a complete replacement operation.',
+    operationId: 'replaceFlashcard',
+  })
   @ApiBody({ type: CreateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
   @ApiNotFoundResponse()
@@ -61,6 +73,12 @@ export class FlashcardController {
   }
 
   // PATCH Requests
+  @ApiOperation({
+    summary: 'Update a flashcard partially',
+    description:
+      'Updates specific properties of an existing flashcard. Only provided fields will be updated.',
+    operationId: 'updateFlashcard',
+  })
   @ApiBody({ type: UpdateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
   @ApiNotFoundResponse()
@@ -81,6 +99,12 @@ export class FlashcardController {
 
   // DELETE Requests
 
+  @ApiOperation({
+    summary: 'Delete a flashcard',
+    description:
+      'Permanently deletes a flashcard by its ID. This action cannot be undone.',
+    operationId: 'deleteFlashcard',
+  })
   @ApiOkResponse()
   @Delete('cards/:id')
   async deleteDeck(
