@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.2](https://github.com/amel-tech/madrasah-backend/compare/teskilat-v0.1.1...teskilat-v0.1.2) (2025-10-04)
+
+
+### Features
+
+* **auth-guard:** use config service to inject keycloak jwks url ([6838bec](https://github.com/amel-tech/madrasah-backend/commit/6838bec3ca76f07c7b77c56cd80d5c7112b2395d))
+* cors config ([33865ee](https://github.com/amel-tech/madrasah-backend/commit/33865eebcabfe125e49f0dbe0f3cde8446413a69))
+* cors config ([84b8452](https://github.com/amel-tech/madrasah-backend/commit/84b845226a268df53e1ea7893a10ff3986d00cc4))
+* test coverage with complete test suits ([ec59727](https://github.com/amel-tech/madrasah-backend/commit/ec597277dd444bc718a18976aed5aa4d0a40d759))
+* **tests:** set KEYCLOAK_JWKS_URL for testing environment ([206a7e8](https://github.com/amel-tech/madrasah-backend/commit/206a7e80c039e928849557c6ea0910daa941594b))
+
+
+### Bug Fixes
+
+* jest-junit added to teskilat service ([a9ddcec](https://github.com/amel-tech/madrasah-backend/commit/a9ddcec830ff781c68989055be6f9c66960fe47c))
+* remove unused imports and add eslint unused imports ([e8c093d](https://github.com/amel-tech/madrasah-backend/commit/e8c093d6162e8feccdd793cc7ece3d0adb641d41))
+
 ## [0.1.1](https://github.com/amel-tech/madrasah-backend/compare/teskilat-v0.1.0...teskilat-v0.1.1) (2025-08-21)
 
 
