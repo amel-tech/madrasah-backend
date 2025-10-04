@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.2...tedrisat-v0.1.3) (2025-10-04)
+
+
+### Bug Fixes
+
+* migration folder fix ([7a0e4ac](https://github.com/amel-tech/madrasah-backend/commit/7a0e4ace888ecfc97f386f3b4d649210828655bd))
+* migration folder fix ([d35f500](https://github.com/amel-tech/madrasah-backend/commit/d35f500faed9af0b006d0571e0680324676fc758))
+
 ## [0.1.2](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.1...tedrisat-v0.1.2) (2025-10-02)
 
 
