@@ -19,7 +19,6 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
-  ApiFoundResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -51,7 +50,7 @@ export class FlashcardDeckController {
       'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags and flashcards.',
     operationId: 'getFlashcardDeckById',
   })
-  @ApiFoundResponse({ type: FlashcardDeckResponse })
+  @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
   @ApiQuery({
     name: 'include',
@@ -85,7 +84,7 @@ export class FlashcardDeckController {
       'Retrieves a flashcard deck by its ID with all flashcards automatically included, plus optional additional includes.',
     operationId: 'getFlashcardDeckWithCards',
   })
-  @ApiFoundResponse({ type: FlashcardDeckResponse })
+  @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
   @ApiQuery({
     name: 'include',
@@ -120,7 +119,7 @@ export class FlashcardDeckController {
       'Retrieves all flashcard decks with optional includes for related data such as tags and flashcards.',
     operationId: 'getAllFlashcardDecks',
   })
-  @ApiFoundResponse({ type: FlashcardDeckResponse, isArray: true })
+  @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
   @ApiQuery({
     name: 'include',
