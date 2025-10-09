@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.4](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.3...tedrisat-v0.1.4) (2025-10-09)
+
+
+### Bug Fixes
+
+* dockerfile fix for migrations folder ([330100b](https://github.com/amel-tech/madrasah-backend/commit/330100bd93f15f5383acffcc4890eee881ef4c6c))
+* replaced ApiFoundResponse decorator to ApiOkResponse ([ac4b8d8](https://github.com/amel-tech/madrasah-backend/commit/ac4b8d8c21ae6d4765ae3f36ab018423fbcd31bc))
+* replaced ApiFoundResponse decorator to ApiOkResponse ([cf6fd49](https://github.com/amel-tech/madrasah-backend/commit/cf6fd495d989eec0933b82f3730ce1584baec0e1))
+
 ## [0.1.3](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.2...tedrisat-v0.1.3) (2025-10-04)
 
 
