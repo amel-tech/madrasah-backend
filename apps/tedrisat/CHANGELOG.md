@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.4...tedrisat-v0.1.5) (2025-10-09)
+
+
+### Features
+
+* update health check response to use dynamic version from config… ([cb3cc07](https://github.com/amel-tech/madrasah-backend/commit/cb3cc07528a84e5dad57c13f509e128e22fb3a0e))
+
 ## [0.1.4](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.3...tedrisat-v0.1.4) (2025-10-09)
 
 
