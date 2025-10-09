@@ -12,6 +12,7 @@ COPY libs/ ./libs/
 # Copy tedrisat app files
 COPY apps/tedrisat/package*.json ./apps/tedrisat/
 COPY apps/tedrisat/tsconfig*.json ./apps/tedrisat/
+COPY apps/tedrisat/nest-cli.json ./apps/tedrisat/
 
 # Install all dependencies (including workspace dependencies)
 RUN npm install
