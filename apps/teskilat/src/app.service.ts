@@ -1,5 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { HealthCheckDto, LOGGER, ILogger } from '@madrasah/common';
+import { configuration } from './config';
+const { version } = configuration();
 
 @Injectable()
 export class AppService {
@@ -14,6 +16,6 @@ export class AppService {
 
   getHealth(): HealthCheckDto {
     this.logger.log('Health check requested');
-    return new HealthCheckDto('teskilat', 'ok', '1.0.0', 'development');
+    return new HealthCheckDto('teskilat', 'ok', version, 'development');
   }
 }
