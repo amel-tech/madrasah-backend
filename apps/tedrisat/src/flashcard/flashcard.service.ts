@@ -11,6 +11,10 @@ import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 export class FlashcardService {
   constructor(private readonly cardRepo: FlashcardRepository) {}
 
+  async findById(id: number): Promise<IFlashcard | null> {
+    return this.cardRepo.findById(id);
+  }
+
   async createMany(
     deckId: number,
     authorId: number,
