@@ -1,5 +1,6 @@
 import {
   Delete,
+  Get,
   HttpException,
   HttpStatus,
   Param,
@@ -27,6 +28,29 @@ import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
 @Controller('flashcard/')
 export class FlashcardController {
   constructor(private readonly cardService: FlashcardService) {}
+
+  // GET Requests
+
+  @ApiOperation({
+    summary: 'Get a single flashcard',
+    description: 'Retrieves a specific flashcard by its unique identifier',
+    operationId: 'getFlashcardById',
+  })
+  @ApiOkResponse({ type: FlashcardResponse })
+  @ApiNotFoundResponse()
+  @Get('cards/:id')
+  async findById(
+    @Param('id', ParseIntPipe) cardId: number,
+  ): Promise<FlashcardResponse> {
+    const card = await this.cardService.findById(cardId);
+    if (!card) {
+      throw new HttpException(
+        `could not find card #${cardId}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return card;
+  }
 
   // POST Requests
 
