@@ -1,0 +1,76 @@
+name: CI Dev Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # Build and push Teskilat and Tedrisat API Docker image to GitHub Container Registry
+  # with tedrisat-dev and teskilat-dev tags respectively
+  build-and-push-tedrisat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker Tedrisat API
+        id: tedrisat_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-tedrisat-api
+          tags: tedrisat-dev
+
+      - name: Build and push Docker image Tedrisat API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/tedrisat/Dockerfile
+          push: true
+          tags: ${{ steps.tedrisat_meta.outputs.tags }}
+          labels: ${{ steps.tedrisat_meta.outputs.labels }}
+
+      - name: Deploy Tedrisat to Coolify
+        run: | 
+         curl --request GET '${{ secrets.TEDRISAT_SERVICE_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}'
+  
+  build-and-push-teskilat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker Teskilat API
+        id: teskilat_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-teskilat-api
+          tags: teskilat-dev
+      - name: Build and push Docker image Teskilat API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./apps/teskilat/Dockerfile
+          push: true
+          tags: ${{ steps.teskilat_meta.outputs.tags }}
+          labels: ${{ steps.teskilat_meta.outputs.labels }}
+      - name: Deploy Teskilat to Coolify
+        run: | 
+         curl --request GET '${{ secrets.TESKILAT_SERVICE_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_DEPLOY_TOKEN }}'
