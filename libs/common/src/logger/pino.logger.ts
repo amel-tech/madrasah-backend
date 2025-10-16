@@ -53,23 +53,40 @@ export class PinoLogger implements ILogger {
     this.context = context;
   }
 
-  log(message: any) {
-    this.logger.info({ context: this.context }, message);
+  log(message: string, data?: any): void {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.info(logData, message);
   }
 
-  error(message: any, trace?: string) {
-    this.logger.error({ context: this.context, trace }, message);
+  error(message: string, error?: Error | any) {
+    const errorData: any = { context: this.context };
+    
+    if (error) {
+      if (error instanceof Error) {
+        errorData.error = {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        };
+      } else {
+        errorData.error = error;
+      }
+    }
+    this.logger.error(errorData, message);
   }
 
-  warn(message: any) {
-    this.logger.warn({ context: this.context }, message);
+  warn(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.warn(logData, message);
   }
 
-  debug(message: any) {
-    this.logger.debug({ context: this.context }, message);
+  debug(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.debug(logData, message);
   }
 
-  verbose(message: any) {
-    this.logger.trace({ context: this.context }, message);
+  verbose(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.trace(logData, message);
   }
 }

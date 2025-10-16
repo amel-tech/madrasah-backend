@@ -43,7 +43,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.pool.query('SELECT 1');
       this.logger.log('Database connected successfully');
     } catch (error) {
-      this.logger.error('Database connection failed:');
+      this.logger.error('Database connection failed:', error);
       throw error;
     }
   }
@@ -67,8 +67,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         .then(() => {
           this.logger.log('Migrations completed successfully');
         })
-        .catch(() => {
-          this.logger.error('Migrations failed');
+        .catch((error) => {
+          this.logger.error('Migrations failed', error);
         });
     }
 
