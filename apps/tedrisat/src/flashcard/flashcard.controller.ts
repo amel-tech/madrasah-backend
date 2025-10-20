@@ -58,6 +58,7 @@ export class FlashcardController {
     summary: 'Create multiple flashcards in a deck',
     description:
       'Creates multiple flashcards within a specified deck. All cards will be assigned to the same deck and author.',
+    operationId: 'createFlashcards',
   })
   @ApiBody({ type: [CreateFlashcardDto] })
   @ApiCreatedResponse({ type: FlashcardResponse, isArray: true })
