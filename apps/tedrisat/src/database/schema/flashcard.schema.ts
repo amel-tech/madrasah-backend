@@ -9,7 +9,7 @@ import {
 import { relations } from 'drizzle-orm';
 import { decks } from './flashcard-deck.schema';
 import { FlashcardType } from '../../flashcard/domain/flashcard-type.enum';
-import { FlashcardProgressStatus } from 'src/flashcard/domain/flashcard-progress-status.enum';
+import { FlashcardProgressStatus } from '../../flashcard/domain/flashcard-progress-status.enum';
 
 export const flashcardType = pgEnum('flashcard_type', FlashcardType);
 export const flaschardProgressStatus = pgEnum(
