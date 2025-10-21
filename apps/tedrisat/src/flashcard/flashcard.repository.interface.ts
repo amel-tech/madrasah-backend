@@ -1,3 +1,4 @@
+import { FlashcardProgressStatus } from './domain/flashcard-progress-status.enum';
 import { FlashcardType } from './domain/flashcard-type.enum';
 
 export interface IFlashcard {
@@ -10,6 +11,7 @@ export interface IFlashcard {
   contentMeta: unknown;
   createdAt: Date;
   updatedAt: Date;
+  progress?: IFlashcardProgress[];
 }
 
 export interface ICreateFlashcard {
@@ -28,8 +30,15 @@ export interface IUpdateFlashcard {
   contentMeta?: unknown;
 }
 
+export interface IFlashcardProgress {
+  userId: number;
+  flashcardId: number;
+  status: FlashcardProgressStatus;
+}
+
 export interface IFlashcardRepository {
-  findById(id: number, include?: Set<string>): Promise<IFlashcard | null>;
+  findById(id: number, userId: number, include?: Set<string>): Promise<IFlashcard | null>;
+  findByDeckId(deckId: number, userId: number, include?: Set<string>): Promise<IFlashcard[] | null>;
   createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]>;
   update(id: number, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
   delete(id: number): Promise<boolean>;
