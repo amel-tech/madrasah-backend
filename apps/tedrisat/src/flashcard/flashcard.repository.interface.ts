@@ -34,6 +34,13 @@ export interface IFlashcardProgress {
   userId: number;
   flashcardId: number;
   status: FlashcardProgressStatus;
+  // this will potentially be extended
+}
+
+export interface ICreateFlashcardProgress {
+  userId: number;
+  flashcardId: number;
+  status: FlashcardProgressStatus;
 }
 
 export interface IFlashcardRepository {
@@ -50,4 +57,8 @@ export interface IFlashcardRepository {
   createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]>;
   update(id: number, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
   delete(id: number): Promise<boolean>;
+
+  replaceManyProgress(
+    updates: ICreateFlashcardProgress[],
+  ): Promise<IFlashcardProgress[]>;
 }

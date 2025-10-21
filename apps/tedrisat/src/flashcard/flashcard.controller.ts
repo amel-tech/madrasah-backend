@@ -23,6 +23,8 @@ import {
 import { FlashcardResponse } from './dto/flashcard-response.dto';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { UpdateFlashcardDto } from './dto/update-flashcard.dto';
+import { FlashcardProgressResponse } from './dto/flashcard-progress-response.dto';
+import { CreateFlashcardProgressDto } from './dto/create-flashcard-progress.dto';
 
 @ApiTags('flashcard-cards')
 @Controller('flashcard/')
@@ -95,6 +97,20 @@ export class FlashcardController {
       );
     }
     return updatedCard;
+  }
+
+  @ApiOperation({
+    summary: 'Create or update flashcard progress',
+    operationId: 'replaceManyFlashcardProgress',
+  })
+  @ApiOkResponse({ type: [FlashcardProgressResponse] })
+  @ApiBody({ type: [CreateFlashcardProgressDto] })
+  @Put('cards/progress')
+  async replaceManyProgress(
+    @Body() progressDto: CreateFlashcardProgressDto[],
+  ): Promise<FlashcardProgressResponse[]> {
+    const userId = 1;
+    return this.cardService.replaceManyProgress(userId, progressDto);
   }
 
   // PATCH Requests

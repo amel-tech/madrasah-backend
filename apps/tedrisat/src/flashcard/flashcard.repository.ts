@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import {
   ICreateFlashcard,
+  ICreateFlashcardProgress,
   IFlashcard,
+  IFlashcardProgress,
   IFlashcardRepository,
   IUpdateFlashcard,
 } from './flashcard.repository.interface';
 import { DatabaseService } from '../database/database.service';
 import { flashcardProgress, flashcards } from '../database/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 function fillWith(include?: Set<string>) {
   return Object.fromEntries([...(include ?? [])].map((item) => [item, true]));
@@ -76,5 +78,20 @@ export class FlashcardRepository implements IFlashcardRepository {
       .returning();
 
     return deletedCards.length ? true : false;
+  }
+
+  // flashcard-progress
+
+  async replaceManyProgress(
+    updates: ICreateFlashcardProgress[],
+  ): Promise<IFlashcardProgress[]> {
+    return this.databaseService.db
+      .insert(flashcardProgress)
+      .values(updates)
+      .onConflictDoUpdate({
+        target: [flashcardProgress.userId, flashcardProgress.flashcardId],
+        set: { status: sql.raw(`excluded.${flashcardProgress.status.name}`) },
+      })
+      .returning();
   }
 }

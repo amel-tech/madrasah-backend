@@ -3,9 +3,11 @@ import { FlashcardRepository } from './flashcard.repository';
 import {
   ICreateFlashcard,
   IFlashcard,
+  IFlashcardProgress,
   IUpdateFlashcard,
 } from './flashcard.repository.interface';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
+import { CreateFlashcardProgressDto } from './dto/create-flashcard-progress.dto';
 
 @Injectable()
 export class FlashcardService {
@@ -26,6 +28,18 @@ export class FlashcardService {
       authorId,
     }));
     return this.cardRepo.createMany(newCards);
+  }
+
+  async replaceManyProgress(
+    userId: number,
+    progress: CreateFlashcardProgressDto[],
+  ): Promise<IFlashcardProgress[]> {
+    const progressWithUser = progress.map((data) => ({
+      userId,
+      ...data,
+    }));
+
+    return this.cardRepo.replaceManyProgress(progressWithUser);
   }
 
   async update(
