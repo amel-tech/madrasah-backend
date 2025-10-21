@@ -12,7 +12,10 @@ import { FlashcardType } from '../../flashcard/domain/flashcard-type.enum';
 import { FlashcardProgressStatus } from 'src/flashcard/domain/flashcard-progress-status.enum';
 
 export const flashcardType = pgEnum('flashcard_type', FlashcardType);
-export const flaschardProgressStatus = pgEnum('flashcard_user_status', FlashcardProgressStatus);
+export const flaschardProgressStatus = pgEnum(
+  'flashcard_user_status',
+  FlashcardProgressStatus,
+);
 
 // Tables
 export const flashcards = table('flashcards', {
@@ -32,7 +35,9 @@ export const flashcards = table('flashcards', {
 export const flashcardProgress = table('flashcard_progress', {
   userId: integer('user_id').notNull(),
   flashcardId: integer('flashcard_id').notNull(),
-  status: flaschardProgressStatus().default(FlashcardProgressStatus.NEW).notNull(),
+  status: flaschardProgressStatus()
+    .default(FlashcardProgressStatus.NEW)
+    .notNull(),
 });
 
 // ORM Relations
@@ -44,9 +49,12 @@ export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({
   progress: many(flashcardProgress),
 }));
 
-export const flashcardProgressRelations = relations(flashcardProgress, ({ one }) => ({
-  flashcard: one(flashcards, {
-    fields: [flashcardProgress.flashcardId],
-    references: [flashcards.id],
+export const flashcardProgressRelations = relations(
+  flashcardProgress,
+  ({ one }) => ({
+    flashcard: one(flashcards, {
+      fields: [flashcardProgress.flashcardId],
+      references: [flashcards.id],
+    }),
   }),
-}));
+);

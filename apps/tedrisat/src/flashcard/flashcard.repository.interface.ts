@@ -37,8 +37,16 @@ export interface IFlashcardProgress {
 }
 
 export interface IFlashcardRepository {
-  findById(id: number, userId: number, include?: Set<string>): Promise<IFlashcard | null>;
-  findByDeckId(deckId: number, userId: number, include?: Set<string>): Promise<IFlashcard[] | null>;
+  findById(
+    id: number,
+    userId: number,
+    include?: Set<string>,
+  ): Promise<IFlashcard | null>;
+  findByDeckId(
+    deckId: number,
+    userId: number,
+    include?: Set<string>,
+  ): Promise<IFlashcard[] | null>;
   createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]>;
   update(id: number, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
   delete(id: number): Promise<boolean>;

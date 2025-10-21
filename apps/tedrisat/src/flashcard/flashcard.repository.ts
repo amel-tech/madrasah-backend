@@ -10,18 +10,22 @@ import { flashcardProgress, flashcards } from '../database/schema';
 import { and, eq } from 'drizzle-orm';
 
 function fillWith(include?: Set<string>) {
-  return Object.fromEntries([...(include ?? [])].map(item => [item, true]));
+  return Object.fromEntries([...(include ?? [])].map((item) => [item, true]));
 }
 
 @Injectable()
 export class FlashcardRepository implements IFlashcardRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async findById(id: number, userId: number, include?: Set<string>): Promise<IFlashcard | null> {
-    const filterByUser = "progress" in (include ?? []);
+  async findById(
+    id: number,
+    userId: number,
+    include?: Set<string>,
+  ): Promise<IFlashcard | null> {
+    const filterByUser = 'progress' in (include ?? []);
     const filter = and(
       eq(flashcards.id, id),
-      filterByUser ? eq(flashcardProgress.userId, userId) : undefined
+      filterByUser ? eq(flashcardProgress.userId, userId) : undefined,
     );
 
     return this.databaseService.db.query.flashcards
@@ -32,18 +36,21 @@ export class FlashcardRepository implements IFlashcardRepository {
       .then((result) => result || null);
   }
 
-  async findByDeckId(deckId: number, userId: number, include?: Set<string>): Promise<IFlashcard[]> {
-    const filterByUser = "progress" in (include ?? []);
+  async findByDeckId(
+    deckId: number,
+    userId: number,
+    include?: Set<string>,
+  ): Promise<IFlashcard[]> {
+    const filterByUser = 'progress' in (include ?? []);
     const filter = and(
       eq(flashcards.deckId, deckId),
-      filterByUser ? eq(flashcardProgress.userId, userId) : undefined
+      filterByUser ? eq(flashcardProgress.userId, userId) : undefined,
     );
 
-    return this.databaseService.db.query.flashcards
-      .findMany({
-        where: filter,
-        with: fillWith(include)
-      });
+    return this.databaseService.db.query.flashcards.findMany({
+      where: filter,
+      with: fillWith(include),
+    });
   }
 
   async createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]> {

@@ -1,5 +1,5 @@
 export enum FlashcardProgressStatus {
-    NEW = "NEW",
-    LEARNING = "LEARNING",
-    MASTERED = "MASTERED"
+  NEW = 'NEW',
+  LEARNING = 'LEARNING',
+  MASTERED = 'MASTERED',
 }
