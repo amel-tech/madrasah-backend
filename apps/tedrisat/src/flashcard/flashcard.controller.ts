@@ -44,7 +44,8 @@ export class FlashcardController {
   async findById(
     @Param('id', ParseIntPipe) cardId: number,
   ): Promise<FlashcardResponse> {
-    const card = await this.cardService.findById(cardId);
+    const userId = 1;
+    const card = await this.cardService.findById(cardId, userId);
     if (!card) {
       throw new HttpException(
         `could not find card #${cardId}`,
