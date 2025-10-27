@@ -5,6 +5,7 @@ import {
   timestamp,
   pgEnum,
   jsonb,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { decks } from './flashcard-deck.schema';
@@ -32,13 +33,17 @@ export const flashcards = table('flashcards', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const flashcardProgress = table('flashcard_progress', {
-  userId: integer('user_id').notNull(),
-  flashcardId: integer('flashcard_id').notNull(),
-  status: flaschardProgressStatus()
-    .default(FlashcardProgressStatus.NEW)
-    .notNull(),
-});
+export const flashcardProgress = table(
+  'flashcard_progress',
+  {
+    userId: integer('user_id').notNull(),
+    flashcardId: integer('flashcard_id').notNull(),
+    status: flaschardProgressStatus()
+      .default(FlashcardProgressStatus.NEW)
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.flashcardId] })],
+);
 
 // ORM Relations
 export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({

@@ -113,7 +113,7 @@ export class FlashcardController {
 
   // PUT Requests
 
-    @ApiOperation({
+  @ApiOperation({
     summary: 'Create or update flashcard progress',
     operationId: 'replaceManyFlashcardProgress',
   })
