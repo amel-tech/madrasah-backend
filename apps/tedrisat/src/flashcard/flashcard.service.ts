@@ -13,8 +13,20 @@ import { CreateFlashcardProgressDto } from './dto/create-flashcard-progress.dto'
 export class FlashcardService {
   constructor(private readonly cardRepo: FlashcardRepository) {}
 
-  async findById(id: number, userId: number): Promise<IFlashcard | null> {
-    return this.cardRepo.findById(id, userId);
+  async findById(
+    id: number,
+    userId: number,
+    include?: string[],
+  ): Promise<IFlashcard | null> {
+    return this.cardRepo.findById(id, userId, new Set(include));
+  }
+
+  async findByDeckId(
+    deckId: number,
+    userId: number,
+    include?: string[],
+  ): Promise<IFlashcard[]> {
+    return this.cardRepo.findByDeckId(deckId, userId, new Set(include));
   }
 
   async createMany(
