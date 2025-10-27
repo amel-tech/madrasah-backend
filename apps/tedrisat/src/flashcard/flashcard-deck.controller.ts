@@ -22,10 +22,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  ReplaceFlashcardDeckDto,
-  UpdateFlashcardDeckDto,
-} from './dto/update-flashcard-deck.dto';
+import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto';
 import { FlashcardDeckService } from './flashcard-deck.service';
 import {
   IncludeApiQuery,
@@ -33,7 +30,7 @@ import {
 } from './decorators/include-query.decorator';
 
 export enum DeckIncludeEnum {
-  Tags = 'tags',
+  // Tags = 'tags',
 }
 
 @ApiTags('flashcard-decks')
@@ -46,7 +43,7 @@ export class FlashcardDeckController {
   @ApiOperation({
     summary: 'Get flashcard deck by ID',
     description:
-      'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags and flashcards.',
+      'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags.',
     operationId: 'getFlashcardDeckById',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse })
@@ -68,34 +65,9 @@ export class FlashcardDeckController {
   }
 
   @ApiOperation({
-    summary: 'Get flashcard deck with cards',
-    description:
-      'Retrieves a flashcard deck by its ID with all flashcards automatically included, plus optional additional includes.',
-    operationId: 'getFlashcardDeckWithCards',
-  })
-  @ApiOkResponse({ type: FlashcardDeckResponse })
-  @ApiNotFoundResponse()
-  @IncludeApiQuery(DeckIncludeEnum)
-  @Get(':id/cards')
-  async findByIdCards(
-    @Param('id', ParseIntPipe) deckId: number,
-    @IncludeQuery() include?: string[],
-  ): Promise<FlashcardDeckResponse> {
-    const includeWithCards = [...(include || []), 'flashcards'];
-    const deck = await this.deckService.findById(deckId, includeWithCards);
-    if (!deck) {
-      throw new HttpException(
-        `no deck was found by id #${deckId}`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return deck;
-  }
-
-  @ApiOperation({
     summary: 'Get all flashcard decks',
     description:
-      'Retrieves all flashcard decks with optional includes for related data such as tags and flashcards.',
+      'Retrieves all flashcard decks with optional includes for related data such as tags.',
     operationId: 'getAllFlashcardDecks',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
@@ -120,11 +92,9 @@ export class FlashcardDeckController {
   async create(
     @Body() deckDto: CreateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
-    const { tagIds, ...newDeckContent } = deckDto;
-    const newDeck = { authorId: 1, ...newDeckContent };
+    const newDeck = { authorId: 1, ...deckDto };
     const createdDeck = await this.deckService.create(newDeck);
 
-    if (tagIds && tagIds.length) console.log('will add tags here'); // await this.tagService.createPairsMany(createdDeck.id, tagIds)
     return createdDeck;
   }
 
@@ -136,13 +106,13 @@ export class FlashcardDeckController {
       'Replaces all properties of an existing flashcard deck with new values. This is a complete replacement operation.',
     operationId: 'replaceFlashcardDeck',
   })
-  @ApiBody({ type: ReplaceFlashcardDeckDto })
+  @ApiBody({ type: CreateFlashcardDeckDto })
   // @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Put(':id')
   async replace(
     @Param('id', ParseIntPipe) deckId: number,
-    @Body() deckDto: ReplaceFlashcardDeckDto,
+    @Body() deckDto: CreateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
     const updatedDeck = await this.deckService.update(deckId, deckDto);
     if (!updatedDeck) {

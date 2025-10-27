@@ -6,7 +6,6 @@ import {
   boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { deckTagsDecks } from './flashcard-deck-tag.schema';
 import { flashcards } from './flashcard.schema';
 
 // Tables
@@ -22,6 +21,5 @@ export const decks = table('decks', {
 
 // ORM Relations
 export const decksRelations = relations(decks, ({ many }) => ({
-  deckTagsDecks: many(deckTagsDecks),
   flashcards: many(flashcards),
 }));

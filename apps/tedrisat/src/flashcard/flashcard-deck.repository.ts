@@ -8,18 +8,11 @@ import {
   IFlashcardDeckRepository,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
-import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   private readonly includeMap: Record<string, Record<string, any>> = {
-    tags: {
-      deckTagsDecks: {
-        with: {
-          tag: true,
-        },
-      },
-    },
+    // matching keys are replaced with their content to populate "with" field in db.query API
   } as const;
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -39,25 +32,10 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       }
     }
 
-    return this.databaseService.db.query.decks
-      .findMany({
-        where: filter,
-        with: withClause,
-      })
-      .then((results) =>
-        results.map((result) => {
-          const { deckTagsDecks, ...resultBase } = result;
-          const transformed: IFlashcardDeck = resultBase;
-
-          if (deckTagsDecks) {
-            transformed.tags = (
-              deckTagsDecks as { tag: IFlashcardDeckTag }[]
-            ).map((dtd) => dtd.tag);
-          }
-
-          return transformed;
-        }),
-      );
+    return this.databaseService.db.query.decks.findMany({
+      where: filter,
+      with: withClause,
+    });
   }
 
   async findById(
