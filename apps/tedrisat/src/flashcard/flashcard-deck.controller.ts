@@ -4,12 +4,10 @@ import {
   HttpException,
   HttpStatus,
   Param,
-  ParseArrayPipe,
   ParseIntPipe,
   Patch,
   Post,
   Put,
-  Query,
 } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 
@@ -22,7 +20,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import {
@@ -30,11 +27,13 @@ import {
   UpdateFlashcardDeckDto,
 } from './dto/update-flashcard-deck.dto';
 import { FlashcardDeckService } from './flashcard-deck.service';
+import {
+  IncludeApiQuery,
+  IncludeQuery,
+} from './decorators/include-query.decorator';
 
 export enum DeckIncludeEnum {
   Tags = 'tags',
-  Flashcards = 'flashcards',
-  FlashcardsUserData = 'flashcards:user_data',
 }
 
 @ApiTags('flashcard-decks')
@@ -52,21 +51,11 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
+  @IncludeApiQuery(DeckIncludeEnum)
   @Get(':id')
   async findById(
     @Param('id', ParseIntPipe) deckId: number,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
+    @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse> {
     const deck = await this.deckService.findById(deckId, include);
     if (!deck) {
@@ -86,21 +75,11 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
+  @IncludeApiQuery(DeckIncludeEnum)
   @Get(':id/cards')
   async findByIdCards(
     @Param('id', ParseIntPipe) deckId: number,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
+    @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse> {
     const includeWithCards = [...(include || []), 'flashcards'];
     const deck = await this.deckService.findById(deckId, includeWithCards);
@@ -121,19 +100,9 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
+  @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
+    @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
     return this.deckService.findAll(include);
   }

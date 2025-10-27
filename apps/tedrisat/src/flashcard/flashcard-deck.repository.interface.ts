@@ -1,5 +1,4 @@
 import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
-import { IFlashcard } from './flashcard.repository.interface';
 
 export interface IFlashcardDeck {
   id: number;
@@ -10,7 +9,6 @@ export interface IFlashcardDeck {
   updatedAt: Date;
   description: string | null;
   tags?: IFlashcardDeckTag[];
-  flashcards?: IFlashcard[];
 }
 
 export interface ICreateFlashcardDeck {

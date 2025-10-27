@@ -9,7 +9,6 @@ import {
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
 import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
-import { IFlashcard } from './flashcard.repository.interface';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
@@ -21,10 +20,6 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
         },
       },
     },
-    flashcards: {
-      flashcards: true,
-    },
-    // TODO: handle 'flashcards:user_data' logic
   } as const;
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -51,16 +46,13 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       })
       .then((results) =>
         results.map((result) => {
-          const { deckTagsDecks, flashcards, ...resultBase } = result;
+          const { deckTagsDecks, ...resultBase } = result;
           const transformed: IFlashcardDeck = resultBase;
 
           if (deckTagsDecks) {
             transformed.tags = (
               deckTagsDecks as { tag: IFlashcardDeckTag }[]
             ).map((dtd) => dtd.tag);
-          }
-          if (flashcards) {
-            transformed.flashcards = flashcards as IFlashcard[];
           }
 
           return transformed;
