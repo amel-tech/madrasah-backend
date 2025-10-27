@@ -7,8 +7,10 @@ import { FlashcardController } from './flashcard.controller';
 import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import { DatabaseService } from '../database/database.service';
 import { FlashcardRepository } from './flashcard.repository';
+import { AuthGuardModule } from '@madrasah/common';
 
 @Module({
+  imports: [AuthGuardModule],
   controllers: [FlashcardController, FlashcardDeckController],
   providers: [
     FlashcardService,

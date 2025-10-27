@@ -1,6 +1,6 @@
 import {
   pgTable as table,
-  integer,
+  uuid,
   text,
   timestamp,
   pgEnum,
@@ -20,11 +20,11 @@ export const flaschardProgressStatus = pgEnum(
 
 // Tables
 export const flashcards = table('flashcards', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  deckId: integer('deck_id')
+  id: uuid('id').primaryKey().defaultRandom(),
+  deckId: uuid('deck_id')
     .references(() => decks.id, { onDelete: 'cascade' })
     .notNull(),
-  authorId: integer('author_id').notNull(),
+  authorId: uuid('author_id').notNull(),
   type: flashcardType().notNull(),
   contentFront: text('content_front').notNull(),
   contentBack: text('content_back').notNull(),
@@ -36,8 +36,8 @@ export const flashcards = table('flashcards', {
 export const flashcardProgress = table(
   'flashcard_progress',
   {
-    userId: integer('user_id').notNull(),
-    flashcardId: integer('flashcard_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    flashcardId: uuid('flashcard_id').notNull(),
     status: flaschardProgressStatus()
       .default(FlashcardProgressStatus.NEW)
       .notNull(),

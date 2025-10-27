@@ -20,8 +20,8 @@ export class FlashcardRepository implements IFlashcardRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async findById(
-    id: number,
-    userId: number,
+    id: string,
+    userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard | null> {
     const filterByUser = 'progress' in (include ?? []);
@@ -39,8 +39,8 @@ export class FlashcardRepository implements IFlashcardRepository {
   }
 
   async findByDeckId(
-    deckId: number,
-    userId: number,
+    deckId: string,
+    userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard[]> {
     const filterByUser = 'progress' in (include ?? []);
@@ -60,7 +60,7 @@ export class FlashcardRepository implements IFlashcardRepository {
   }
 
   async update(
-    id: number,
+    id: string,
     updates: IUpdateFlashcard,
   ): Promise<IFlashcard | null> {
     return this.databaseService.db
@@ -71,7 +71,7 @@ export class FlashcardRepository implements IFlashcardRepository {
       .then((result) => result[0] || null);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const deletedCards = await this.databaseService.db
       .delete(flashcards)
       .where(eq(flashcards.id, id))

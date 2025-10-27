@@ -2,9 +2,9 @@ import { FlashcardProgressStatus } from './domain/flashcard-progress-status.enum
 import { FlashcardType } from './domain/flashcard-type.enum';
 
 export interface IFlashcard {
-  id: number;
-  deckId: number;
-  authorId: number;
+  id: string;
+  deckId: string;
+  authorId: string;
   type: FlashcardType;
   contentFront: string;
   contentBack: string;
@@ -15,8 +15,8 @@ export interface IFlashcard {
 }
 
 export interface ICreateFlashcard {
-  deckId: number;
-  authorId: number;
+  deckId: string;
+  authorId: string;
   type: FlashcardType;
   contentFront: string;
   contentBack: string;
@@ -31,32 +31,32 @@ export interface IUpdateFlashcard {
 }
 
 export interface IFlashcardProgress {
-  userId: number;
-  flashcardId: number;
+  userId: string;
+  flashcardId: string;
   status: FlashcardProgressStatus;
   // this will potentially be extended
 }
 
 export interface ICreateFlashcardProgress {
-  userId: number;
-  flashcardId: number;
+  userId: string;
+  flashcardId: string;
   status: FlashcardProgressStatus;
 }
 
 export interface IFlashcardRepository {
   findById(
-    id: number,
-    userId: number,
+    id: string,
+    userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard | null>;
   findByDeckId(
-    deckId: number,
-    userId: number,
+    deckId: string,
+    userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard[] | null>;
   createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]>;
-  update(id: number, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
-  delete(id: number): Promise<boolean>;
+  update(id: string, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
+  delete(id: string): Promise<boolean>;
 
   replaceManyProgress(
     updates: ICreateFlashcardProgress[],

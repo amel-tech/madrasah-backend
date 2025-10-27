@@ -5,13 +5,13 @@ import { Type } from '@nestjs/class-transformer';
 
 export class FlashcardResponse extends CreateFlashcardDto {
   @ApiProperty()
-  id!: number;
+  id!: string;
 
   @ApiProperty()
-  deckId!: number;
+  deckId!: string;
 
   @ApiProperty()
-  authorId!: number;
+  authorId!: string;
 
   @ApiPropertyOptional({ type: FlashcardProgressResponse, isArray: true })
   @Type(() => FlashcardProgressResponse)

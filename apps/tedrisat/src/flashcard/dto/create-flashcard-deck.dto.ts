@@ -22,6 +22,6 @@ export class CreateFlashcardDeckDto {
   @IsOptional()
   @IsString()
   @MinLength(10)
-  @MaxLength(200)
+  @MaxLength(1000)
   description?: string;
 }

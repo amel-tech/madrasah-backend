@@ -39,7 +39,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   }
 
   async findById(
-    id: number,
+    id: string,
     include?: Set<string>,
   ): Promise<IFlashcardDeck | null> {
     return this.findByFilter(eq(decks.id, id), include).then(
@@ -61,7 +61,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   }
 
   async update(
-    id: number,
+    id: string,
     updates: IUpdateFlashcardDeck,
   ): Promise<IFlashcardDeck | null> {
     // TODO?: verify deck author
@@ -73,7 +73,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       .then((result) => result[0] || null);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const deletedDecks = await this.databaseService.db
       .delete(decks)
       .where(eq(decks.id, id))

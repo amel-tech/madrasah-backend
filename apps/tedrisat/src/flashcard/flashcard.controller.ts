@@ -5,11 +5,13 @@ import {
   HttpStatus,
   Param,
   ParseArrayPipe,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 
@@ -32,12 +34,15 @@ import {
   IncludeApiQuery,
   IncludeQuery,
 } from './decorators/include-query.decorator';
+import { AuthGuard } from '@madrasah/common';
+import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 
 export enum CardIncludeEnum {
   Progress = 'progress',
 }
 
 @ApiTags('flashcard-cards')
+@UseGuards(AuthGuard)
 @Controller('flashcard/')
 export class FlashcardController {
   constructor(private readonly cardService: FlashcardService) {}
@@ -54,10 +59,11 @@ export class FlashcardController {
   @IncludeApiQuery(CardIncludeEnum)
   @Get('cards/:id')
   async findById(
-    @Param('id', ParseIntPipe) cardId: number,
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) cardId: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardResponse> {
-    const userId = 1;
+    const userId = request.user.sub;
     const card = await this.cardService.findById(cardId, userId, include);
     if (!card) {
       throw new HttpException(
@@ -78,7 +84,8 @@ export class FlashcardController {
   @IncludeApiQuery(CardIncludeEnum)
   @Get('cards')
   async findByDeckId(
-    @Query('deckId', ParseIntPipe) deckId: number,
+    @Req() request: AuthorizedRequest,
+    @Query('deckId', ParseUUIDPipe) deckId: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardResponse[]> {
     if (!deckId) {
@@ -87,7 +94,7 @@ export class FlashcardController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const userId = 1;
+    const userId = request.user.sub;
     return this.cardService.findByDeckId(deckId, userId, include);
   }
 
@@ -103,11 +110,12 @@ export class FlashcardController {
   @ApiCreatedResponse({ type: FlashcardResponse, isArray: true })
   @Post('decks/:deckId/cards')
   async createMany(
-    @Param('deckId', ParseIntPipe) deckId: number,
+    @Req() request: AuthorizedRequest,
+    @Param('deckId', ParseUUIDPipe) deckId: string,
     @Body(new ParseArrayPipe({ items: CreateFlashcardDto }))
     cardsDto: CreateFlashcardDto[],
   ): Promise<FlashcardResponse[]> {
-    const authorId = 10;
+    const authorId = request.user.sub;
     return this.cardService.createMany(deckId, authorId, cardsDto);
   }
 
@@ -121,10 +129,11 @@ export class FlashcardController {
   @ApiBody({ type: [CreateFlashcardProgressDto] })
   @Put('cards/progress')
   async replaceManyProgress(
+    @Req() request: AuthorizedRequest,
     @Body(new ParseArrayPipe({ items: CreateFlashcardProgressDto }))
     progressDto: CreateFlashcardProgressDto[],
   ): Promise<FlashcardProgressResponse[]> {
-    const userId = 1;
+    const userId = request.user.sub;
     return this.cardService.replaceManyProgress(userId, progressDto);
   }
 
@@ -139,7 +148,7 @@ export class FlashcardController {
   @ApiNotFoundResponse()
   @Put('cards/:id')
   async replace(
-    @Param('id', ParseIntPipe) cardId: number,
+    @Param('id', ParseUUIDPipe) cardId: string,
     @Body() cardDto: CreateFlashcardDto,
   ): Promise<FlashcardResponse> {
     const updatedCard = await this.cardService.update(cardId, cardDto);
@@ -164,7 +173,7 @@ export class FlashcardController {
   @ApiNotFoundResponse()
   @Patch('cards/:id')
   async update(
-    @Param('id', ParseIntPipe) cardId: number,
+    @Param('id', ParseUUIDPipe) cardId: string,
     @Body() cardDto: UpdateFlashcardDto,
   ): Promise<FlashcardResponse> {
     const updatedCard = await this.cardService.update(cardId, cardDto);
@@ -188,7 +197,7 @@ export class FlashcardController {
   @ApiOkResponse()
   @Delete('cards/:id')
   async deleteDeck(
-    @Param('id', ParseIntPipe) cardId: number,
+    @Param('id', ParseUUIDPipe) cardId: string,
   ): Promise<boolean> {
     return this.cardService.delete(cardId);
   }

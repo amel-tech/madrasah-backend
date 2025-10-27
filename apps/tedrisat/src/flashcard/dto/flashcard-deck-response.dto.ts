@@ -5,7 +5,7 @@ export class FlashcardDeckResponse extends OmitType(CreateFlashcardDeckDto, [
   'description',
 ] as const) {
   @ApiProperty()
-  id!: number;
+  id!: string;
 
   @ApiPropertyOptional({ type: String })
   description!: string | null;
