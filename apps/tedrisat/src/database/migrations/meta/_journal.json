@@ -15,6 +15,13 @@
       "when": 1759418302129,
       "tag": "0001_mighty_excalibur",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761578949726,
+      "tag": "0002_tan_swarm",
+      "breakpoints": true
     }
   ]
 }
