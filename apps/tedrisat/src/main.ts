@@ -22,7 +22,7 @@ async function bootstrap() {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Tedrisat Service API')
       .setDescription('Education management service for Madrasah platform')
-      .setVersion('1.0.0')
+      .setVersion(config.get<string>('version') || '1.0.0')
       .addTag('tedrisat', 'Education management endpoints')
       .build();
 
