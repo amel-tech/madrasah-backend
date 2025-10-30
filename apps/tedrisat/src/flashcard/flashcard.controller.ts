@@ -80,7 +80,7 @@ export class FlashcardController {
     operationId: 'getFlashcardByDeckId',
   })
   @ApiOkResponse({ type: [FlashcardResponse] })
-  @ApiQuery({ name: 'deckId', required: true, type: Number })
+  @ApiQuery({ name: 'deckId', required: true, type: String })
   @IncludeApiQuery(CardIncludeEnum)
   @Get('cards')
   async findByDeckId(
@@ -88,12 +88,6 @@ export class FlashcardController {
     @Query('deckId', ParseUUIDPipe) deckId: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardResponse[]> {
-    if (!deckId) {
-      throw new HttpException(
-        'missing the required query: deckId',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const userId = request.user.sub;
     return this.cardService.findByDeckId(deckId, userId, include);
   }

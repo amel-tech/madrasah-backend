@@ -24,7 +24,7 @@ export class FlashcardRepository implements IFlashcardRepository {
     userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard | null> {
-    const filterByUser = 'progress' in (include ?? []);
+    const filterByUser = (include ?? new Set()).has('progress');
     const filter = and(
       eq(flashcards.id, id),
       filterByUser ? eq(flashcardProgress.userId, userId) : undefined,
@@ -43,7 +43,7 @@ export class FlashcardRepository implements IFlashcardRepository {
     userId: string,
     include?: Set<string>,
   ): Promise<IFlashcard[]> {
-    const filterByUser = 'progress' in (include ?? []);
+    const filterByUser = (include ?? new Set()).has('progress');
     const filter = and(
       eq(flashcards.deckId, deckId),
       filterByUser ? eq(flashcardProgress.userId, userId) : undefined,

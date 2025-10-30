@@ -13,7 +13,7 @@ import { FlashcardType } from '../../flashcard/domain/flashcard-type.enum';
 import { FlashcardProgressStatus } from '../../flashcard/domain/flashcard-progress-status.enum';
 
 export const flashcardType = pgEnum('flashcard_type', FlashcardType);
-export const flaschardProgressStatus = pgEnum(
+export const flashcardProgressStatus = pgEnum(
   'flashcard_user_status',
   FlashcardProgressStatus,
 );
@@ -38,7 +38,7 @@ export const flashcardProgress = table(
   {
     userId: uuid('user_id').notNull(),
     flashcardId: uuid('flashcard_id').notNull(),
-    status: flaschardProgressStatus()
+    status: flashcardProgressStatus()
       .default(FlashcardProgressStatus.NEW)
       .notNull(),
   },
