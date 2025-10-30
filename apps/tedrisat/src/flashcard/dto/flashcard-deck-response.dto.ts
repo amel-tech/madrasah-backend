@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { CreateFlashcardDeckDto } from './create-flashcard-deck.dto';
 
 export class FlashcardDeckResponse extends OmitType(CreateFlashcardDeckDto, [
