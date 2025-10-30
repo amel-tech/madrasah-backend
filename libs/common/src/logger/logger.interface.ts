@@ -1,11 +1,11 @@
 import { LoggerService } from "@nestjs/common";
 
 export interface ILogger extends LoggerService {
-  log(message: any, context?: string): void;
-  error(message: any, trace?: string, context?: string): void;
-  warn(message: any, context?: string): void;
-  debug(message: any, context?: string): void;
-  verbose(message: any, context?: string): void;
+  log(message: string, data?: any): void;
+  error(message: string, error?: Error | any): void;
+  warn(message: string, data?: any): void;
+  debug(message: string, data?: any): void;
+  verbose(message: string, data?: any): void;
   setContext(context: string): void;
 }
 

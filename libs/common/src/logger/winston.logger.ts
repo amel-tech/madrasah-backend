@@ -79,24 +79,29 @@ export class WinstonLogger implements ILogger {
   setContext(context: string): void {
     this.context = context;
   }
-  
-  log(message: any) {
-    this.logger.info(message);
+
+  log(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.info(message, logData);
   }
 
-  error(message: any, trace?: string) {
-    this.logger.error(`${message} ${trace ?? ''}`);
+  error(message: string, error?: Error | any, trace?: string) {
+    const logData = { context: this.context, ...(error && { error }), ...(trace && { trace }) };
+    this.logger.error(message, logData);
   }
 
-  warn(message: any) {
-    this.logger.warn(message);
+  warn(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.warn(message, logData);
   }
 
-  debug(message: any) {
-    this.logger.debug(message);
+  debug(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.debug(message, logData);
   }
 
-  verbose(message: any) {
-    this.logger.silly(message);
+  verbose(message: string, data?: any) {
+    const logData = { context: this.context, ...(data && { data }) };
+    this.logger.verbose(message, logData);
   }
 }
