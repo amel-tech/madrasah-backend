@@ -11,7 +11,7 @@ export class FlashcardDeckResponse extends OmitType(CreateFlashcardDeckDto, [
   @ApiProperty()
   id!: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ type: String })
   description!: string | null;
 
   @ApiPropertyOptional({ type: FlashcardTagResponse, isArray: true })
