@@ -32,6 +32,7 @@ import {
 } from './decorators/include-query.decorator';
 import { AuthGuard } from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
+import { FlashcardDeckUserResponse } from './dto/flashcard-deck-user-response.dto';
 
 export enum DeckIncludeEnum {
   // Tags = 'tags',
@@ -44,6 +45,19 @@ export class FlashcardDeckController {
   constructor(private readonly deckService: FlashcardDeckService) {}
 
   // GET Requests
+
+  @ApiOperation({
+    summary: "Get all flashcard decks in the user's collection",
+    operationId: 'getAllFlashcardDecksByUser',
+  })
+  @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
+  @Get('/collections')
+  async findAllUserCollections(
+    @Req() request: AuthorizedRequest,
+  ): Promise<FlashcardDeckResponse[]> {
+    const userId = request.user.sub;
+    return this.deckService.findAllByUser(userId);
+  }
 
   @ApiOperation({
     summary: 'Get flashcard deck by ID',
@@ -103,6 +117,22 @@ export class FlashcardDeckController {
     const createdDeck = await this.deckService.create(newDeck);
 
     return createdDeck;
+  }
+
+  @ApiOperation({
+    summary: "Add a deck to the user's collection",
+    description:
+      'Creates a new association between a flashcard deck and the authenticated user.',
+    operationId: 'createFlashcardDeckUser',
+  })
+  @ApiCreatedResponse({ type: FlashcardDeckUserResponse })
+  @Post(':id/collections')
+  async createUser(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) deckId: string,
+  ): Promise<FlashcardDeckUserResponse> {
+    const userId = request.user.sub;
+    return this.deckService.createUser(userId, deckId);
   }
 
   // PUT Requests
@@ -169,5 +199,19 @@ export class FlashcardDeckController {
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) deckId: string): Promise<boolean> {
     return this.deckService.delete(deckId);
+  }
+
+  @ApiOperation({
+    summary: "Delete a flashcard deck from user's collection",
+    operationId: 'deleteFlashcardDeckUser',
+  })
+  @ApiOkResponse({ type: FlashcardDeckUserResponse })
+  @Delete(':id/collections')
+  async deleteUser(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) deckId: string,
+  ): Promise<FlashcardDeckUserResponse> {
+    const userId = request.user.sub;
+    return this.deckService.deleteUser(userId, deckId);
   }
 }
