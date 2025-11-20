@@ -16,6 +16,7 @@ import { Controller, Body } from '@nestjs/common';
 import { CreateFlashcardDeckDto } from './dto/create-flashcard-deck.dto';
 import { FlashcardDeckResponse } from './dto/flashcard-deck-response.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -38,6 +39,7 @@ export enum DeckIncludeEnum {
 }
 
 @ApiTags('flashcard-decks')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('flashcard/decks')
 export class FlashcardDeckController {
