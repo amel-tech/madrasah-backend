@@ -17,6 +17,7 @@ import { Controller, Body } from '@nestjs/common';
 
 import { FlashcardService } from './flashcard.service';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -42,6 +43,7 @@ export enum CardIncludeEnum {
 }
 
 @ApiTags('flashcard-cards')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('flashcard/')
 export class FlashcardController {

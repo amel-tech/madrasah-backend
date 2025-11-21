@@ -24,6 +24,7 @@ async function bootstrap() {
       .setDescription('Education management service for Madrasah platform')
       .setVersion(config.get<string>('version') || '1.0.0')
       .addTag('tedrisat', 'Education management endpoints')
+      .addBearerAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);
