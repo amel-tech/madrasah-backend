@@ -36,7 +36,7 @@ export default () => ({
     endpoint: process.env.SWAGGER_PATH || '/docs',
   },
   autoMigrations: {
-    enabled: process.env.AUTO_MIGRATIONS === 'true' || false,
+    enabled: process.env.AUTO_MIGRATIONS_ENABLED === 'true' || false,
     migrationsFolder:
       process.env.AUTO_MIGRATIONS_FOLDER || './src/database/migrations',
   },
