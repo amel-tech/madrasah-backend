@@ -21,7 +21,7 @@ export interface IUpdateFlashcardDeck {
   description?: string;
 }
 
-export interface IFlashcardDeckUser {
+export interface IFlashcardDeckUserCollectionItem {
   // interface for `decks_users` table
   // referred as `collection`
   userId: string;
@@ -37,7 +37,10 @@ export interface IFlashcardDeckRepository {
 
   // INSERT
   create(deck: ICreateFlashcardDeck): Promise<IFlashcardDeck>;
-  createUser(userId: string, deckId: string);
+  addToUserCollection(
+    userId: string,
+    deckId: string,
+  ): Promise<IFlashcardDeckUserCollectionItem>;
 
   // UPDATE
   update(
@@ -47,5 +50,8 @@ export interface IFlashcardDeckRepository {
 
   // DELETE
   delete(id: string): Promise<boolean>;
-  deleteUser(userId: string, deckId: string);
+  removeFromUserCollection(
+    userId: string,
+    deckId: string,
+  ): Promise<IFlashcardDeckUserCollectionItem>;
 }

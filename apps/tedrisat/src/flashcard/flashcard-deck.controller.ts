@@ -129,12 +129,12 @@ export class FlashcardDeckController {
   })
   @ApiCreatedResponse({ type: FlashcardDeckUserResponse })
   @Post(':id/collections')
-  async createUser(
+  async addToUserCollection(
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) deckId: string,
   ): Promise<FlashcardDeckUserResponse> {
     const userId = request.user.sub;
-    return this.deckService.createUser(userId, deckId);
+    return this.deckService.addToUserCollection(userId, deckId);
   }
 
   // PUT Requests
@@ -209,11 +209,11 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse({ type: FlashcardDeckUserResponse })
   @Delete(':id/collections')
-  async deleteUser(
+  async removeFromUserCollection(
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) deckId: string,
   ): Promise<FlashcardDeckUserResponse> {
     const userId = request.user.sub;
-    return this.deckService.deleteUser(userId, deckId);
+    return this.deckService.removeFromUserCollection(userId, deckId);
   }
 }

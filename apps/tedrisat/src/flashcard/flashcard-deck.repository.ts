@@ -6,7 +6,7 @@ import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
   IFlashcardDeckRepository,
-  IFlashcardDeckUser,
+  IFlashcardDeckUserCollectionItem,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
 
@@ -78,10 +78,10 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
     return createdDeck;
   }
 
-  async createUser(
+  async addToUserCollection(
     userId: string,
     deckId: string,
-  ): Promise<IFlashcardDeckUser> {
+  ): Promise<IFlashcardDeckUserCollectionItem> {
     const [createdUser] = await this.databaseService.db
       .insert(decksUsers)
       .values({ userId, deckId })
@@ -111,10 +111,10 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
     return deletedDecks.length ? true : false;
   }
 
-  async deleteUser(
+  async removeFromUserCollection(
     userId: string,
     deckId: string,
-  ): Promise<IFlashcardDeckUser> {
+  ): Promise<IFlashcardDeckUserCollectionItem> {
     const [deletedUser] = await this.databaseService.db
       .delete(decksUsers)
       .where(and(eq(decksUsers.userId, userId), eq(decksUsers.deckId, deckId)))
