@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { eq, SQL } from 'drizzle-orm';
+import { and, eq, exists, SQL } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
-import { decks } from '../database/schema/flashcard-deck.schema';
+import { decks, decksUsers } from '../database/schema/flashcard-deck.schema';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
   IFlashcardDeckRepository,
+  IFlashcardDeckUserCollectionItem,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
 
@@ -52,12 +53,40 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
     return this.findByFilter(eq(decks.isPublic, true), include);
   }
 
+  async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {
+    return this.databaseService.db.query.decks.findMany({
+      with: {
+        decksUsers: true,
+      },
+      where: exists(
+        // using simple `eq(decksUsers.userId, userId)` instead of `exists(...)` causes bug in drizzle
+        this.databaseService.db
+          .select()
+          .from(decksUsers)
+          .where(
+            and(eq(decksUsers.deckId, decks.id), eq(decksUsers.userId, userId)),
+          ),
+      ),
+    });
+  }
+
   async create(newDeck: ICreateFlashcardDeck): Promise<IFlashcardDeck> {
     const [createdDeck] = await this.databaseService.db
       .insert(decks)
       .values(newDeck)
       .returning();
     return createdDeck;
+  }
+
+  async addToUserCollection(
+    userId: string,
+    deckId: string,
+  ): Promise<IFlashcardDeckUserCollectionItem> {
+    const [createdUser] = await this.databaseService.db
+      .insert(decksUsers)
+      .values({ userId, deckId })
+      .returning();
+    return createdUser;
   }
 
   async update(
@@ -80,5 +109,16 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       .returning();
 
     return deletedDecks.length ? true : false;
+  }
+
+  async removeFromUserCollection(
+    userId: string,
+    deckId: string,
+  ): Promise<IFlashcardDeckUserCollectionItem> {
+    const [deletedUser] = await this.databaseService.db
+      .delete(decksUsers)
+      .where(and(eq(decksUsers.userId, userId), eq(decksUsers.deckId, deckId)))
+      .returning();
+    return deletedUser;
   }
 }
