@@ -1,18 +1,17 @@
 import {
   pgTable as table,
-  integer,
+  uuid,
   text,
   timestamp,
   boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { deckTagsDecks } from './flashcard-deck-tag.schema';
 import { flashcards } from './flashcard.schema';
 
 // Tables
 export const decks = table('decks', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  authorId: integer('author_id').notNull(),
+  id: uuid('id').primaryKey().defaultRandom(),
+  authorId: uuid('author_id').notNull(),
   title: text('title').notNull(),
   description: text('description'),
   isPublic: boolean('is_public').default(false).notNull(),
@@ -22,6 +21,5 @@ export const decks = table('decks', {
 
 // ORM Relations
 export const decksRelations = relations(decks, ({ many }) => ({
-  deckTagsDecks: many(deckTagsDecks),
   flashcards: many(flashcards),
 }));

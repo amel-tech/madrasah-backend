@@ -15,6 +15,34 @@
       "when": 1759418302129,
       "tag": "0001_mighty_excalibur",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761578949726,
+      "tag": "0002_tan_swarm",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761579204999,
+      "tag": "0003_empty_screwball",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1761581505897,
+      "tag": "0004_blushing_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1761594061899,
+      "tag": "0005_jazzy_kat_farrell",
+      "breakpoints": true
     }
   ]
 }

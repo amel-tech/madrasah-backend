@@ -1,20 +1,15 @@
-import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
-import { IFlashcard } from './flashcard.repository.interface';
-
 export interface IFlashcardDeck {
-  id: number;
-  authorId: number;
+  id: string;
+  authorId: string;
   title: string;
   isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
   description: string | null;
-  tags?: IFlashcardDeckTag[];
-  flashcards?: IFlashcard[];
 }
 
 export interface ICreateFlashcardDeck {
-  authorId: number;
+  authorId: string;
   title: string;
   isPublic: boolean;
   description?: string;
@@ -27,12 +22,12 @@ export interface IUpdateFlashcardDeck {
 }
 
 export interface IFlashcardDeckRepository {
-  findById(id: number, include?: Set<string>): Promise<IFlashcardDeck | null>;
+  findById(id: string, include?: Set<string>): Promise<IFlashcardDeck | null>;
   findAll(include?: Set<string>): Promise<IFlashcardDeck[]>;
   create(deck: ICreateFlashcardDeck): Promise<IFlashcardDeck>;
   update(
-    id: number,
+    id: string,
     updates: IUpdateFlashcardDeck,
   ): Promise<IFlashcardDeck | null>;
-  delete(id: number): Promise<boolean>;
+  delete(id: string): Promise<boolean>;
 }

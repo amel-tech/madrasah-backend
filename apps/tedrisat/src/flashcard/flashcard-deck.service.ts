@@ -11,7 +11,7 @@ export class FlashcardDeckService {
   constructor(private readonly deckRepo: FlashcardDeckRepository) {}
 
   async findById(
-    id: number,
+    id: string,
     include?: string[],
   ): Promise<IFlashcardDeck | null> {
     const includeSet = new Set(include);
@@ -28,13 +28,13 @@ export class FlashcardDeckService {
   }
 
   async update(
-    id: number,
+    id: string,
     updates: IUpdateFlashcardDeck,
   ): Promise<IFlashcardDeck | null> {
     return this.deckRepo.update(id, updates);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     return this.deckRepo.delete(id);
   }
 }

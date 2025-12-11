@@ -18,13 +18,13 @@ export class CreateFlashcardDto {
   @ApiProperty()
   @IsString()
   @MinLength(3)
-  @MaxLength(500)
+  @MaxLength(5000)
   contentFront!: string;
 
   @ApiProperty()
   @IsString()
   @MinLength(3)
-  @MaxLength(500)
+  @MaxLength(5000)
   contentBack!: string;
 
   @ApiPropertyOptional({ type: Object })

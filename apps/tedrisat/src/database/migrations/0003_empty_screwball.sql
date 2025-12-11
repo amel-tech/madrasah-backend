@@ -1,0 +1,1 @@
+ALTER TABLE "flashcard_progress" ADD CONSTRAINT "flashcard_progress_user_id_flashcard_id_pk" PRIMARY KEY("user_id","flashcard_id");

@@ -8,23 +8,11 @@ import {
   IFlashcardDeckRepository,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
-import { IFlashcardDeckTag } from './flashcard-deck-tag.repository.interface';
-import { IFlashcard } from './flashcard.repository.interface';
 
 @Injectable()
 export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   private readonly includeMap: Record<string, Record<string, any>> = {
-    tags: {
-      deckTagsDecks: {
-        with: {
-          tag: true,
-        },
-      },
-    },
-    flashcards: {
-      flashcards: true,
-    },
-    // TODO: handle 'flashcards:user_data' logic
+    // matching keys are replaced with their content to populate "with" field in db.query API
   } as const;
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -44,32 +32,14 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       }
     }
 
-    return this.databaseService.db.query.decks
-      .findMany({
-        where: filter,
-        with: withClause,
-      })
-      .then((results) =>
-        results.map((result) => {
-          const { deckTagsDecks, flashcards, ...resultBase } = result;
-          const transformed: IFlashcardDeck = resultBase;
-
-          if (deckTagsDecks) {
-            transformed.tags = (
-              deckTagsDecks as { tag: IFlashcardDeckTag }[]
-            ).map((dtd) => dtd.tag);
-          }
-          if (flashcards) {
-            transformed.flashcards = flashcards as IFlashcard[];
-          }
-
-          return transformed;
-        }),
-      );
+    return this.databaseService.db.query.decks.findMany({
+      where: filter,
+      with: withClause,
+    });
   }
 
   async findById(
-    id: number,
+    id: string,
     include?: Set<string>,
   ): Promise<IFlashcardDeck | null> {
     return this.findByFilter(eq(decks.id, id), include).then(
@@ -91,7 +61,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   }
 
   async update(
-    id: number,
+    id: string,
     updates: IUpdateFlashcardDeck,
   ): Promise<IFlashcardDeck | null> {
     // TODO?: verify deck author
@@ -103,7 +73,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
       .then((result) => result[0] || null);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const deletedDecks = await this.databaseService.db
       .delete(decks)
       .where(eq(decks.id, id))

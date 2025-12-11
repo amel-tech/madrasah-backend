@@ -4,40 +4,43 @@ import {
   HttpException,
   HttpStatus,
   Param,
-  ParseArrayPipe,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
-  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 
 import { CreateFlashcardDeckDto } from './dto/create-flashcard-deck.dto';
 import { FlashcardDeckResponse } from './dto/flashcard-deck-response.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  ReplaceFlashcardDeckDto,
-  UpdateFlashcardDeckDto,
-} from './dto/update-flashcard-deck.dto';
+import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto';
 import { FlashcardDeckService } from './flashcard-deck.service';
+import {
+  IncludeApiQuery,
+  IncludeQuery,
+} from './decorators/include-query.decorator';
+import { AuthGuard } from '@madrasah/common';
+import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 
 export enum DeckIncludeEnum {
-  Tags = 'tags',
-  Flashcards = 'flashcards',
-  FlashcardsUserData = 'flashcards:user_data',
+  // Tags = 'tags',
 }
 
 @ApiTags('flashcard-decks')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('flashcard/decks')
 export class FlashcardDeckController {
   constructor(private readonly deckService: FlashcardDeckService) {}
@@ -47,26 +50,16 @@ export class FlashcardDeckController {
   @ApiOperation({
     summary: 'Get flashcard deck by ID',
     description:
-      'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags and flashcards.',
+      'Retrieves a single flashcard deck by its ID with optional includes for related data such as tags.',
     operationId: 'getFlashcardDeckById',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
+  @IncludeApiQuery(DeckIncludeEnum)
   @Get(':id')
   async findById(
-    @Param('id', ParseIntPipe) deckId: number,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
+    @Param('id', ParseUUIDPipe) deckId: string,
+    @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse> {
     const deck = await this.deckService.findById(deckId, include);
     if (!deck) {
@@ -79,61 +72,16 @@ export class FlashcardDeckController {
   }
 
   @ApiOperation({
-    summary: 'Get flashcard deck with cards',
-    description:
-      'Retrieves a flashcard deck by its ID with all flashcards automatically included, plus optional additional includes.',
-    operationId: 'getFlashcardDeckWithCards',
-  })
-  @ApiOkResponse({ type: FlashcardDeckResponse })
-  @ApiNotFoundResponse()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
-  @Get(':id/cards')
-  async findByIdCards(
-    @Param('id', ParseIntPipe) deckId: number,
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
-  ): Promise<FlashcardDeckResponse> {
-    const includeWithCards = [...(include || []), 'flashcards'];
-    const deck = await this.deckService.findById(deckId, includeWithCards);
-    if (!deck) {
-      throw new HttpException(
-        `no deck was found by id #${deckId}`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return deck;
-  }
-
-  @ApiOperation({
     summary: 'Get all flashcard decks',
     description:
-      'Retrieves all flashcard decks with optional includes for related data such as tags and flashcards.',
+      'Retrieves all flashcard decks with optional includes for related data such as tags.',
     operationId: 'getAllFlashcardDecks',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    type: String,
-    isArray: true,
-    enum: DeckIncludeEnum,
-  })
+  @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
-    @Query(
-      'include',
-      new ParseArrayPipe({ items: String, separator: ',', optional: true }),
-    )
-    include?: string[],
+    @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
     return this.deckService.findAll(include);
   }
@@ -149,13 +97,13 @@ export class FlashcardDeckController {
   @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @Post()
   async create(
+    @Req() request: AuthorizedRequest,
     @Body() deckDto: CreateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
-    const { tagIds, ...newDeckContent } = deckDto;
-    const newDeck = { authorId: 1, ...newDeckContent };
+    const userId = request.user.sub;
+    const newDeck = { authorId: userId, ...deckDto };
     const createdDeck = await this.deckService.create(newDeck);
 
-    if (tagIds && tagIds.length) console.log('will add tags here'); // await this.tagService.createPairsMany(createdDeck.id, tagIds)
     return createdDeck;
   }
 
@@ -167,13 +115,13 @@ export class FlashcardDeckController {
       'Replaces all properties of an existing flashcard deck with new values. This is a complete replacement operation.',
     operationId: 'replaceFlashcardDeck',
   })
-  @ApiBody({ type: ReplaceFlashcardDeckDto })
+  @ApiBody({ type: CreateFlashcardDeckDto })
   // @ApiCreatedResponse({ type: FlashcardDeckResponse })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Put(':id')
   async replace(
-    @Param('id', ParseIntPipe) deckId: number,
-    @Body() deckDto: ReplaceFlashcardDeckDto,
+    @Param('id', ParseUUIDPipe) deckId: string,
+    @Body() deckDto: CreateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
     const updatedDeck = await this.deckService.update(deckId, deckDto);
     if (!updatedDeck) {
@@ -198,7 +146,7 @@ export class FlashcardDeckController {
   @ApiForbiddenResponse()
   @Patch(':id')
   async updateDeck(
-    @Param('id', ParseIntPipe) deckId: number,
+    @Param('id', ParseUUIDPipe) deckId: string,
     @Body() deckDto: UpdateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
     const updatedDeck = await this.deckService.update(deckId, deckDto);
@@ -221,7 +169,7 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse()
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) deckId: number): Promise<boolean> {
+  async delete(@Param('id', ParseUUIDPipe) deckId: string): Promise<boolean> {
     return this.deckService.delete(deckId);
   }
 }
