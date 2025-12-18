@@ -23,20 +23,20 @@ export const deckLabelings = table('deck_labelings', {
   labelId: uuid('label_id')
     .notNull()
     .references(() => deckLabels.id, { onDelete: 'cascade' }),
-  privateToUserId: uuid('private_to_user_id').notNull(),
+  privateToUserId: uuid('private_to_user_id'),
   deckId: uuid('deck_id')
     .notNull()
     .references(() => decks.id, {
       onDelete: 'cascade',
     }),
   createdBy: uuid('created_by').notNull(),
-  createdAt: timestamp('create_at').notNull(),
+  createdAt: timestamp('create_at').notNull().defaultNow(),
 });
 
 export const deckLabelsStats = table('deck_label_stats', {
   id: uuid('id').notNull().primaryKey().defaultRandom(),
 
-  lableId: uuid('lable_id')
+  labelId: uuid('label_id')
     .notNull()
     .references(() => deckLabels.id, { onDelete: 'cascade' }),
 
@@ -45,30 +45,28 @@ export const deckLabelsStats = table('deck_label_stats', {
   lastUsedAt: timestamp('last_used_at', { mode: 'date' }).notNull(),
 });
 
-export const deckLabelsDecks = table('deck_labels_decks', {
-  deckId: uuid('deck_id')
-    .references(() => decks.id, { onDelete: 'cascade' })
-    .notNull(),
-  deckLabelId: uuid('deck_label_id')
-    .references(() => deckLabels.id, { onDelete: 'cascade' })
-    .notNull(),
-});
-
 // ORM Relations
 export const deckLabelRelations = relations(deckLabels, ({ many }) => ({
-  deckTagsDecks: many(deckLabelsDecks),
+  labelings: many(deckLabelings),
+  stats: many(deckLabelsStats),
 }));
+export const deckLabelingRelations = relations(deckLabelings, ({ one }) => ({
+  label: one(deckLabels, {
+    fields: [deckLabelings.labelId],
+    references: [deckLabels.id],
+  }),
 
-export const deckLabelDecksRelations = relations(
-  deckLabelsDecks,
+  deck: one(decks, {
+    fields: [deckLabelings.deckId],
+    references: [decks.id],
+  }),
+}));
+export const deckLabelStatsRelations = relations(
+  deckLabelsStats,
   ({ one }) => ({
-    tag: one(deckLabels, {
-      fields: [deckLabelsDecks.deckLabelId],
+    label: one(deckLabels, {
+      fields: [deckLabelsStats.labelId],
       references: [deckLabels.id],
-    }),
-    deck: one(decks, {
-      fields: [deckLabelsDecks.deckId],
-      references: [decks.id],
     }),
   }),
 );

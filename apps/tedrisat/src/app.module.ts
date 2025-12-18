@@ -7,6 +7,7 @@ import { configuration } from './config';
 import { ExampleModule } from './example/example.module';
 import { DatabaseModule } from './database/database.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
+import { FlashcardLabelModule } from './flashcard/flashcard-label.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FlashcardModule } from './flashcard/flashcard.module';
     DatabaseModule,
     ExampleModule,
     FlashcardModule,
+    FlashcardLabelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
