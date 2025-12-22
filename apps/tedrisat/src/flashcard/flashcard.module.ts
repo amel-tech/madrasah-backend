@@ -7,6 +7,7 @@ import { FlashcardController } from './flashcard.controller';
 import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import { DatabaseService } from '../database/database.service';
 import { FlashcardRepository } from './flashcard.repository';
+import { FlashcardBulkService } from './flashcard-bulk.service';
 import { AuthGuardModule } from '@madrasah/common';
 
 @Module({
@@ -17,6 +18,7 @@ import { AuthGuardModule } from '@madrasah/common';
     FlashcardRepository,
     FlashcardDeckService,
     FlashcardDeckRepository,
+    FlashcardBulkService,
     DatabaseService,
   ],
 })

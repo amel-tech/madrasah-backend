@@ -37,6 +37,8 @@ import {
 } from './decorators/include-query.decorator';
 import { AuthGuard } from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
+import { FlashcardBulkService } from './flashcard-bulk.service';
+import { BulkFlashcardResponse } from './dto/flashcard-bulk-response.dto';
 
 export enum CardIncludeEnum {
   Progress = 'progress',
@@ -47,7 +49,10 @@ export enum CardIncludeEnum {
 @UseGuards(AuthGuard)
 @Controller('flashcard/')
 export class FlashcardController {
-  constructor(private readonly cardService: FlashcardService) {}
+  constructor(
+    private readonly cardService: FlashcardService,
+    private readonly cardBulkService: FlashcardBulkService,
+  ) {}
 
   // GET Requests
 
@@ -196,5 +201,24 @@ export class FlashcardController {
     @Param('id', ParseUUIDPipe) cardId: string,
   ): Promise<boolean> {
     return this.cardService.delete(cardId);
+  }
+
+  // Post Bulk
+  @ApiOperation({
+    summary: 'Bulk',
+    description: 'Bulk Body Json',
+    operationId: 'createFlashcardsBulk',
+  })
+  @ApiBody({ type: [CreateFlashcardDto] })
+  @ApiCreatedResponse({ type: BulkFlashcardResponse })
+  @Post('decks/:deckId/cards/bulk')
+  async bulk(
+    @Req() request: AuthorizedRequest,
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Body()
+    cardsDto: CreateFlashcardDto[],
+  ): Promise<BulkFlashcardResponse> {
+    const authorId = request.user.sub;
+    return this.cardBulkService.AddFlashcards(deckId, authorId, cardsDto);
   }
 }
