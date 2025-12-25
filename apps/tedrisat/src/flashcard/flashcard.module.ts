@@ -8,10 +8,10 @@ import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import { DatabaseService } from '../database/database.service';
 import { FlashcardRepository } from './flashcard.repository';
 import { FlashcardBulkService } from './flashcard-bulk.service';
-import { AuthGuardModule } from '@madrasah/common';
+import { AuthGuardModule, ExcelModule } from '@madrasah/common';
 
 @Module({
-  imports: [AuthGuardModule],
+  imports: [AuthGuardModule, ExcelModule],
   controllers: [FlashcardController, FlashcardDeckController],
   providers: [
     FlashcardService,
