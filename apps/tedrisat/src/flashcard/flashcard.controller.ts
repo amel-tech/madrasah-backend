@@ -11,7 +11,9 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 
@@ -19,6 +21,7 @@ import { FlashcardService } from './flashcard.service';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -35,11 +38,15 @@ import {
   IncludeApiQuery,
   IncludeQuery,
 } from './decorators/include-query.decorator';
-import { AuthGuard } from '@madrasah/common';
+import { AuthGuard, ExcelService } from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 import { FlashcardBulkService } from './flashcard-bulk.service';
 import { BulkFlashcardResponse } from './dto/flashcard-bulk-response.dto';
-
+import {
+  FLASHCARD_EXCEL_CONFIG,
+  FlashcardColumnDto,
+} from './dto/config-excel.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 export enum CardIncludeEnum {
   Progress = 'progress',
 }
@@ -52,6 +59,7 @@ export class FlashcardController {
   constructor(
     private readonly cardService: FlashcardService,
     private readonly cardBulkService: FlashcardBulkService,
+    private readonly excelService: ExcelService,
   ) {}
 
   // GET Requests
@@ -220,5 +228,50 @@ export class FlashcardController {
   ): Promise<BulkFlashcardResponse> {
     const authorId = request.user.sub;
     return this.cardBulkService.AddFlashcards(deckId, authorId, cardsDto);
+  }
+
+  // Get Bulk Export File
+  @Get('decks/cards/bulk/export')
+  async downloadSample(
+    @Query('format') format: 'xlsx' | 'csv' = 'xlsx',
+  ) {
+    return this.excelService.generateSample(
+      FLASHCARD_EXCEL_CONFIG,
+      format
+    );
+  }
+
+  // Post Import File
+  @Post('decks/:deckId/cards/bulk/import')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Import flashcards from Excel/CSV' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  async importCards(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Req() request: AuthorizedRequest,
+  ) {
+    const format = this.excelService.detectFormat(file.originalname);
+    const cards = await this.excelService.parseFile<FlashcardColumnDto>(
+      file.buffer,
+      FLASHCARD_EXCEL_CONFIG,
+      format,
+    );
+    const authorId = request.user.sub;
+    return await this.cardBulkService.AddFlashcards(deckId, authorId, [
+      ...cards,
+    ]);
   }
 }

@@ -15,7 +15,6 @@ export class FlashcardBulkService {
     private readonly deckService: FlashcardDeckService,
     private readonly cardService: FlashcardService,
   ) {}
-
   public async AddFlashcards(
     deckId: string,
     authorId: string,
@@ -35,7 +34,6 @@ export class FlashcardBulkService {
       result.errorMessage = 'Validation Error';
       return result;
     }
-
     const flashCards = await this.cardService.createMany(
       deckId,
       authorId,
@@ -55,7 +53,6 @@ export class FlashcardBulkService {
   ): Promise<[results: FlashcardResult[], isError: boolean]> {
     const results = Array<FlashcardResult>();
     const items = plainToClass(CreateFlashcardDto, cards);
-
     let isError = false;
     for (const item of items) {
       const errors = await validate(item, {
