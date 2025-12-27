@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.1.5](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.4...tedrisat-v0.1.5) (2025-12-27)
+
+
+### Features
+
+* add swagger auth header ([f19797b](https://github.com/amel-tech/madrasah-backend/commit/f19797b62530b02029e51415573428e425ccbd60))
+* add swagger auth header ([0a82e86](https://github.com/amel-tech/madrasah-backend/commit/0a82e86cc4124883ac3f6fa3de9a5d40fdada735))
+* app version added dynamically to swagger ([edbad29](https://github.com/amel-tech/madrasah-backend/commit/edbad29e09e9c77f0b945562a99c6948c3d6e528))
+* app version added dynamically to swagger ([65f85f8](https://github.com/amel-tech/madrasah-backend/commit/65f85f8b11ae1d8f9ea60ff50327a9f8ee16a83f))
+* **flashcard:** added flashcard deck collections for easy user access ([4467b96](https://github.com/amel-tech/madrasah-backend/commit/4467b96fd8964d22d71242eda61921738c201c5a))
+* **flashcard:** added flashcard-progress schema and repo ([84a92bb](https://github.com/amel-tech/madrasah-backend/commit/84a92bbea96b432a5b5163be73d80326964443bc))
+* **flashcard:** bulk card retrieval endpoint and fixed progress implementation ([7ee4369](https://github.com/amel-tech/madrasah-backend/commit/7ee43690d12ca85c5414aa4fa0f92d4763805351))
+* **flashcard:** implemented PUT endpoint for flashcard progress ([eb00452](https://github.com/amel-tech/madrasah-backend/commit/eb0045219eca40d690461629374a098d4a7f1c95))
+* logger improvements ([9bd0ffa](https://github.com/amel-tech/madrasah-backend/commit/9bd0ffa370012f7f988f88b89249aa0b029313d9))
+* logger improvements ([23b83f0](https://github.com/amel-tech/madrasah-backend/commit/23b83f03b5aad4eedf6d047ebe73d0ada9b2b9d2))
+* **tedrisat:** added getFlashcardById operation ([300965b](https://github.com/amel-tech/madrasah-backend/commit/300965b4d769d459c5c43ef3bd5b0dec80b78b35))
+* **tedrisat:** added getFlashcardById operation ([5c864ae](https://github.com/amel-tech/madrasah-backend/commit/5c864ae3ca5fa3cee88f74a0932d619257b7e69d))
+* update health check response to use dynamic version from config… ([cb3cc07](https://github.com/amel-tech/madrasah-backend/commit/cb3cc07528a84e5dad57c13f509e128e22fb3a0e))
+
+
+### Bug Fixes
+
+* adding imssing operation id on flashcard ([3ca9d30](https://github.com/amel-tech/madrasah-backend/commit/3ca9d30b77c50932f8e9dd07aeacce960b2be9bc))
+* adding missing operation id on flashcard ([0531412](https://github.com/amel-tech/madrasah-backend/commit/0531412cddd69556750c305f613b28561c73b903))
+* **flashcard:** added composite key constraint for flashcard progress ([c6a1516](https://github.com/amel-tech/madrasah-backend/commit/c6a1516df0d37ffbb431bbdd930466b351a6a693))
+* **flashcard:** added missing import ([9908337](https://github.com/amel-tech/madrasah-backend/commit/9908337dc0e5a311b8e01b864e525f50048e3ad4))
+* **flashcard:** added missing userId from card findById ([a872350](https://github.com/amel-tech/madrasah-backend/commit/a872350cbe7377774cc44d9f082ba24cc4d2dd51))
+* **flashcard:** fixed relative import path ([8e7a110](https://github.com/amel-tech/madrasah-backend/commit/8e7a11018ef78a78e912722afc8d9d355a65638d))
+* typing on api property of description ([d004f0e](https://github.com/amel-tech/madrasah-backend/commit/d004f0e359c0836a3709493c0448c2772ce30c82))
+* typing on api property of description ([9fc5d9b](https://github.com/amel-tech/madrasah-backend/commit/9fc5d9b3b96fb94aac0a21ae8c89c850330a7746))
+
 ## [0.1.4](https://github.com/amel-tech/madrasah-backend/compare/tedrisat-v0.1.3...tedrisat-v0.1.4) (2025-10-09)
 
 
