@@ -5,3 +5,4 @@ export * from './logger';
 export * from './error';
 export * from './auth-guard';
 export * from './pipes';
+export * from './excel'
