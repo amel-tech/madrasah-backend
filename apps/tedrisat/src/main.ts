@@ -59,7 +59,7 @@ async function bootstrap() {
       swaggerOptions: {
         persistAuthorization: true,
         // eslint-disable-next-line prettier/prettier
-        oauth2RedirectUrl: 'http://localhost:' + port + swaggerEndpoint + '/oauth2-redirect.html',
+        oauth2RedirectUrl: config.get<string>('KEYCLOAK_REDIRECT_URL') + swaggerEndpoint + '/oauth2-redirect.html',
         initOAuth: {
           clientId: config.get<string>('KEYCLOAK_CLIENT_ID'),
           appName: 'Ameltech Keycloak Login',
