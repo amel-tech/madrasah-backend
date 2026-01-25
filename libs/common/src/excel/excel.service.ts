@@ -3,7 +3,7 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
 import { Workbook, Worksheet } from 'exceljs';
 import { ExcelSheetConfig, ExcelColumnConfig } from './interfaces/excel-column.interface';
-import { Readable } from 'stream';
+import { Readable, Writable } from 'stream';
 
 @Injectable()
 export class ExcelService {
@@ -40,17 +40,25 @@ export class ExcelService {
     if (format === 'xlsx') {
       buffer = Buffer.from(await workbook.xlsx.writeBuffer());
     } else {
-      const chunks: Buffer[] = [];
-      const stream = new Readable({ read() {} });
-      await workbook.csv.write(stream);
-      
-      buffer = await new Promise<Buffer>((resolve, reject) => {
-        const buffers: Buffer[] = [];
-        stream.on('data', (chunk) => buffers.push(chunk as Buffer));
-        stream.on('end', () => resolve(Buffer.concat(buffers)));
-        stream.on('error', (error) => reject(error));
+      const buffers: Buffer[] = [];
+      const stream = new Writable({
+        write(chunk, _encoding, callback) {
+          buffers.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+          callback();
+        },
       });
-      stream.push(null); // End the stream
+
+      const finished = new Promise<void>((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+
+      await workbook.csv.write(stream);
+      if (!stream.writableEnded) {
+        stream.end();
+      }
+      await finished;
+      buffer = Buffer.concat(buffers);
     }
 
     return new StreamableFile(buffer, {

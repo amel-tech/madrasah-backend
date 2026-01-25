@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   Req,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -227,18 +228,22 @@ export class FlashcardController {
     cardsDto: CreateFlashcardDto[],
   ): Promise<BulkFlashcardResponse> {
     const authorId = request.user.sub;
-    return this.cardBulkService.AddFlashcards(deckId, authorId, cardsDto);
+    return this.cardBulkService.addFlashcards(deckId, authorId, cardsDto);
   }
 
   // Get Bulk Export File
   @Get('decks/cards/bulk/export')
-  async downloadSample(
-    @Query('format') format: 'xlsx' | 'csv' = 'xlsx',
-  ) {
-    return this.excelService.generateSample(
-      FLASHCARD_EXCEL_CONFIG,
-      format
-    );
+  @ApiOperation({ summary: 'Download sample flashcards' })
+  @ApiOkResponse({ type: StreamableFile })
+  @ApiQuery({
+    name: 'format',
+    required: true,
+    type: String,
+    enum: ['xlsx', 'csv'],
+    description: 'The format of the file to download',
+  })
+  async downloadSample(@Query('format') format: 'xlsx' | 'csv' = 'xlsx') {
+    return this.excelService.generateSample(FLASHCARD_EXCEL_CONFIG, format);
   }
 
   // Post Import File
