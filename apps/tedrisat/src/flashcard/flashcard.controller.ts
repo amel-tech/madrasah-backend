@@ -270,7 +270,7 @@ export class FlashcardController {
       format,
     );
     const authorId = request.user.sub;
-    return await this.cardBulkService.AddFlashcards(deckId, authorId, [
+    return await this.cardBulkService.addFlashcards(deckId, authorId, [
       ...cards,
     ]);
   }

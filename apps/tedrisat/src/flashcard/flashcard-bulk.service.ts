@@ -15,7 +15,7 @@ export class FlashcardBulkService {
     private readonly deckService: FlashcardDeckService,
     private readonly cardService: FlashcardService,
   ) {}
-  public async AddFlashcards(
+  public async addFlashcards(
     deckId: string,
     authorId: string,
     cards: CreateFlashcardDto[],

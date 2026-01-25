@@ -44,12 +44,13 @@ export class ExcelService {
       const stream = new Readable({ read() {} });
       await workbook.csv.write(stream);
       
-      buffer = await new Promise((resolve) => {
-        const buffers: any[] = [];
-        stream.on('data', (chunk) => buffers.push(chunk));
+      buffer = await new Promise<Buffer>((resolve, reject) => {
+        const buffers: Buffer[] = [];
+        stream.on('data', (chunk) => buffers.push(chunk as Buffer));
         stream.on('end', () => resolve(Buffer.concat(buffers)));
+        stream.on('error', (error) => reject(error));
       });
-      stream.push(null); // Stream'i bitir
+      stream.push(null); // End the stream
     }
 
     return new StreamableFile(buffer, {
@@ -68,12 +69,15 @@ export class ExcelService {
     const workbook = new Workbook();
 
     if (format === 'xlsx') {
-        await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
+      await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
     } else {
-        const stream = Readable.from(buffer);
-        await workbook.csv.read(stream);
+      const stream = Readable.from(buffer);
+      await workbook.csv.read(stream);
     }
 
+    if (!workbook.worksheets || workbook.worksheets.length === 0) {
+      throw new Error('The uploaded Excel file contains no worksheets to parse.');
+    }
     const sheet = workbook.worksheets[0];
     return this.parseSheet<T>(sheet, config);
   }
