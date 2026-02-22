@@ -148,8 +148,12 @@ export class ExcelService {
     headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
   }
 
-  detectFormat(filename: string): 'xlsx' | 'csv' {
-    const ext = filename.split('.').pop()?.toLowerCase();
-    return ext === 'csv' ? 'csv' : 'xlsx';
+  detectFormat(mimetype: string, filename?: string): 'xlsx' | 'csv' {
+    const csvMimeTypes = ['text/csv', 'text/plain', 'application/octet-stream'];
+    if (csvMimeTypes.includes(mimetype)) {
+      const ext = filename?.split('.').pop()?.toLowerCase();
+      return ext === 'xlsx' ? 'xlsx' : 'csv';
+    }
+    return 'xlsx';
   }
 }

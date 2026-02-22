@@ -3,6 +3,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  ParseFilePipe,
   Param,
   ParseArrayPipe,
   ParseUUIDPipe,
@@ -231,9 +234,12 @@ export class FlashcardController {
     return this.cardBulkService.addFlashcards(deckId, authorId, cardsDto);
   }
 
-  // Get Bulk Export File
-  @Get('decks/cards/bulk/export')
-  @ApiOperation({ summary: 'Download sample flashcards' })
+  // Get Bulk Sample File
+  @Get('cards/bulk/sample')
+  @ApiOperation({
+    summary: 'Download flashcard import template',
+    description: 'Downloads a sample file to use as a template for bulk import. Not deck-specific.',
+  })
   @ApiOkResponse({ type: StreamableFile })
   @ApiQuery({
     name: 'format',
@@ -264,11 +270,22 @@ export class FlashcardController {
     },
   })
   async importCards(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+          new FileTypeValidator({
+            fileType: /^(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|text\/csv|text\/plain|application\/octet-stream|application\/vnd\.ms-excel)$/,
+            skipMagicNumbersValidation: true,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Param('deckId', ParseUUIDPipe) deckId: string,
     @Req() request: AuthorizedRequest,
   ) {
-    const format = this.excelService.detectFormat(file.originalname);
+    const format = this.excelService.detectFormat(file.mimetype, file.originalname);
     const cards = await this.excelService.parseFile<FlashcardColumnDto>(
       file.buffer,
       FLASHCARD_EXCEL_CONFIG,
