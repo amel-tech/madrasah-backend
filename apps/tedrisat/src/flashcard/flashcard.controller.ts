@@ -239,6 +239,7 @@ export class FlashcardController {
   @ApiOperation({
     summary: 'Download flashcard import template',
     description: 'Downloads a sample file to use as a template for bulk import. Not deck-specific.',
+    operationId: 'getSampleFile'
   })
   @ApiOkResponse({ type: StreamableFile })
   @ApiQuery({
@@ -255,7 +256,10 @@ export class FlashcardController {
   // Post Import File
   @Post('decks/:deckId/cards/bulk/import')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Import flashcards from Excel/CSV' })
+  @ApiOperation({ 
+    summary: 'Import flashcards from Excel/CSV',
+    operationId: 'importsCard' 
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
