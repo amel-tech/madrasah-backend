@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
+  BulkFlashcardErrorResponse,
   BulkFlashcardResponse,
-  FlashcardResult,
+  RowError,
+  flattenValidationErrors,
 } from './dto/flashcard-bulk-response.dto';
+import { BulkValidationError } from './errors/bulk-validation.error';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { validate } from '@nestjs/class-validator';
 import { FlashcardService } from './flashcard.service';
@@ -15,60 +18,53 @@ export class FlashcardBulkService {
     private readonly deckService: FlashcardDeckService,
     private readonly cardService: FlashcardService,
   ) {}
+
   public async addFlashcards(
     deckId: string,
     authorId: string,
     cards: CreateFlashcardDto[],
   ): Promise<BulkFlashcardResponse> {
-    const result = new BulkFlashcardResponse();
-
     const deck = await this.deckService.findById(deckId);
     if (deck == null) {
-      result.errorMessage = 'Deck not found';
-      return result;
+      throw new NotFoundException('Deck not found');
     }
 
-    const [cardResult, isError] = await this.ValidationCards(cards);
+    const [rowErrors, isError] = await this.validateCards(cards);
     if (isError) {
-      result.flashcards = cardResult;
-      result.errorMessage = 'Validation Error';
-      return result;
+      const errorResponse: BulkFlashcardErrorResponse = {
+        errors: rowErrors,
+        isSuccess: false,
+        errorMessage: 'Validation Error',
+      };
+      throw new BulkValidationError(errorResponse);
     }
-    const flashCards = await this.cardService.createMany(
-      deckId,
-      authorId,
-      cards,
-    );
-    result.isSuccess = true;
-    result.flashcards = flashCards.map((_) => ({
-      success: true,
-      errors: null,
-      flashCardResponse: _,
-    }));
-    return result;
+
+    const flashCards = await this.cardService.createMany(deckId, authorId, cards);
+    return { count: flashCards.length, isSuccess: true };
   }
 
-  private async ValidationCards(
+  private async validateCards(
     cards: CreateFlashcardDto[],
-  ): Promise<[results: FlashcardResult[], isError: boolean]> {
-    const results = Array<FlashcardResult>();
+  ): Promise<[rowErrors: RowError[], isError: boolean]> {
+    const rowErrors: RowError[] = [];
     const items = plainToClass(CreateFlashcardDto, cards);
     let isError = false;
-    for (const item of items) {
-      const errors = await validate(item, {
+
+    for (let i = 0; i < items.length; i++) {
+      const errors = await validate(items[i], {
         whitelist: true,
         forbidNonWhitelisted: true,
       });
 
       if (errors.length > 0) {
-        results.push({
-          success: false,
-          errors: errors,
+        rowErrors.push({
+          row: i + 2, // +2: 1-based index + header row
+          errors: flattenValidationErrors(errors),
         });
         isError = true;
       }
     }
 
-    return [results, isError];
+    return [rowErrors, isError];
   }
 }

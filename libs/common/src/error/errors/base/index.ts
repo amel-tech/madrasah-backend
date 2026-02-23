@@ -5,3 +5,4 @@ export * from './not-found.error';
 export * from './conflict.error';
 export * from './internal-server.error';
 export * from './medaris.error';
+export * from './raw-body.error';

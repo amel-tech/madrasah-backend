@@ -32,6 +32,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { FlashcardResponse } from './dto/flashcard-response.dto';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
@@ -45,7 +46,10 @@ import {
 import { AuthGuard, ExcelService } from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 import { FlashcardBulkService } from './flashcard-bulk.service';
-import { BulkFlashcardResponse } from './dto/flashcard-bulk-response.dto';
+import {
+  BulkFlashcardErrorResponse,
+  BulkFlashcardResponse,
+} from './dto/flashcard-bulk-response.dto';
 import {
   FLASHCARD_EXCEL_CONFIG,
   FlashcardColumnDto,
@@ -238,8 +242,9 @@ export class FlashcardController {
   @Get('cards/bulk/sample')
   @ApiOperation({
     summary: 'Download flashcard import template',
-    description: 'Downloads a sample file to use as a template for bulk import. Not deck-specific.',
-    operationId: 'getSampleFile'
+    description:
+      'Downloads a sample file to use as a template for bulk import. Not deck-specific.',
+    operationId: 'getSampleFile',
   })
   @ApiOkResponse({ type: StreamableFile })
   @ApiQuery({
@@ -256,10 +261,13 @@ export class FlashcardController {
   // Post Import File
   @Post('decks/:deckId/cards/bulk/import')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Import flashcards from Excel/CSV',
-    operationId: 'importsCard' 
+    operationId: 'importsCard',
   })
+  @ApiCreatedResponse({ type: BulkFlashcardResponse })
+  @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiUnprocessableEntityResponse({ type: BulkFlashcardErrorResponse })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -279,7 +287,8 @@ export class FlashcardController {
         validators: [
           new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
           new FileTypeValidator({
-            fileType: /^(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|text\/csv|text\/plain|application\/octet-stream|application\/vnd\.ms-excel)$/,
+            fileType:
+              /^(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|text\/csv|text\/plain|application\/octet-stream|application\/vnd\.ms-excel)$/,
             skipMagicNumbersValidation: true,
           }),
         ],
@@ -289,7 +298,10 @@ export class FlashcardController {
     @Param('deckId', ParseUUIDPipe) deckId: string,
     @Req() request: AuthorizedRequest,
   ) {
-    const format = this.excelService.detectFormat(file.mimetype, file.originalname);
+    const format = this.excelService.detectFormat(
+      file.mimetype,
+      file.originalname,
+    );
     const cards = await this.excelService.parseFile<FlashcardColumnDto>(
       file.buffer,
       FLASHCARD_EXCEL_CONFIG,
