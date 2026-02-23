@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { DeckNotFoundError } from './errors/deck-not-found.error';
 import {
   BulkFlashcardErrorResponse,
   BulkFlashcardResponse,
@@ -11,12 +12,15 @@ import { validate } from '@nestjs/class-validator';
 import { FlashcardService } from './flashcard.service';
 import { FlashcardDeckService } from './flashcard-deck.service';
 import { plainToClass } from '@nestjs/class-transformer';
+import { ExcelService } from '@madrasah/common';
+import { FLASHCARD_EXCEL_CONFIG } from './dto/config-excel.dto';
 
 @Injectable()
 export class FlashcardBulkService {
   constructor(
     private readonly deckService: FlashcardDeckService,
     private readonly cardService: FlashcardService,
+    private readonly excelService: ExcelService,
   ) {}
 
   public async addFlashcards(
@@ -26,7 +30,7 @@ export class FlashcardBulkService {
   ): Promise<BulkFlashcardResponse> {
     const deck = await this.deckService.findById(deckId);
     if (deck == null) {
-      throw new NotFoundException('Deck not found');
+      throw new DeckNotFoundError(deckId);
     }
 
     const [rowErrors, isError] = await this.validateCards(cards);
@@ -41,6 +45,26 @@ export class FlashcardBulkService {
 
     const flashCards = await this.cardService.createMany(deckId, authorId, cards);
     return { count: flashCards.length, isSuccess: true };
+  }
+
+  public async exportFlashcards(
+    deckId: string,
+    userId: string,
+    format: 'xlsx' | 'csv' = 'xlsx',
+  ) {
+    const deck = await this.deckService.findById(deckId);
+    if (deck == null) {
+      throw new DeckNotFoundError(deckId);
+    }
+
+    const cards = await this.cardService.findByDeckId(deckId, userId);
+    const data = cards.map((card) => ({
+      type: card.type,
+      contentFront: card.contentFront,
+      contentBack: card.contentBack,
+    }));
+
+    return this.excelService.exportData(data, FLASHCARD_EXCEL_CONFIG, deck.title, format);
   }
 
   private async validateCards(

@@ -69,6 +69,65 @@ export class ExcelService {
     });
   }
   
+  async exportData<T extends Record<string, any>>(
+    data: T[],
+    config: ExcelSheetConfig<T>,
+    filename: string,
+    format: 'xlsx' | 'csv' = 'xlsx',
+  ): Promise<StreamableFile> {
+    const workbook = new Workbook();
+    const sheet = workbook.addWorksheet(config.sheetName || 'Sheet1');
+
+    sheet.columns = config.columns.map((col) => ({
+      header: col.header,
+      key: col.key as string,
+      width: col.width || 20,
+    }));
+
+    const rows = data.map((item) => {
+      const row: Record<string, any> = {};
+      config.columns.forEach((col) => {
+        const value = item[col.key];
+        row[col.key as string] = col.format ? col.format(value) : value;
+      });
+      return row;
+    });
+    if (rows.length > 0) sheet.addRows(rows);
+
+    this.styleHeader(sheet);
+
+    let buffer: Buffer;
+
+    if (format === 'xlsx') {
+      buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    } else {
+      const buffers: Buffer[] = [];
+      const stream = new Writable({
+        write(chunk, _encoding, callback) {
+          buffers.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+          callback();
+        },
+      });
+      const finished = new Promise<void>((resolve, reject) => {
+        stream.on('finish', resolve);
+        stream.on('error', reject);
+      });
+      await workbook.csv.write(stream);
+      if (!stream.writableEnded) stream.end();
+      await finished;
+      buffer = Buffer.concat(buffers);
+    }
+
+    const safeFilename = filename.replace(/[^a-z0-9_\-]/gi, '_');
+    return new StreamableFile(buffer, {
+      type:
+        format === 'xlsx'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : 'text/csv',
+      disposition: `attachment; filename=${safeFilename}.${format}`,
+    });
+  }
+
   async parseFile<T extends Record<string, any>>(
     buffer: Buffer,
     config: ExcelSheetConfig<T>,

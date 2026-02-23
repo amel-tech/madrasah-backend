@@ -258,6 +258,29 @@ export class FlashcardController {
     return this.excelService.generateSample(FLASHCARD_EXCEL_CONFIG, format);
   }
 
+  // Get Export File
+  @Get('decks/:deckId/cards/bulk/export')
+  @ApiOperation({
+    summary: 'Export flashcards from a deck',
+    operationId: 'exportCards',
+  })
+  @ApiOkResponse({ type: StreamableFile })
+  @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiQuery({
+    name: 'format',
+    required: false,
+    type: String,
+    enum: ['xlsx', 'csv'],
+    description: 'The format of the file to download',
+  })
+  async exportCards(
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Req() request: AuthorizedRequest,
+    @Query('format') format: 'xlsx' | 'csv' = 'xlsx',
+  ) {
+    return this.cardBulkService.exportFlashcards(deckId, request.user.sub, format);
+  }
+
   // Post Import File
   @Post('decks/:deckId/cards/bulk/import')
   @UseInterceptors(FileInterceptor('file'))
