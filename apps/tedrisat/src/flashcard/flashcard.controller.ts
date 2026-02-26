@@ -55,6 +55,9 @@ import {
   FlashcardColumnDto,
 } from './dto/config-excel.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { FlashcardDeckService } from './flashcard-deck.service';
+import { DeckNotFoundError } from './errors/deck-not-found.error';
+import { BulkValidationError } from './errors/bulk-validation.error';
 export enum CardIncludeEnum {
   Progress = 'progress',
 }
@@ -67,6 +70,7 @@ export class FlashcardController {
   constructor(
     private readonly cardService: FlashcardService,
     private readonly cardBulkService: FlashcardBulkService,
+    private readonly deckService: FlashcardDeckService,
     private readonly excelService: ExcelService,
   ) {}
 
@@ -234,8 +238,13 @@ export class FlashcardController {
     @Body()
     cardsDto: CreateFlashcardDto[],
   ): Promise<BulkFlashcardResponse> {
-    const authorId = request.user.sub;
-    return this.cardBulkService.addFlashcards(deckId, authorId, cardsDto);
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
+    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, cardsDto);
+    if (!result.success) throw new BulkValidationError(result.rowErrors);
+
+    return result.data;
   }
 
   // Get Bulk Sample File
@@ -278,7 +287,10 @@ export class FlashcardController {
     @Req() request: AuthorizedRequest,
     @Query('format') format: 'xlsx' | 'csv' = 'xlsx',
   ) {
-    return this.cardBulkService.exportFlashcards(deckId, request.user.sub, format);
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
+    return this.cardBulkService.exportFlashcards(deckId, request.user.sub, deck.title, format);
   }
 
   // Post Import File
@@ -321,18 +333,28 @@ export class FlashcardController {
     @Param('deckId', ParseUUIDPipe) deckId: string,
     @Req() request: AuthorizedRequest,
   ) {
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
     const format = this.excelService.detectFormat(
       file.mimetype,
       file.originalname,
     );
-    const cards = await this.excelService.parseFile<FlashcardColumnDto>(
-      file.buffer,
-      FLASHCARD_EXCEL_CONFIG,
-      format,
-    );
-    const authorId = request.user.sub;
-    return await this.cardBulkService.addFlashcards(deckId, authorId, [
-      ...cards,
-    ]);
+
+    let cards = await this.excelService.parseFile<FlashcardColumnDto>(
+        file.buffer,
+        FLASHCARD_EXCEL_CONFIG,
+        format,
+      );
+      
+    if (cards == null || cards.length == 0)
+      throw new HttpException(
+        'The uploaded file contains no data rows. Please ensure the file has a header row and at least one data row.',
+        HttpStatus.BAD_REQUEST,
+      );
+    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, [...cards]);
+    if (!result.success) throw new BulkValidationError(result.rowErrors);
+    
+    return result.data;
   }
 }

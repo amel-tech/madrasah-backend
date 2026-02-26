@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
+import { ErrorResponse } from '@madrasah/common';
 
 export class FieldError {
   @ApiProperty({ example: 'front' })
@@ -20,9 +22,6 @@ export class RowError {
 export class BulkFlashcardResponse {
   @ApiProperty({ description: 'Number of successfully imported flashcards' })
   count!: number;
-
-  @ApiProperty()
-  isSuccess: boolean = false;
 }
 
 export class BulkFlashcardErrorContext {
@@ -30,24 +29,9 @@ export class BulkFlashcardErrorContext {
   errors!: RowError[];
 }
 
-export class BulkFlashcardErrorResponse {
-  @ApiProperty({ example: 'APP_ERROR' })
-  type!: string;
-
-  @ApiProperty({ example: 'BULK_VALIDATION_ERROR' })
-  code!: string;
-
-  @ApiProperty({ example: 422 })
-  status!: number;
-
-  @ApiProperty({ example: 'Validation Error' })
-  message!: string;
-
+export class BulkFlashcardErrorResponse extends OmitType(ErrorResponse, ['context'] as const) {
   @ApiProperty({ type: () => BulkFlashcardErrorContext })
   context!: BulkFlashcardErrorContext;
-
-  @ApiProperty({ example: '2025-01-01T00:00:00.000Z' })
-  timestamp!: string;
 }
 
 export function flattenValidationErrors(errors: ValidationError[]): FieldError[] {

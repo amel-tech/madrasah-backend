@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { DeckNotFoundError } from './errors/deck-not-found.error';
 import {
   BulkFlashcardResponse,
   RowError,
   flattenValidationErrors,
 } from './dto/flashcard-bulk-response.dto';
-import { BulkValidationError } from './errors/bulk-validation.error';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { validate } from '@nestjs/class-validator';
 import { FlashcardService } from './flashcard.service';
-import { FlashcardDeckService } from './flashcard-deck.service';
 import { plainToClass } from '@nestjs/class-transformer';
 import { ExcelService } from '@madrasah/common';
 import { FLASHCARD_EXCEL_CONFIG } from './dto/config-excel.dto';
 
+export type BulkAddResult =
+  | { success: true; data: BulkFlashcardResponse }
+  | { success: false; error: 'VALIDATION_FAILED'; rowErrors: RowError[] };
+
 @Injectable()
 export class FlashcardBulkService {
   constructor(
-    private readonly deckService: FlashcardDeckService,
     private readonly cardService: FlashcardService,
     private readonly excelService: ExcelService,
   ) {}
@@ -26,31 +26,22 @@ export class FlashcardBulkService {
     deckId: string,
     authorId: string,
     cards: CreateFlashcardDto[],
-  ): Promise<BulkFlashcardResponse> {
-    const deck = await this.deckService.findById(deckId);
-    if (deck == null) {
-      throw new DeckNotFoundError(deckId);
-    }
-
+  ): Promise<BulkAddResult> {
     const [rowErrors, isError] = await this.validateCards(cards);
     if (isError) {
-      throw new BulkValidationError(rowErrors);
+      return { success: false, error: 'VALIDATION_FAILED', rowErrors };
     }
 
     const flashCards = await this.cardService.createMany(deckId, authorId, cards);
-    return { count: flashCards.length, isSuccess: true };
+    return { success: true, data: { count: flashCards.length } };
   }
 
   public async exportFlashcards(
     deckId: string,
     userId: string,
+    title: string,
     format: 'xlsx' | 'csv' = 'xlsx',
   ) {
-    const deck = await this.deckService.findById(deckId);
-    if (deck == null) {
-      throw new DeckNotFoundError(deckId);
-    }
-
     const cards = await this.cardService.findByDeckId(deckId, userId);
     const data = cards.map((card) => ({
       type: card.type,
@@ -58,7 +49,7 @@ export class FlashcardBulkService {
       contentBack: card.contentBack,
     }));
 
-    return this.excelService.exportData(data, FLASHCARD_EXCEL_CONFIG, deck.title, format);
+    return this.excelService.exportData(data, FLASHCARD_EXCEL_CONFIG, title, format);
   }
 
   private async validateCards(
