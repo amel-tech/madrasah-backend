@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DeckNotFoundError } from './errors/deck-not-found.error';
 import {
-  BulkFlashcardErrorResponse,
   BulkFlashcardResponse,
   RowError,
   flattenValidationErrors,
@@ -35,12 +34,7 @@ export class FlashcardBulkService {
 
     const [rowErrors, isError] = await this.validateCards(cards);
     if (isError) {
-      const errorResponse: BulkFlashcardErrorResponse = {
-        errors: rowErrors,
-        isSuccess: false,
-        errorMessage: 'Validation Error',
-      };
-      throw new BulkValidationError(errorResponse);
+      throw new BulkValidationError(rowErrors);
     }
 
     const flashCards = await this.cardService.createMany(deckId, authorId, cards);

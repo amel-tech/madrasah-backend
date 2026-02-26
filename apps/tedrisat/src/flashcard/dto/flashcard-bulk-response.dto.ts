@@ -25,15 +25,29 @@ export class BulkFlashcardResponse {
   isSuccess: boolean = false;
 }
 
-export class BulkFlashcardErrorResponse {
+export class BulkFlashcardErrorContext {
   @ApiProperty({ type: () => RowError, isArray: true })
   errors!: RowError[];
+}
 
-  @ApiProperty()
-  isSuccess: boolean = false;
+export class BulkFlashcardErrorResponse {
+  @ApiProperty({ example: 'APP_ERROR' })
+  type!: string;
+
+  @ApiProperty({ example: 'BULK_VALIDATION_ERROR' })
+  code!: string;
+
+  @ApiProperty({ example: 422 })
+  status!: number;
 
   @ApiProperty({ example: 'Validation Error' })
-  errorMessage!: string;
+  message!: string;
+
+  @ApiProperty({ type: () => BulkFlashcardErrorContext })
+  context!: BulkFlashcardErrorContext;
+
+  @ApiProperty({ example: '2025-01-01T00:00:00.000Z' })
+  timestamp!: string;
 }
 
 export function flattenValidationErrors(errors: ValidationError[]): FieldError[] {
