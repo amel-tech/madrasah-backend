@@ -8,7 +8,7 @@
   "advisories": [],
   "package-manager": "npm",
   "directory": "./",
-  "skip-dev": true,
+  "skip-dev": false,
   "show-found": true,
   "show-not-found": false,
   "retry": {
