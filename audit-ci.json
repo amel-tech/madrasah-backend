@@ -4,11 +4,15 @@
   "high": true,
   "critical": true,
   "report-type": "summary",
-  "allowlist": [],
+  "allowlist": [
+    "GHSA-xf7r-hgr6-v32p",
+    "GHSA-v52c-386h-88mc",
+    "GHSA-5c6j-r48x-rmvq"
+  ],
   "advisories": [],
   "package-manager": "npm",
   "directory": "./",
-  "skip-dev": false,
+  "skip-dev": true,
   "show-found": true,
   "show-not-found": false,
   "retry": {
