@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from '../database/database.service';
 import {
   ICreateFlashcardLabel,
   IFlashcardLabel,
@@ -11,7 +11,7 @@ import {
   flashcardLabels,
   flashcardLabelings,
   flashcardLabelStats,
-} from 'src/database/schema/flashcard-label.schema';
+} from '../database/schema/flashcard-label.schema';
 import { eq, sql } from 'drizzle-orm';
 
 @Injectable()
