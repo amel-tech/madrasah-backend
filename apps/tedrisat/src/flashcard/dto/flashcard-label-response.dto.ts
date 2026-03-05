@@ -1,43 +1,76 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Scope } from '../domain/flashcard-label.enum';
-import {
-  CreateFlashcardLabelDto,
-  CreateFlashcardLabelingDto,
-} from './create-flashcard-label.dto';
-import { IsNumber, IsString } from 'class-validator';
-export class FlashcardCreateLabelResponse extends CreateFlashcardLabelDto {
+
+export class FlashcardCreateLabelResponse {
   @ApiProperty()
-  @IsString()
-  declare title: string;
+  id!: string;
+
   @ApiProperty()
-  declare createdBy: string;
+  title!: string;
+
+  @ApiProperty({ enum: Scope })
+  scope!: Scope;
+
   @ApiProperty()
-  declare scope: Scope;
+  createdBy!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  createdAt?: Date;
 }
-export class FlashcardLabelingResponse extends CreateFlashcardLabelingDto {
+
+export class FlashcardLabelingResponse {
   @ApiProperty()
-  @IsNumber()
-  declare labelId: string;
+  id!: string;
+
   @ApiProperty()
-  @IsNumber()
-  declare flashcardId: string;
+  labelId!: string;
+
+  @ApiProperty()
+  flashcardId!: string;
+
+  @ApiProperty({ nullable: true })
+  privateToUserId!: string | null;
+
+  @ApiProperty()
+  createdBy!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
 }
+
 export class FlashcardLabelResponse {
   @ApiProperty()
-  @IsString()
-  declare title: string;
+  id!: string;
+
   @ApiProperty()
-  @IsString()
-  declare createdBy: string;
+  title!: string;
+
+  @ApiProperty({ enum: Scope })
+  scope!: Scope;
+
   @ApiProperty()
-  declare scope: Scope;
+  createdBy!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
 }
-export class labelStatsResponse {
+
+export class LabelStatsResponse {
   @ApiProperty()
-  @IsString()
-  declare labelId: string;
+  labelId!: string;
+
   @ApiProperty()
-  declare usageCount: number;
-  @ApiProperty()
-  declare lastUsedAt: Date;
+  usageCount!: number;
+
+  @ApiProperty({ nullable: true })
+  lastUsedAt!: Date | null;
 }

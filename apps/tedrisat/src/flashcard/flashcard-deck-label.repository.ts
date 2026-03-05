@@ -7,17 +7,28 @@ import {
 } from '../database/schema/flashcard-deck-label.schema';
 import {
   ICreateFlashcardDeckLabel,
+  ICreateFlashcardDeckLabeling,
   IFlashcardDeckLabel,
   IFlashcardDeckLabeling,
   IFlashcardDeckLabelRepository,
   IFlashcardDeckLabelStats,
 } from './flashcard-deck-label.repository.interface';
 import { DatabaseService } from 'src/database/database.service';
+
 @Injectable()
 export class FlashcardDeckLabelRepository
   implements IFlashcardDeckLabelRepository
 {
   constructor(private readonly databaseService: DatabaseService) {}
+
+  async RemoveDeckLabeling(labelingId: string): Promise<boolean> {
+    const deleted = await this.databaseService.db
+      .delete(deckLabelings)
+      .where(eq(deckLabelings.id, labelingId))
+      .returning();
+    return deleted.length > 0;
+  }
+
   async getById(tagId: string): Promise<IFlashcardDeckLabel> {
     const [result] = await this.databaseService.db
       .select()
@@ -35,6 +46,7 @@ export class FlashcardDeckLabelRepository
       .returning();
     return created;
   }
+
   async delete(labelId: string): Promise<boolean> {
     const deleted = await this.databaseService.db
       .delete(deckLabels)
@@ -42,12 +54,14 @@ export class FlashcardDeckLabelRepository
       .returning();
     return deleted.length > 0;
   }
+
   async deckLabeling(
-    newLabeling: IFlashcardDeckLabeling,
+    newLabeling: ICreateFlashcardDeckLabeling,
   ): Promise<IFlashcardDeckLabeling> {
     const labelingToInsert = {
       labelId: newLabeling.labelId,
       deckId: newLabeling.deckId,
+      userId: newLabeling.userId,
       createdBy: newLabeling.createdBy,
       privateToUserId: newLabeling.privateToUserId ?? null,
     };
@@ -56,28 +70,29 @@ export class FlashcardDeckLabelRepository
       .insert(deckLabelings)
       .values(labelingToInsert)
       .returning();
-    return {
-      labelId: deckLabeling.labelId,
-      privateToUserId: deckLabeling.privateToUserId,
-      deckId: deckLabeling.deckId,
-      createdBy: deckLabeling.createdBy,
-    };
+    return deckLabeling;
   }
+
+  async getLabeling(labelingId: string): Promise<IFlashcardDeckLabeling> {
+    const [labeling] = await this.databaseService.db
+      .select()
+      .from(deckLabelings)
+      .where(eq(deckLabelings.id, labelingId));
+    return labeling;
+  }
+
   async createLabelStats(
     useLabel: IFlashcardDeckLabelStats,
   ): Promise<IFlashcardDeckLabelStats> {
-    const cretedStats = await this.databaseService.db
+    const created = await this.databaseService.db
       .insert(deckLabelsStats)
       .values(useLabel)
       .returning();
-    return {
-      labelId: cretedStats[0].labelId,
-      usageCount: cretedStats[0].usageCount,
-      lastUsedAt: cretedStats[0].lastUsedAt,
-    };
+    return created[0];
   }
+
   async updateLabelStats(labelId: string): Promise<IFlashcardDeckLabelStats> {
-    const cretedStats = await this.databaseService.db
+    const updated = await this.databaseService.db
       .update(deckLabelsStats)
       .set({
         usageCount: sql`${deckLabelsStats.usageCount} + 1`,
@@ -85,21 +100,51 @@ export class FlashcardDeckLabelRepository
       })
       .where(eq(deckLabelsStats.labelId, labelId))
       .returning();
-    return {
-      labelId: cretedStats[0].labelId,
-      usageCount: cretedStats[0].usageCount,
-      lastUsedAt: cretedStats[0].lastUsedAt,
-    };
+    return updated[0];
   }
-  async getLabelStats(labelId: string): Promise<IFlashcardDeckLabelStats> {
+
+  async decrementLabelStats(labelId: string): Promise<void> {
+    await this.databaseService.db
+      .update(deckLabelsStats)
+      .set({
+        usageCount: sql`${deckLabelsStats.usageCount} - 1`,
+      })
+      .where(eq(deckLabelsStats.labelId, labelId));
+  }
+
+  async getLabelStats(
+    labelId: string,
+  ): Promise<IFlashcardDeckLabelStats | null> {
     const stats = await this.databaseService.db
       .select()
       .from(deckLabelsStats)
       .where(eq(deckLabelsStats.labelId, labelId));
-    return {
-      labelId: stats[0].labelId,
-      usageCount: stats[0].usageCount,
-      lastUsedAt: stats[0].lastUsedAt,
-    };
+
+    if (stats.length === 0) return null;
+    return stats[0];
+  }
+
+  async getLabelsByDeckId(deckId: string): Promise<IFlashcardDeckLabel[]> {
+    return await this.databaseService.db
+      .select({
+        id: deckLabels.id,
+        title: deckLabels.title,
+        createdAt: deckLabels.createdAt,
+        userId: deckLabels.userId,
+        createdBy: deckLabels.createdBy,
+        scope: deckLabels.scope,
+      })
+      .from(deckLabelings)
+      .innerJoin(deckLabels, eq(deckLabels.id, deckLabelings.labelId))
+      .where(eq(deckLabelings.deckId, deckId));
+  }
+
+  async getAvailableLabels(userId: string): Promise<IFlashcardDeckLabel[]> {
+    return await this.databaseService.db
+      .select()
+      .from(deckLabels)
+      .where(
+        sql`${deckLabels.scope} = 'PUBLIC' OR ${deckLabels.userId} = ${userId}`,
+      );
   }
 }

@@ -14,6 +14,7 @@ export const deckLabels = table('deck_label', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: text('title').notNull(),
   scope: text('scope').$type<Scope>().notNull(),
+  userId: uuid('user_id').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   createdBy: uuid('created_by').notNull(),
 });
@@ -29,6 +30,7 @@ export const deckLabelings = table('deck_labelings', {
     .references(() => decks.id, {
       onDelete: 'cascade',
     }),
+  userId: uuid('created_by').notNull(),
   createdBy: uuid('created_by').notNull(),
   createdAt: timestamp('create_at').notNull().defaultNow(),
 });

@@ -1,5 +1,5 @@
 {
-  "id": "41e410e5-ad98-4454-9cb5-221f8d8c065e",
+  "id": "54271932-c68e-481c-87ca-aaf590ed8843",
   "prevId": "b766093f-8025-480b-9f9f-7723228ab6ee",
   "version": "7",
   "dialect": "postgresql",
@@ -37,233 +37,6 @@
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.deck_labelings": {
-      "name": "deck_labelings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "label_id": {
-          "name": "label_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "private_to_user_id": {
-          "name": "private_to_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deck_id": {
-          "name": "deck_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "create_at": {
-          "name": "create_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "deck_labelings_label_id_deck_label_id_fk": {
-          "name": "deck_labelings_label_id_deck_label_id_fk",
-          "tableFrom": "deck_labelings",
-          "tableTo": "deck_label",
-          "columnsFrom": [
-            "label_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "deck_labelings_deck_id_decks_id_fk": {
-          "name": "deck_labelings_deck_id_decks_id_fk",
-          "tableFrom": "deck_labelings",
-          "tableTo": "decks",
-          "columnsFrom": [
-            "deck_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.deck_label": {
-      "name": "deck_label",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.deck_labels_decks": {
-      "name": "deck_labels_decks",
-      "schema": "",
-      "columns": {
-        "deck_id": {
-          "name": "deck_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "deck_label_id": {
-          "name": "deck_label_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "deck_labels_decks_deck_id_decks_id_fk": {
-          "name": "deck_labels_decks_deck_id_decks_id_fk",
-          "tableFrom": "deck_labels_decks",
-          "tableTo": "decks",
-          "columnsFrom": [
-            "deck_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "deck_labels_decks_deck_label_id_deck_label_id_fk": {
-          "name": "deck_labels_decks_deck_label_id_deck_label_id_fk",
-          "tableFrom": "deck_labels_decks",
-          "tableTo": "deck_label",
-          "columnsFrom": [
-            "deck_label_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.deck_label_stats": {
-      "name": "deck_label_stats",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "lable_id": {
-          "name": "lable_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "usage_count": {
-          "name": "usage_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_used_at": {
-          "name": "last_used_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "deck_label_stats_lable_id_deck_label_id_fk": {
-          "name": "deck_label_stats_lable_id_deck_label_id_fk",
-          "tableFrom": "deck_label_stats",
-          "tableTo": "deck_label",
-          "columnsFrom": [
-            "lable_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -329,169 +102,18 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.flashcard_label_stats": {
-      "name": "flashcard_label_stats",
+    "public.decks_users": {
+      "name": "decks_users",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "label_id": {
-          "name": "label_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "usageCount": {
-          "name": "usageCount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "last_used_at": {
-          "name": "last_used_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "flashcard_label_stats_label_id_flashcard_labels_id_fk": {
-          "name": "flashcard_label_stats_label_id_flashcard_labels_id_fk",
-          "tableFrom": "flashcard_label_stats",
-          "tableTo": "flashcard_labels",
-          "columnsFrom": [
-            "label_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Flashcard_labeling": {
-      "name": "Flashcard_labeling",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "label_id": {
-          "name": "label_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "private_to_user_id": {
-          "name": "private_to_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "flashcard_id": {
-          "name": "flashcard_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Flashcard_labeling_label_id_flashcard_labels_id_fk": {
-          "name": "Flashcard_labeling_label_id_flashcard_labels_id_fk",
-          "tableFrom": "Flashcard_labeling",
-          "tableTo": "flashcard_labels",
-          "columnsFrom": [
-            "label_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Flashcard_labeling_flashcard_id_flashcards_id_fk": {
-          "name": "Flashcard_labeling_flashcard_id_flashcards_id_fk",
-          "tableFrom": "Flashcard_labeling",
-          "tableTo": "flashcards",
-          "columnsFrom": [
-            "flashcard_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.flashcard_labels": {
-      "name": "flashcard_labels",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scope": {
-          "name": "scope",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "user_id": {
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "created_by": {
-          "name": "created_by",
+        "deck_id": {
+          "name": "deck_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -505,8 +127,30 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "foreignKeys": {
+        "decks_users_deck_id_decks_id_fk": {
+          "name": "decks_users_deck_id_decks_id_fk",
+          "tableFrom": "decks_users",
+          "tableTo": "decks",
+          "columnsFrom": [
+            "deck_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "decks_users_user_id_deck_id_pk": {
+          "name": "decks_users_user_id_deck_id_pk",
+          "columns": [
+            "user_id",
+            "deck_id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},

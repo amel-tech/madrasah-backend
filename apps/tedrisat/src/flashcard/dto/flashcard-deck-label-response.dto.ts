@@ -1,46 +1,76 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  CreateFlashcardDeckLabelDto,
-  CreateFlashcardDeckLabelingDto,
-} from './create-flashcard-deck-label.dto';
-import { IsNumber, IsString } from '@nestjs/class-validator';
 import { Scope } from '../domain/flashcard-label.enum';
-export class FlashcardDeckCreateLabelResponse extends CreateFlashcardDeckLabelDto {
+
+export class FlashcardDeckCreateLabelResponse {
   @ApiProperty()
-  @IsString()
-  declare title: string;
+  id!: string;
+
   @ApiProperty()
-  declare createdBy: string;
+  title!: string;
+
+  @ApiProperty({ enum: Scope })
+  scope!: Scope;
+
   @ApiProperty()
-  declare scope: Scope;
+  createdBy!: string;
+
   @ApiProperty()
-  declare createdAt: Date;
+  userId!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
 }
 
-export class FlashcardDeckLabelingResponse extends CreateFlashcardDeckLabelingDto {
+export class FlashcardDeckLabelingResponse {
   @ApiProperty()
-  @IsNumber()
-  declare labelId: string;
+  id!: string;
+
   @ApiProperty()
-  @IsNumber()
-  declare deckId: string;
+  labelId!: string;
+
+  @ApiProperty()
+  deckId!: string;
+
+  @ApiProperty({ nullable: true })
+  privateToUserId!: string | null;
+
+  @ApiProperty()
+  createdBy!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
 }
+
 export class FlashcardDeckLabelResponse {
   @ApiProperty()
-  @IsString()
-  declare title: string;
+  id!: string;
+
   @ApiProperty()
-  @IsString()
-  declare createdBy: string;
+  title!: string;
+
+  @ApiProperty({ enum: Scope })
+  scope!: Scope;
+
   @ApiProperty()
-  declare scope: Scope;
+  createdBy!: string;
+
+  @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
 }
+
 export class DeckLabelStatsResponse {
   @ApiProperty()
-  @IsString()
-  declare labelId: string;
+  labelId!: string;
+
   @ApiProperty()
-  declare usageCount: number;
-  @ApiProperty()
-  declare lastUsedAt: Date;
+  usageCount!: number;
+
+  @ApiProperty({ nullable: true })
+  lastUsedAt!: Date | null;
 }

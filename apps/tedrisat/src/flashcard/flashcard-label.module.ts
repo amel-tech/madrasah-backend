@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { FlashcardLabelService } from './flashcard-label.service';
-import { FlashcardLabelRepository } from './flashcard-label.reporsitory';
+import { FlashcardLabelRepository } from './flashcard-label.repository';
 import { FlashcardDeckLabelService } from './flashcard-deck-label.service';
 import { FlashcardDeckLabelRepository } from './flashcard-deck-label.repository';
 import { FlashcardlabelController } from './flashcard-label.controller';

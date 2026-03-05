@@ -3,10 +3,12 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from '@nestjs/class-validator';
+  IsUUID,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Scope } from '../domain/flashcard-label.enum';
-import { IsOptional, IsUUID } from 'class-validator';
+
 export class CreateFlashcardDeckLabelDto {
   @ApiProperty()
   @IsString()
@@ -14,33 +16,38 @@ export class CreateFlashcardDeckLabelDto {
   @MaxLength(100)
   title!: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: Scope })
   @IsEnum(Scope)
   scope!: Scope;
 
   @ApiProperty()
   @IsUUID()
-  @IsString()
   createdBy!: string;
+
+  @ApiProperty()
+  @IsUUID()
+  userId!: string;
 }
+
 export class CreateFlashcardDeckLabelingDto {
   @ApiProperty()
   @IsUUID()
-  @IsString()
   labelId!: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, nullable: true })
   @IsOptional()
   @IsUUID()
-  privateToUserId: string | null = null;
+  privateToUserId?: string;
 
   @ApiProperty()
   @IsUUID()
-  @IsString()
   deckId!: string;
 
   @ApiProperty()
   @IsUUID()
-  @IsString()
+  userId!: string;
+
+  @ApiProperty()
+  @IsUUID()
   createdBy!: string;
 }

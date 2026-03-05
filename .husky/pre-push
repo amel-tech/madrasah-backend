@@ -1,6 +1,6 @@
 # Branch name validation
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-MAX_LENGTH=65
+MAX_LENGTH=70
 PATTERN="^((feature|bugfix|hotfix|chore|release|experiment)/[a-z0-9-]+)|main|(release-please--branches[a-z0-9-]+)$"
 
 if ! echo "$BRANCH_NAME" | grep -Eq "$PATTERN"; then

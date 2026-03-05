@@ -38,7 +38,7 @@ export const flashcardLabelings = pgTable('flashcard_labelings', {
       onDelete: 'set null',
     })
     .notNull(),
-
+  userId: uuid('user_id').notNull(),
   createdBy: uuid('created_by').notNull(),
 
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
