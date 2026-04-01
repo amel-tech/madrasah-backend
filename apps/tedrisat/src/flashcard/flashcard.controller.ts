@@ -3,6 +3,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  ParseFilePipe,
   Param,
   ParseArrayPipe,
   ParseUUIDPipe,
@@ -11,7 +14,10 @@ import {
   Put,
   Query,
   Req,
+  StreamableFile,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Controller, Body } from '@nestjs/common';
 
@@ -19,12 +25,14 @@ import { FlashcardService } from './flashcard.service';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { FlashcardResponse } from './dto/flashcard-response.dto';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
@@ -35,9 +43,21 @@ import {
   IncludeApiQuery,
   IncludeQuery,
 } from './decorators/include-query.decorator';
-import { AuthGuard } from '@madrasah/common';
+import { AuthGuard, ExcelService } from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
-
+import { FlashcardBulkService } from './flashcard-bulk.service';
+import {
+  BulkFlashcardErrorResponse,
+  BulkFlashcardResponse,
+} from './dto/flashcard-bulk-response.dto';
+import {
+  FLASHCARD_EXCEL_CONFIG,
+  FlashcardColumnDto,
+} from './dto/config-excel.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FlashcardDeckService } from './flashcard-deck.service';
+import { DeckNotFoundError } from './errors/deck-not-found.error';
+import { BulkValidationError } from './errors/bulk-validation.error';
 export enum CardIncludeEnum {
   Progress = 'progress',
 }
@@ -47,7 +67,12 @@ export enum CardIncludeEnum {
 @UseGuards(AuthGuard)
 @Controller('flashcard/')
 export class FlashcardController {
-  constructor(private readonly cardService: FlashcardService) {}
+  constructor(
+    private readonly cardService: FlashcardService,
+    private readonly cardBulkService: FlashcardBulkService,
+    private readonly deckService: FlashcardDeckService,
+    private readonly excelService: ExcelService,
+  ) {}
 
   // GET Requests
 
@@ -196,5 +221,140 @@ export class FlashcardController {
     @Param('id', ParseUUIDPipe) cardId: string,
   ): Promise<boolean> {
     return this.cardService.delete(cardId);
+  }
+
+  // Post Bulk
+  @ApiOperation({
+    summary: 'Bulk',
+    description: 'Bulk Body Json',
+    operationId: 'createFlashcardsBulk',
+  })
+  @ApiBody({ type: [CreateFlashcardDto] })
+  @ApiCreatedResponse({ type: BulkFlashcardResponse })
+  @Post('decks/:deckId/cards/bulk')
+  async bulk(
+    @Req() request: AuthorizedRequest,
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Body()
+    cardsDto: CreateFlashcardDto[],
+  ): Promise<BulkFlashcardResponse> {
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
+    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, cardsDto);
+    if (!result.success) throw new BulkValidationError(result.rowErrors);
+
+    return result.data;
+  }
+
+  // Get Bulk Sample File
+  @Get('cards/bulk/sample')
+  @ApiOperation({
+    summary: 'Download flashcard import template',
+    description:
+      'Downloads a sample file to use as a template for bulk import. Not deck-specific.',
+    operationId: 'getSampleFile',
+  })
+  @ApiOkResponse({ type: StreamableFile })
+  @ApiQuery({
+    name: 'format',
+    required: true,
+    type: String,
+    enum: ['xlsx', 'csv'],
+    description: 'The format of the file to download',
+  })
+  async downloadSample(@Query('format') format: 'xlsx' | 'csv' = 'xlsx') {
+    return this.excelService.generateSample(FLASHCARD_EXCEL_CONFIG, format);
+  }
+
+  // Get Export File
+  @Get('decks/:deckId/cards/bulk/export')
+  @ApiOperation({
+    summary: 'Export flashcards from a deck',
+    operationId: 'exportCards',
+  })
+  @ApiOkResponse({ type: StreamableFile })
+  @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiQuery({
+    name: 'format',
+    required: false,
+    type: String,
+    enum: ['xlsx', 'csv'],
+    description: 'The format of the file to download',
+  })
+  async exportCards(
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Req() request: AuthorizedRequest,
+    @Query('format') format: 'xlsx' | 'csv' = 'xlsx',
+  ) {
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
+    return this.cardBulkService.exportFlashcards(deckId, request.user.sub, deck.title, format);
+  }
+
+  // Post Import File
+  @Post('decks/:deckId/cards/bulk/import')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({
+    summary: 'Import flashcards from Excel/CSV',
+    operationId: 'importsCard',
+  })
+  @ApiCreatedResponse({ type: BulkFlashcardResponse })
+  @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiUnprocessableEntityResponse({ type: BulkFlashcardErrorResponse })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  async importCards(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+          new FileTypeValidator({
+            fileType:
+              /^(application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|text\/csv|text\/plain|application\/octet-stream|application\/vnd\.ms-excel)$/,
+            skipMagicNumbersValidation: true,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Param('deckId', ParseUUIDPipe) deckId: string,
+    @Req() request: AuthorizedRequest,
+  ) {
+    const deck = await this.deckService.findById(deckId);
+    if (!deck) throw new DeckNotFoundError(deckId);
+
+    const format = this.excelService.detectFormat(
+      file.mimetype,
+      file.originalname,
+    );
+
+    let cards = await this.excelService.parseFile<FlashcardColumnDto>(
+        file.buffer,
+        FLASHCARD_EXCEL_CONFIG,
+        format,
+      );
+      
+    if (cards == null || cards.length == 0)
+      throw new HttpException(
+        'The uploaded file contains no data rows. Please ensure the file has a header row and at least one data row.',
+        HttpStatus.BAD_REQUEST,
+      );
+    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, [...cards]);
+    if (!result.success) throw new BulkValidationError(result.rowErrors);
+    
+    return result.data;
   }
 }

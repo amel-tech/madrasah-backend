@@ -7,6 +7,7 @@ import {
   LoggerService,
 } from '@nestjs/common';
 import { MedarisError } from '../errors/base/medaris.error';
+import { RawBodyError } from '../errors/base/raw-body.error';
 import { ErrorResponse } from '../types/error-response.type';
 
 @Catch()
@@ -19,7 +20,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     let errorResponse: ErrorResponse;
 
-    if (exception instanceof MedarisError) {
+    if (exception instanceof RawBodyError) {
+      this.logger.error(`${exception.code}: ${exception.message}`);
+      response.status(exception.status).json(exception.body);
+      return;
+    } else if (exception instanceof MedarisError) {
       errorResponse = {
         type: 'APP_ERROR',
         code: exception.code,
