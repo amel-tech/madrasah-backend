@@ -1,3 +1,4 @@
+import { CardIncludeEnum } from './domain/card-include.enum';
 import { FlashcardProgressStatus } from './domain/flashcard-progress-status.enum';
 import { FlashcardType } from './domain/flashcard-type.enum';
 
@@ -47,12 +48,12 @@ export interface IFlashcardRepository {
   findById(
     id: string,
     userId: string,
-    include?: Set<string>,
+    include?: Set<CardIncludeEnum>,
   ): Promise<IFlashcard | null>;
   findByDeckId(
     deckId: string,
     userId: string,
-    include?: Set<string>,
+    include?: Set<CardIncludeEnum>,
   ): Promise<IFlashcard[] | null>;
   createMany(cards: ICreateFlashcard[]): Promise<IFlashcard[]>;
   update(id: string, updates: IUpdateFlashcard): Promise<IFlashcard | null>;
