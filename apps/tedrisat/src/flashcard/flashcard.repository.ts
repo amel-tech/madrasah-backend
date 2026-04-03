@@ -9,10 +9,26 @@ import {
 } from './flashcard.repository.interface';
 import { DatabaseService } from '../database/database.service';
 import { flashcardProgress, flashcards } from '../database/schema';
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
+import { CardIncludeEnum } from './domain/card-include.enum';
 
-function fillWith(include?: Set<string>) {
-  return Object.fromEntries([...(include ?? [])].map((item) => [item, true]));
+/** Overrides for includes that need custom config (e.g. a where clause). */
+const cardIncludeOverrides: Partial<
+  Record<CardIncludeEnum, (userId: string) => unknown>
+> = {
+  [CardIncludeEnum.Progress]: (userId) => ({
+    where: eq(flashcardProgress.userId, userId),
+  }),
+};
+
+function buildWith(include: Set<CardIncludeEnum> | undefined, userId: string) {
+  if (!include?.size) return {};
+  return Object.fromEntries(
+    [...include].map((key) => [
+      key,
+      cardIncludeOverrides[key]?.(userId) ?? true,
+    ]),
+  );
 }
 
 @Injectable()
@@ -22,36 +38,24 @@ export class FlashcardRepository implements IFlashcardRepository {
   async findById(
     id: string,
     userId: string,
-    include?: Set<string>,
+    include?: Set<CardIncludeEnum>,
   ): Promise<IFlashcard | null> {
-    const filterByUser = (include ?? new Set()).has('progress');
-    const filter = and(
-      eq(flashcards.id, id),
-      filterByUser ? eq(flashcardProgress.userId, userId) : undefined,
-    );
+    const result = await this.databaseService.db.query.flashcards.findFirst({
+      where: eq(flashcards.id, id),
+      with: buildWith(include, userId),
+    });
 
-    return this.databaseService.db.query.flashcards
-      .findFirst({
-        where: filter,
-        with: fillWith(include),
-      })
-      .then((result) => result || null);
+    return result || null;
   }
 
   async findByDeckId(
     deckId: string,
     userId: string,
-    include?: Set<string>,
+    include?: Set<CardIncludeEnum>,
   ): Promise<IFlashcard[]> {
-    const filterByUser = (include ?? new Set()).has('progress');
-    const filter = and(
-      eq(flashcards.deckId, deckId),
-      filterByUser ? eq(flashcardProgress.userId, userId) : undefined,
-    );
-
     return this.databaseService.db.query.flashcards.findMany({
-      where: filter,
-      with: fillWith(include),
+      where: eq(flashcards.deckId, deckId),
+      with: buildWith(include, userId),
     });
   }
 

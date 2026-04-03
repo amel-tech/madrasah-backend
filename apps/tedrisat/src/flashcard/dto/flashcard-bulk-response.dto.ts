@@ -29,12 +29,16 @@ export class BulkFlashcardErrorContext {
   errors!: RowError[];
 }
 
-export class BulkFlashcardErrorResponse extends OmitType(ErrorResponse, ['context'] as const) {
+export class BulkFlashcardErrorResponse extends OmitType(ErrorResponse, [
+  'context',
+] as const) {
   @ApiProperty({ type: () => BulkFlashcardErrorContext })
   context!: BulkFlashcardErrorContext;
 }
 
-export function flattenValidationErrors(errors: ValidationError[]): FieldError[] {
+export function flattenValidationErrors(
+  errors: ValidationError[],
+): FieldError[] {
   return errors.flatMap((error) => {
     if (error.constraints) {
       return Object.values(error.constraints).map((message) => ({
