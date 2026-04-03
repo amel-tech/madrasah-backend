@@ -60,6 +60,12 @@ import { DeckNotFoundError } from './errors/deck-not-found.error';
 import { BulkValidationError } from './errors/bulk-validation.error';
 import { CardIncludeEnum } from './domain/card-include.enum';
 
+type UploadedImportFile = {
+  mimetype: string;
+  originalname: string;
+  buffer: Buffer;
+};
+
 @ApiTags('flashcard-cards')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
@@ -336,7 +342,7 @@ export class FlashcardController {
         ],
       }),
     )
-    file: Express.Multer.File,
+    file: UploadedImportFile,
     @Param('deckId', ParseUUIDPipe) deckId: string,
     @Req() request: AuthorizedRequest,
   ) {

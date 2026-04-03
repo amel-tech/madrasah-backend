@@ -10,9 +10,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "build": "npm run clean:dist && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "clean": "rimraf dist",
+    "clean": "npm run clean:dist",
+    "clean:dist": "rimraf dist",
+    "clean:all": "rm -rf dist .turbo node_modules",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "audit": "npm audit",

@@ -106,7 +106,8 @@ export class FlashcardDeckController {
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
     @Req() request: AuthorizedRequest,
-    @Query('isPublic', new ParseBoolPipe({ optional: true })) isPublic?: boolean,
+    @Query('isPublic', new ParseBoolPipe({ optional: true }))
+    isPublic?: boolean,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
     const userId = request.user.sub;

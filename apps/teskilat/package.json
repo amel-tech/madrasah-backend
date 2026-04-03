@@ -6,6 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "clean": "rm -rf dist .turbo",
+    "clean:all": "rm -rf dist .turbo node_modules",
     "build": "nest build",
     "dev": "npm run start:dev",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
