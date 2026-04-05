@@ -5,6 +5,7 @@ import { decks, decksUsers } from '../database/schema/flashcard-deck.schema';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
+  IFlashcardDeckFilters,
   IFlashcardDeckRepository,
   IFlashcardDeckUserCollectionItem,
   IUpdateFlashcardDeck,
@@ -55,13 +56,22 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
 
   async findAllVisibleToUser(
     userId: string,
+    filters?: IFlashcardDeckFilters,
     include?: Set<string>,
   ): Promise<IFlashcardDeck[]> {
     // TODO: handle pagination
-    return this.findByFilter(
-      or(eq(decks.isPublic, true), eq(decks.authorId, userId))!,
-      include,
-    );
+    const { isPublic } = filters ?? {};
+
+    let where: SQL;
+    if (isPublic === true) {
+      where = eq(decks.isPublic, true);
+    } else if (isPublic === false) {
+      where = and(eq(decks.authorId, userId), eq(decks.isPublic, false))!;
+    } else {
+      where = or(eq(decks.isPublic, true), eq(decks.authorId, userId))!;
+    }
+
+    return this.findByFilter(where, include);
   }
 
   async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {

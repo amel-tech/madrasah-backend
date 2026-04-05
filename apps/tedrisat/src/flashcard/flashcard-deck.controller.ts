@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto';
@@ -92,14 +94,24 @@ export class FlashcardDeckController {
     operationId: 'getAllFlashcardDecks',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
+  @ApiQuery({
+    name: 'isPublic',
+    required: false,
+    type: Boolean,
+    description:
+      'When omitted returns public decks and user-owned private decks. When true returns only public decks. When false returns only user-owned private decks.',
+  })
   @Get()
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
     @Req() request: AuthorizedRequest,
+    @Query('isPublic') isPublic?: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
     const userId = request.user.sub;
-    return this.deckService.findAllVisibleToUser(userId, include);
+    const filters =
+      isPublic !== undefined ? { isPublic: isPublic === 'true' } : undefined;
+    return this.deckService.findAllVisibleToUser(userId, filters, include);
   }
 
   // POST Requests

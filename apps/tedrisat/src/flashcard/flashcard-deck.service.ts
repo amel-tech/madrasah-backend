@@ -3,6 +3,7 @@ import { FlashcardDeckRepository } from './flashcard-deck.repository';
 import {
   ICreateFlashcardDeck,
   IFlashcardDeck,
+  IFlashcardDeckFilters,
   IFlashcardDeckUserCollectionItem,
   IUpdateFlashcardDeck,
 } from './flashcard-deck.repository.interface';
@@ -26,12 +27,12 @@ export class FlashcardDeckService {
 
   async findAllVisibleToUser(
     userId: string,
+    filters?: IFlashcardDeckFilters,
     include?: string[],
   ): Promise<IFlashcardDeck[]> {
     const includeSet = new Set(include);
-    return this.deckRepo.findAllVisibleToUser(userId, includeSet);
+    return this.deckRepo.findAllVisibleToUser(userId, filters, includeSet);
   }
-
 
   async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {
     return this.deckRepo.findAllByUser(userId);
