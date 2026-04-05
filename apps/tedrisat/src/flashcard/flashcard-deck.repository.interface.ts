@@ -33,6 +33,10 @@ export interface IFlashcardDeckRepository {
   // SELECT
   findById(id: string, include?: Set<string>): Promise<IFlashcardDeck | null>;
   findAll(include?: Set<string>): Promise<IFlashcardDeck[]>;
+  findAllVisibleToUser(
+    userId: string,
+    include?: Set<string>,
+  ): Promise<IFlashcardDeck[]>;
   findAllByUser(userId: string): Promise<IFlashcardDeck[]>; // not by author
 
   // INSERT
