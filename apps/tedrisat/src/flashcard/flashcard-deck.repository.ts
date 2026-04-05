@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, exists, SQL } from 'drizzle-orm';
+import { and, eq, exists, or, SQL } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { decks, decksUsers } from '../database/schema/flashcard-deck.schema';
 import {
@@ -51,6 +51,17 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   async findAll(include?: Set<string>): Promise<IFlashcardDeck[]> {
     // TODO: handle pagination
     return this.findByFilter(eq(decks.isPublic, true), include);
+  }
+
+  async findAllVisibleToUser(
+    userId: string,
+    include?: Set<string>,
+  ): Promise<IFlashcardDeck[]> {
+    // TODO: handle pagination
+    return this.findByFilter(
+      or(eq(decks.isPublic, true), eq(decks.authorId, userId))!,
+      include,
+    );
   }
 
   async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {

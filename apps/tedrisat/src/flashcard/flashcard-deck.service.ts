@@ -24,6 +24,15 @@ export class FlashcardDeckService {
     return this.deckRepo.findAll(includeSet);
   }
 
+  async findAllVisibleToUser(
+    userId: string,
+    include?: string[],
+  ): Promise<IFlashcardDeck[]> {
+    const includeSet = new Set(include);
+    return this.deckRepo.findAllVisibleToUser(userId, includeSet);
+  }
+
+
   async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {
     return this.deckRepo.findAllByUser(userId);
   }

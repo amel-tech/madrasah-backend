@@ -86,18 +86,20 @@ export class FlashcardDeckController {
   }
 
   @ApiOperation({
-    summary: 'Get all flashcard decks',
+    summary: 'Get all flashcard decks visible to the user',
     description:
-      'Retrieves all flashcard decks with optional includes for related data such as tags.',
+      'Retrieves all flashcard decks that are either public or owned by the user, with optional includes for related data such as tags.',
     operationId: 'getAllFlashcardDecks',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
   @Get()
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
+    @Req() request: AuthorizedRequest,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
-    return this.deckService.findAll(include);
+    const userId = request.user.sub;
+    return this.deckService.findAllVisibleToUser(userId, include);
   }
 
   // POST Requests
