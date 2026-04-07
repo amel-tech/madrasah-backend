@@ -5,9 +5,10 @@
   "critical": true,
   "report-type": "summary",
   "allowlist": [
-    "GHSA-xf7r-hgr6-v32p",
-    "GHSA-v52c-386h-88mc",
-    "GHSA-5c6j-r48x-rmvq"
+    "GHSA-27v5-c462-wpq7",
+    "GHSA-f23m-r3pf-42rh",
+    "GHSA-j3q9-mxjg-w52f",
+    "GHSA-r5fr-rjxr-66jc"
   ],
   "advisories": [],
   "package-manager": "npm",
