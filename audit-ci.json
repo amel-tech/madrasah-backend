@@ -5,10 +5,7 @@
   "critical": true,
   "report-type": "summary",
   "allowlist": [
-    "GHSA-27v5-c462-wpq7",
-    "GHSA-f23m-r3pf-42rh",
-    "GHSA-j3q9-mxjg-w52f",
-    "GHSA-r5fr-rjxr-66jc"
+    "GHSA-gpj5-g38j-94v9"
   ],
   "advisories": [],
   "package-manager": "npm",
