@@ -88,7 +88,6 @@ export class KeycloakPublicKeyProvider implements IPublicKeyProvider, OnModuleIn
     async onModuleInit() {
         try {
             const data = await this.fetchPublicKey();
-            console.log(`Pre-loading ${data.keys.length} keys from JWKS endpoint into cache...`);
             for (const jwk of data.keys) {
                 const kid = jwk.kid;
                 const key = jwk.x5c[0];
@@ -106,7 +105,6 @@ export class KeycloakPublicKeyProvider implements IPublicKeyProvider, OnModuleIn
     async fetchPublicKey(): Promise<JwksResponse> {
         try {
             const res = await fetch(this.config.jwksUrl);
-            console.log(`Fetching JWKS from ${this.config.jwksUrl}...`);
             if (!res.ok) {
                 throw new Error(`Failed to fetch JWKS: ${res.status} ${res.statusText}`);
             }

@@ -56,7 +56,7 @@ export async function startTestDatabase(): Promise<StartedPostgreSqlContainer> {
     __dirname,
     '../../src/database/migrations',
   );
-  process.env.LOG_LEVEL = 'error';
+  process.env.LOG_LEVEL = 'info';
   process.env.OTEL_ENABLED = 'false';
   process.env.SWAGGER_ENABLED = 'false';
   process.env.KEYCLOAK_JWKS_URL =
