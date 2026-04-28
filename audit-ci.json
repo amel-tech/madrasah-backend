@@ -5,9 +5,6 @@
   "critical": true,
   "report-type": "summary",
   "allowlist": [
-    "GHSA-xf7r-hgr6-v32p",
-    "GHSA-v52c-386h-88mc",
-    "GHSA-5c6j-r48x-rmvq"
   ],
   "advisories": [],
   "package-manager": "npm",

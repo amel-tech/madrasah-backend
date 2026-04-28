@@ -58,12 +58,14 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       migrationsFolder: string;
     }>('autoMigrations', { enabled: false, migrationsFolder: '' });
 
-    const { enabled } = autoMigrations;
+    const { enabled, migrationsFolder } = autoMigrations;
 
     if (enabled) {
-      return migrate(this.db, {
-        migrationsFolder: join(__dirname, './migrations'),
-      })
+      const resolvedFolder = migrationsFolder
+        ? migrationsFolder
+        : join(__dirname, './migrations');
+
+      return migrate(this.db, { migrationsFolder: resolvedFolder })
         .then(() => {
           this.logger.log('Migrations completed successfully');
         })

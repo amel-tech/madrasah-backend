@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
-import { AppModule } from '../../src/app.module';
 import {
   GlobalExceptionFilter,
   LoggerFactory,
@@ -26,8 +24,9 @@ process.on('SIGTERM', () => {
 });
 
 /**
- * Starts a PostgreSQL container for testing
- * This container will be reused across all tests to improve performance
+ * Starts a PostgreSQL container for testing and exports its connection details
+ * as environment variables so that AppModule's own ConfigModule picks them up.
+ * The container is reused across all tests to improve performance.
  */
 export async function startTestDatabase(): Promise<StartedPostgreSqlContainer> {
   if (globalPostgresContainer) {
@@ -42,6 +41,26 @@ export async function startTestDatabase(): Promise<StartedPostgreSqlContainer> {
     .withPassword('testpass')
     .withExposedPorts(5432)
     .start();
+
+  // Must be set BEFORE AppModule is imported/compiled so that
+  // configuration() reads these values instead of the defaults.
+  process.env.NODE_ENV = 'test';
+  process.env.DB_HOST = globalPostgresContainer.getHost();
+  process.env.DB_PORT = String(globalPostgresContainer.getMappedPort(5432));
+  process.env.DB_USERNAME = globalPostgresContainer.getUsername();
+  process.env.DB_PASSWORD = globalPostgresContainer.getPassword();
+  process.env.DB_NAME = globalPostgresContainer.getDatabase();
+  process.env.DB_SSL = 'false';
+  process.env.AUTO_MIGRATIONS = 'true';
+  process.env.AUTO_MIGRATIONS_FOLDER = join(
+    __dirname,
+    '../../src/database/migrations',
+  );
+  process.env.LOG_LEVEL = 'info';
+  process.env.OTEL_ENABLED = 'false';
+  process.env.SWAGGER_ENABLED = 'false';
+  process.env.KEYCLOAK_JWKS_URL =
+    'https://auth.medaris.app/realms/amel-tech-dev/protocol/openid-connect/certs';
 
   console.log(
     `PostgreSQL container started at ${globalPostgresContainer.getConnectionUri()}`,
@@ -63,61 +82,18 @@ export async function stopTestDatabase(): Promise<void> {
 }
 
 /**
- * Test configuration that uses Testcontainers for database
- */
-export const getTestConfig = (container: StartedPostgreSqlContainer) => ({
-  serviceName: 'tedrisat-test',
-  version: '0.1.1-test',
-  environment: 'test',
-  port: 4001,
-  database: {
-    host: container.getHost(),
-    port: container.getMappedPort(5432),
-    username: container.getUsername(),
-    password: container.getPassword(),
-    database: container.getDatabase(),
-    ssl: false,
-  },
-  redis: {
-    host: 'localhost',
-    port: 6379,
-    password: '',
-  },
-  logger: {
-    level: 'error', // Reduce log noise in tests
-    format: 'json',
-  },
-  otel: {
-    enabled: false, // Disable telemetry in tests
-    otelEndpoint: 'http://localhost:4317',
-    serviceName: 'tedrisat-test',
-    serviceVersion: '0.1.1-test',
-  },
-  swagger: {
-    enabled: false, // Disable swagger in tests
-    endpoint: '/docs',
-  },
-  autoMigrations: {
-    enabled: true, // Enable auto migrations for tests
-    migrationsFolder: join(__dirname, '../../src/database/migrations'), // Relative to this helper file
-  },
-});
-
-/**
- * Creates a test application with test configuration using Testcontainers
+ * Creates a test application backed by the Testcontainers postgres instance.
+ * AppModule is imported after environment variables are populated so its
+ * ConfigModule reads the container's connection details directly.
  */
 export async function createTestApp(): Promise<INestApplication> {
-  // Start the PostgreSQL container
-  const container = await startTestDatabase();
+  await startTestDatabase();
+
+  // Import AppModule lazily so configuration() runs after env vars are set.
+  const { AppModule } = await import('../../src/app.module');
 
   const moduleFixture: TestingModule = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        load: [() => getTestConfig(container)],
-        isGlobal: true,
-      }),
-      AppModule,
-    ],
+    imports: [AppModule],
   }).compile();
 
   const app = moduleFixture.createNestApplication();

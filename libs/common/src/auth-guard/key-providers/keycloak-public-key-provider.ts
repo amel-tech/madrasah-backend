@@ -105,7 +105,6 @@ export class KeycloakPublicKeyProvider implements IPublicKeyProvider, OnModuleIn
     async fetchPublicKey(): Promise<JwksResponse> {
         try {
             const res = await fetch(this.config.jwksUrl);
-
             if (!res.ok) {
                 throw new Error(`Failed to fetch JWKS: ${res.status} ${res.statusText}`);
             }
