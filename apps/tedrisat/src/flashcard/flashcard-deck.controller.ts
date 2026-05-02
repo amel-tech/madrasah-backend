@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  ParseBoolPipe,
   Query,
   Req,
   UseGuards,
@@ -105,12 +106,11 @@ export class FlashcardDeckController {
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
     @Req() request: AuthorizedRequest,
-    @Query('isPublic') isPublic?: string,
+    @Query('isPublic', new ParseBoolPipe({ optional: true })) isPublic?: boolean,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
     const userId = request.user.sub;
-    const filters =
-      isPublic !== undefined ? { isPublic: isPublic === 'true' } : undefined;
+    const filters = isPublic !== undefined ? { isPublic } : undefined;
     return this.deckService.findAllVisibleToUser(userId, filters, include);
   }
 
