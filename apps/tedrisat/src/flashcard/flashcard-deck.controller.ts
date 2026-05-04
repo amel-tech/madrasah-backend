@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
   Put,
+  ParseBoolPipe,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +25,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto';
@@ -86,18 +89,29 @@ export class FlashcardDeckController {
   }
 
   @ApiOperation({
-    summary: 'Get all flashcard decks',
+    summary: 'Get all flashcard decks visible to the user',
     description:
-      'Retrieves all flashcard decks with optional includes for related data such as tags.',
+      'Retrieves all flashcard decks that are either public or owned by the user, with optional includes for related data such as tags.',
     operationId: 'getAllFlashcardDecks',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
+  @ApiQuery({
+    name: 'isPublic',
+    required: false,
+    type: Boolean,
+    description:
+      'When omitted returns public decks and user-owned private decks. When true returns only public decks. When false returns only user-owned private decks.',
+  })
   @Get()
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
+    @Req() request: AuthorizedRequest,
+    @Query('isPublic', new ParseBoolPipe({ optional: true })) isPublic?: boolean,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardDeckResponse[]> {
-    return this.deckService.findAll(include);
+    const userId = request.user.sub;
+    const filters = isPublic !== undefined ? { isPublic } : undefined;
+    return this.deckService.findAllVisibleToUser(userId, filters, include);
   }
 
   // POST Requests

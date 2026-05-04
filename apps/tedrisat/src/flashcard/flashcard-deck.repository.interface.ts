@@ -21,6 +21,10 @@ export interface IUpdateFlashcardDeck {
   description?: string;
 }
 
+export interface IFlashcardDeckFilters {
+  isPublic?: boolean;
+}
+
 export interface IFlashcardDeckUserCollectionItem {
   // interface for `decks_users` table
   // referred as `collection`
@@ -33,6 +37,11 @@ export interface IFlashcardDeckRepository {
   // SELECT
   findById(id: string, include?: Set<string>): Promise<IFlashcardDeck | null>;
   findAll(include?: Set<string>): Promise<IFlashcardDeck[]>;
+  findAllVisibleToUser(
+    userId: string,
+    filters?: IFlashcardDeckFilters,
+    include?: Set<string>,
+  ): Promise<IFlashcardDeck[]>;
   findAllByUser(userId: string): Promise<IFlashcardDeck[]>; // not by author
 
   // INSERT

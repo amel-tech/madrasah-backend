@@ -48,7 +48,7 @@ Each service provides:
 
 ```bash
    # Start PostgreSQL database
-   docker-compose up tedrisat-db -d
+   docker-compose up medaris-db -d
    
    # Generate database migrations (runs for all services that have this script)
    npm run db:generate
