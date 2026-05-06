@@ -23,11 +23,15 @@
   "coverageReporters": ["json-summary", "text", "html"],
   "reporters": [
     "default",
-    ["jest-junit", { "outputDirectory": "./coverage", "outputName": "junit.xml" }]
+    [
+      "jest-junit",
+      { "outputDirectory": "./coverage", "outputName": "junit.xml" }
+    ]
   ],
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/src/$1"
   },
+  "modulePathIgnorePatterns": ["<rootDir>/dist/"],
   "testPathIgnorePatterns": ["<rootDir>/node_modules/", "<rootDir>/dist/"],
   "globalTeardown": "<rootDir>/test/helpers/global-teardown.ts",
   "maxWorkers": 1
