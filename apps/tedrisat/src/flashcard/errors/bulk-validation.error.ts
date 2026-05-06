@@ -6,8 +6,13 @@ export class BulkValidationError extends MedarisError {
   static readonly code = 'BULK_VALIDATION_ERROR';
 
   constructor(errors: RowError[]) {
-    super(BulkValidationError.code, HttpStatus.UNPROCESSABLE_ENTITY, 'Validation Error', {
-      errors,
-    });
+    super(
+      BulkValidationError.code,
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      'Validation Error',
+      {
+        errors,
+      },
+    );
   }
 }

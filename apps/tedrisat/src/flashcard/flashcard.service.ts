@@ -8,6 +8,16 @@ import {
 } from './flashcard.repository.interface';
 import { CreateFlashcardDto } from './dto/create-flashcard.dto';
 import { CreateFlashcardProgressDto } from './dto/create-flashcard-progress.dto';
+import { CardIncludeEnum } from './domain/card-include.enum';
+
+const validIncludes = new Set<string>(Object.values(CardIncludeEnum));
+
+function toIncludeSet(include?: string[]): Set<CardIncludeEnum> {
+  if (!include) return new Set();
+  return new Set(
+    include.filter((v): v is CardIncludeEnum => validIncludes.has(v)),
+  );
+}
 
 @Injectable()
 export class FlashcardService {
@@ -18,7 +28,7 @@ export class FlashcardService {
     userId: string,
     include?: string[],
   ): Promise<IFlashcard | null> {
-    return this.cardRepo.findById(id, userId, new Set(include));
+    return this.cardRepo.findById(id, userId, toIncludeSet(include));
   }
 
   async findByDeckId(
@@ -26,7 +36,7 @@ export class FlashcardService {
     userId: string,
     include?: string[],
   ): Promise<IFlashcard[]> {
-    return this.cardRepo.findByDeckId(deckId, userId, new Set(include));
+    return this.cardRepo.findByDeckId(deckId, userId, toIncludeSet(include));
   }
 
   async createMany(
