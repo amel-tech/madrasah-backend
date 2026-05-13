@@ -32,7 +32,11 @@ export class FlashcardBulkService {
       return { success: false, error: 'VALIDATION_FAILED', rowErrors };
     }
 
-    const flashCards = await this.cardService.createMany(deckId, authorId, cards);
+    const flashCards = await this.cardService.createMany(
+      deckId,
+      authorId,
+      cards,
+    );
     return { success: true, data: { count: flashCards.length } };
   }
 
@@ -49,7 +53,12 @@ export class FlashcardBulkService {
       contentBack: card.contentBack,
     }));
 
-    return this.excelService.exportData(data, FLASHCARD_EXCEL_CONFIG, title, format);
+    return this.excelService.exportData(
+      data,
+      FLASHCARD_EXCEL_CONFIG,
+      title,
+      format,
+    );
   }
 
   private async validateCards(
