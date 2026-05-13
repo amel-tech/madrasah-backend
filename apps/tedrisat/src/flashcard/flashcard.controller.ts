@@ -241,7 +241,11 @@ export class FlashcardController {
     const deck = await this.deckService.findById(deckId);
     if (!deck) throw new DeckNotFoundError(deckId);
 
-    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, cardsDto);
+    const result = await this.cardBulkService.addFlashcards(
+      deckId,
+      request.user.sub,
+      cardsDto,
+    );
     if (!result.success) throw new BulkValidationError(result.rowErrors);
 
     return result.data;
@@ -290,7 +294,12 @@ export class FlashcardController {
     const deck = await this.deckService.findById(deckId);
     if (!deck) throw new DeckNotFoundError(deckId);
 
-    return this.cardBulkService.exportFlashcards(deckId, request.user.sub, deck.title, format);
+    return this.cardBulkService.exportFlashcards(
+      deckId,
+      request.user.sub,
+      deck.title,
+      format,
+    );
   }
 
   // Post Import File
@@ -341,20 +350,24 @@ export class FlashcardController {
       file.originalname,
     );
 
-    let cards = await this.excelService.parseFile<FlashcardColumnDto>(
-        file.buffer,
-        FLASHCARD_EXCEL_CONFIG,
-        format,
-      );
-      
+    const cards = await this.excelService.parseFile<FlashcardColumnDto>(
+      file.buffer,
+      FLASHCARD_EXCEL_CONFIG,
+      format,
+    );
+
     if (cards == null || cards.length == 0)
       throw new HttpException(
         'The uploaded file contains no data rows. Please ensure the file has a header row and at least one data row.',
         HttpStatus.BAD_REQUEST,
       );
-    const result = await this.cardBulkService.addFlashcards(deckId, request.user.sub, [...cards]);
+    const result = await this.cardBulkService.addFlashcards(
+      deckId,
+      request.user.sub,
+      [...cards],
+    );
     if (!result.success) throw new BulkValidationError(result.rowErrors);
-    
+
     return result.data;
   }
 }

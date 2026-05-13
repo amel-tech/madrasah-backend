@@ -51,7 +51,7 @@ export async function startTestDatabase(): Promise<StartedPostgreSqlContainer> {
   process.env.DB_PASSWORD = globalPostgresContainer.getPassword();
   process.env.DB_NAME = globalPostgresContainer.getDatabase();
   process.env.DB_SSL = 'false';
-  process.env.AUTO_MIGRATIONS = 'true';
+  process.env.AUTO_MIGRATIONS_ENABLED = 'true';
   process.env.AUTO_MIGRATIONS_FOLDER = join(
     __dirname,
     '../../src/database/migrations',
