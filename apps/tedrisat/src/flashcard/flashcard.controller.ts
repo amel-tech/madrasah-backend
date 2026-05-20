@@ -58,9 +58,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FlashcardDeckService } from './flashcard-deck.service';
 import { DeckNotFoundError } from './errors/deck-not-found.error';
 import { BulkValidationError } from './errors/bulk-validation.error';
-export enum CardIncludeEnum {
-  Progress = 'progress',
-}
+import { CardIncludeEnum } from './domain/card-include.enum';
 
 @ApiTags('flashcard-cards')
 @ApiBearerAuth()

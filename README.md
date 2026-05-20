@@ -124,20 +124,20 @@ npm run dev
 ### Tedrisat Service (<http://localhost:3001>)
 - `GET /` - Returns "Hello World from Tedrisat Service!"
 - `GET /health` - Health check
-- `GET /swagger` - Swagger API documentation
+- `GET /docs` - Swagger API documentation / this path can be changed with SWAGGER_PATH variable  inside apps/tedrisat/.env
 
 ### Teskilat Service (<http://localhost:3002>)
 - `GET /` - Returns "Hello World from Teskilat Service!"
 - `GET /health` - Health check
-- `GET /swagger` - Swagger API documentation
+- `GET /docs` - Swagger API documentation / this path can be changed with SWAGGER_PATH variable  inside apps/teskilat/.env
 
 
 ## API Documentation
 
 Both services include interactive Swagger documentation:
 
-- **Tedrisat Service**: [http://localhost:3001/swagger](http://localhost:3001/swagger)
-- **Teskilat Service**: [http://localhost:3002/swagger](http://localhost:3002/swagger)
+- **Tedrisat Service**: [http://localhost:3001/docs](http://localhost:3001/docs)
+- **Teskilat Service**: [http://localhost:3002/docs](http://localhost:3002/docs)
 
 The Swagger documentation provides:
 
