@@ -211,6 +211,10 @@ describe('CourseController (e2e)', () => {
       const id = created.body.id;
 
       await request(app.getHttpServer())
+        .post(`/courses/${id}/enroll`)
+        .expect(201);
+
+      await request(app.getHttpServer())
         .put(`/courses/${id}/progress`)
         .send({ progress: 35 })
         .expect(200);
@@ -436,6 +440,69 @@ describe('CourseController (e2e)', () => {
         .post(`/courses/${created.body.id}/enroll`)
         .expect(201)
         .expect((res) => expect(res.body).toHaveProperty('status', 'ENROLLED'));
+    });
+
+    it('does not let a pending talebe self-promote via progress', async () => {
+      const created = await request(app.getHttpServer())
+        .post(`/kosks/${koskId}/courses`)
+        .send(approvalCourse())
+        .expect(201);
+      const id = created.body.id;
+
+      await request(app.getHttpServer())
+        .post(`/courses/${id}/enroll`)
+        .expect(201)
+        .expect((res) => expect(res.body).toHaveProperty('status', 'PENDING'));
+
+      // recording progress on a pending enrollment must be refused
+      await request(app.getHttpServer())
+        .put(`/courses/${id}/progress`)
+        .send({ progress: 50 })
+        .expect(404);
+
+      // the enrollment stays pending — not silently approved
+      await request(app.getHttpServer())
+        .get(`/kosks/${koskId}/enrollments/pending`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(1);
+          expect(res.body[0]).toHaveProperty('status', 'PENDING');
+        });
+    });
+
+    it('refuses progress when the talebe is not enrolled', async () => {
+      const created = await createCourse().expect(201);
+      return request(app.getHttpServer())
+        .put(`/courses/${created.body.id}/progress`)
+        .send({ progress: 20 })
+        .expect(404);
+    });
+
+    it('does not reject an already-approved (active) enrollment', async () => {
+      const created = await request(app.getHttpServer())
+        .post(`/kosks/${koskId}/courses`)
+        .send(approvalCourse())
+        .expect(201);
+      const id = created.body.id;
+
+      await request(app.getHttpServer()).post(`/courses/${id}/enroll`).expect(201);
+      await request(app.getHttpServer())
+        .post(`/courses/${id}/enrollments/${TEST_USER_ID}/approve`)
+        .expect(201);
+
+      // reject only applies to pending requests
+      await request(app.getHttpServer())
+        .delete(`/courses/${id}/enrollments/${TEST_USER_ID}`)
+        .expect(404);
+
+      // the active enrollment is untouched
+      await request(app.getHttpServer())
+        .get('/courses/enrolled')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(1);
+          expect(res.body[0]).toHaveProperty('id', id);
+        });
     });
 
     it('forbids listing pending enrollments for a köşk owned by someone else', async () => {

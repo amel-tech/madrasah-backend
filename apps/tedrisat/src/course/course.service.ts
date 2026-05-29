@@ -140,11 +140,13 @@ export class CourseService {
     studentId: string,
   ): Promise<boolean> {
     await this.assertCourseOwner(courseId, ownerId);
-    const deleted = await this.courseRepo.deleteEnrollment(studentId, courseId);
-    if (!deleted) {
+    // Only pending requests can be rejected; deleting an active or completed
+    // enrollment must go through a deliberate unenroll flow, not "reject".
+    const existing = await this.courseRepo.findEnrollment(studentId, courseId);
+    if (!existing || existing.status !== EnrollmentStatus.PENDING) {
       throw new EnrollmentNotFoundError(courseId);
     }
-    return deleted;
+    return this.courseRepo.deleteEnrollment(studentId, courseId);
   }
 
   async updateProgress(
@@ -153,7 +155,13 @@ export class CourseService {
     progress: number,
     status?: EnrollmentStatus,
   ): Promise<IEnrollment> {
-    await this.courseRepo.enroll(userId, courseId); // idempotent
+    // Progress can only be recorded against an active enrollment. A pending
+    // (awaiting-approval) or missing enrollment must not be silently promoted,
+    // otherwise this endpoint would bypass the köşk owner's approval.
+    const existing = await this.courseRepo.findEnrollment(userId, courseId);
+    if (!existing || existing.status === EnrollmentStatus.PENDING) {
+      throw new EnrollmentNotFoundError(courseId);
+    }
     const resolvedStatus =
       status ??
       (progress >= 100
