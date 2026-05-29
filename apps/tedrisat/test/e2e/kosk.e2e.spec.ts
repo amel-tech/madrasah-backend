@@ -1,18 +1,22 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { DatabaseService } from '../../src/database/database.service';
+import { kosks } from '../../src/database/schema/kosk.schema';
 import { createTestApp, TEST_USER_ID } from '../helpers/test-app.helper';
 import { TestDatabaseUtils } from '../helpers/test-database.helper';
 
 const MISSING_UUID = '00000000-0000-0000-0000-000000000000';
+const OTHER_USER_ID = '11111111-1111-1111-1111-111111111111';
 
 describe('KoskController (e2e)', () => {
   let app: INestApplication;
+  let databaseService: DatabaseService;
   let dbUtils: TestDatabaseUtils;
 
   beforeAll(async () => {
     app = await createTestApp({ authUserId: TEST_USER_ID });
-    dbUtils = new TestDatabaseUtils(app.get<DatabaseService>(DatabaseService));
+    databaseService = app.get<DatabaseService>(DatabaseService);
+    dbUtils = new TestDatabaseUtils(databaseService);
   });
 
   beforeEach(async () => {
@@ -51,26 +55,23 @@ describe('KoskController (e2e)', () => {
         });
     });
 
-    it('persists discovery fields', () => {
+    it('persists owner-settable discovery fields', () => {
       return createKosk({
         field: 'Tefsir & Hadis',
         level: 'ADVANCED',
         tags: ['Tefsir', 'Hadis'],
-        verified: true,
-        featured: true,
-        rating: 4.8,
-        ratingCount: 132,
       })
         .expect(201)
         .expect((res) => {
           expect(res.body).toHaveProperty('field', 'Tefsir & Hadis')
           expect(res.body).toHaveProperty('level', 'ADVANCED')
           expect(res.body).toHaveProperty('tags', ['Tefsir', 'Hadis'])
-          expect(res.body).toHaveProperty('verified', true)
-          expect(res.body).toHaveProperty('featured', true)
-          expect(res.body).toHaveProperty('rating', 4.8)
-          expect(res.body).toHaveProperty('ratingCount', 132)
         })
+    })
+
+    it('rejects client-set verified/featured/rating (not whitelisted)', () => {
+      return createKosk({ verified: true, featured: true, rating: 5 })
+        .expect(400)
     })
 
     it('rejects an empty name', () => {
@@ -93,25 +94,43 @@ describe('KoskController (e2e)', () => {
     });
   });
 
-  describe('/kosks (GET)', () => {
-    it('returns an empty array when none exist', () => {
+  describe('/kosks (GET, paginated)', () => {
+    it('returns an empty page when none exist', () => {
       return request(app.getHttpServer())
         .get('/kosks')
         .expect(200)
         .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
-          expect(res.body).toHaveLength(0);
+          expect(Array.isArray(res.body.items)).toBe(true);
+          expect(res.body.items).toHaveLength(0);
+          expect(res.body).toHaveProperty('total', 0);
+          expect(res.body).toHaveProperty('page', 1);
+          expect(res.body).toHaveProperty('limit', 12);
         });
     });
 
-    it('returns köşks with a courseCount', async () => {
+    it('returns köşks with stats and pagination meta', async () => {
       await createKosk().expect(201);
       return request(app.getHttpServer())
         .get('/kosks')
         .expect(200)
         .expect((res) => {
-          expect(res.body).toHaveLength(1);
-          expect(res.body[0]).toHaveProperty('courseCount', 0);
+          expect(res.body.items).toHaveLength(1);
+          expect(res.body).toHaveProperty('total', 1);
+          expect(res.body.items[0]).toHaveProperty('courseCount', 0);
+        });
+    });
+
+    it('honours page/limit', async () => {
+      await createKosk().expect(201);
+      await createKosk().expect(201);
+      await createKosk().expect(201);
+      return request(app.getHttpServer())
+        .get('/kosks?page=1&limit=2')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.items).toHaveLength(2);
+          expect(res.body).toHaveProperty('total', 3);
+          expect(res.body).toHaveProperty('limit', 2);
         });
     });
   });
@@ -160,6 +179,22 @@ describe('KoskController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/kosks/${created.body.id}`)
         .expect(404);
+    });
+
+    it('forbids a non-owner from editing or deleting a köşk', async () => {
+      // a köşk owned by a different user
+      const [other] = await databaseService.db
+        .insert(kosks)
+        .values({ ownerId: OTHER_USER_ID, name: 'Başka Köşk' })
+        .returning();
+
+      await request(app.getHttpServer())
+        .patch(`/kosks/${other.id}`)
+        .send({ name: 'Ele geçirildi' })
+        .expect(403);
+      await request(app.getHttpServer())
+        .delete(`/kosks/${other.id}`)
+        .expect(403);
     });
   });
 

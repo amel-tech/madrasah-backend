@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +19,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@madrasah/common';
@@ -23,7 +27,10 @@ import { KoskService } from './kosk.service';
 import { CreateKoskDto } from './dto/create-kosk.dto';
 import { UpdateKoskDto } from './dto/update-kosk.dto';
 import { KoskResponse } from './dto/kosk-response.dto';
+import { PaginatedKoskResponse } from './dto/paginated-kosk-response.dto';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
+
+const MAX_PAGE_SIZE = 50;
 
 @ApiTags('kosks')
 @ApiBearerAuth()
@@ -33,13 +40,21 @@ export class KoskController {
   constructor(private readonly koskService: KoskService) {}
 
   @ApiOperation({
-    summary: 'Get all köşks',
+    summary: 'Get a paginated list of köşks',
     operationId: 'getAllKosks',
   })
-  @ApiOkResponse({ type: KoskResponse, isArray: true })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOkResponse({ type: PaginatedKoskResponse })
   @Get()
-  async findAll(@Req() request: AuthorizedRequest): Promise<KoskResponse[]> {
-    return this.koskService.findAll(request.user.sub);
+  async findAll(
+    @Req() request: AuthorizedRequest,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(12), ParseIntPipe) limit: number,
+  ): Promise<PaginatedKoskResponse> {
+    const safePage = page < 1 ? 1 : page;
+    const safeLimit = Math.min(Math.max(limit, 1), MAX_PAGE_SIZE);
+    return this.koskService.findAll(request.user.sub, safePage, safeLimit);
   }
 
   @ApiOperation({
@@ -83,7 +98,7 @@ export class KoskController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() koskDto: UpdateKoskDto,
   ): Promise<KoskResponse> {
-    await this.koskService.update(id, koskDto);
+    await this.koskService.update(id, request.user.sub, koskDto);
     return this.koskService.findById(id, request.user.sub);
   }
 
@@ -92,9 +107,13 @@ export class KoskController {
     operationId: 'deleteKosk',
   })
   @ApiOkResponse({ type: Boolean })
+  @ApiNotFoundResponse()
   @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<boolean> {
-    return this.koskService.delete(id);
+  async delete(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<boolean> {
+    return this.koskService.delete(id, request.user.sub);
   }
 
   @ApiOperation({

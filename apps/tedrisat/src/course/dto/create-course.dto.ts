@@ -19,6 +19,13 @@ import { CourseStatus } from '../domain/course-status.enum';
 import { LessonType } from '../domain/lesson-type.enum';
 
 export class CreateLessonDto {
+  @ApiPropertyOptional({
+    description: 'Existing lesson id (preserved on replace)',
+  })
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @ApiProperty({ example: 'Birinci babın îsâgûcîsi' })
   @IsString()
   @MinLength(1)
@@ -48,6 +55,13 @@ export class CreateLessonDto {
 }
 
 export class CreateWeekDto {
+  @ApiPropertyOptional({
+    description: 'Existing week id (preserved on replace)',
+  })
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @ApiProperty({ example: 1 })
   @IsInt()
   @Min(1)
@@ -75,6 +89,13 @@ export class CreateWeekDto {
 }
 
 export class CreateMuderrisDto {
+  @ApiPropertyOptional({
+    description: 'Existing müderris row id (preserved on replace)',
+  })
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @ApiPropertyOptional({ description: 'Linked platform user id, if any' })
   @IsOptional()
   @IsUUID()
@@ -107,6 +128,13 @@ export class CreateMuderrisDto {
 }
 
 export class CreateResourceDto {
+  @ApiPropertyOptional({
+    description: 'Existing resource row id (preserved on replace)',
+  })
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @ApiProperty({ example: 'Bina ve İzhar — Klasik metin' })
   @IsString()
   @MinLength(1)
@@ -192,6 +220,14 @@ export class CreateCourseDto {
   @IsOptional()
   @IsBoolean()
   grantsCertificate?: boolean;
+
+  @ApiPropertyOptional({
+    example: false,
+    description: 'When true, enrollments need köşk-owner approval.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  requiresApproval?: boolean;
 
   @ApiPropertyOptional({ type: [CreateWeekDto] })
   @IsOptional()

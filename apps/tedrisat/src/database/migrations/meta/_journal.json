@@ -71,6 +71,13 @@
       "when": 1780061512633,
       "tag": "0009_kosk_discovery",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780061512634,
+      "tag": "0010_enrollment_approval",
+      "breakpoints": true
     }
   ]
 }

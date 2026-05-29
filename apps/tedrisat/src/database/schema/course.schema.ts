@@ -38,6 +38,7 @@ export const courses = table('courses', {
   durationWeeks: integer('duration_weeks').default(0).notNull(),
   status: courseStatus().default(CourseStatus.DRAFT).notNull(),
   grantsCertificate: boolean('grants_certificate').default(false).notNull(),
+  requiresApproval: boolean('requires_approval').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -102,6 +103,8 @@ export const enrollments = table(
     courseId: uuid('course_id')
       .references(() => courses.id, { onDelete: 'cascade' })
       .notNull(),
+    studentName: text('student_name'),
+    studentEmail: text('student_email'),
     progress: integer('progress').default(0).notNull(),
     status: enrollmentStatus().default(EnrollmentStatus.ENROLLED).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),

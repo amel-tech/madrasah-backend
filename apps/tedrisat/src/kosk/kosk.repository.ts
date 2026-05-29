@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { kosks, koskFollowers } from '../database/schema/kosk.schema';
 import {
@@ -35,7 +35,7 @@ export class KoskRepository implements IKoskRepository {
           Number,
         ),
       muderrisCount:
-        sql<number>`(select count(distinct cm.name) from ${courseMuderris} cm join ${courses} c on cm.course_id = c.id where c.kosk_id = "kosks"."id")`.mapWith(
+        sql<number>`(select count(distinct cm.id) from ${courseMuderris} cm join ${courses} c on cm.course_id = c.id where c.kosk_id = "kosks"."id")`.mapWith(
           Number,
         ),
       followerCount:
@@ -67,9 +67,25 @@ export class KoskRepository implements IKoskRepository {
     };
   }
 
-  async findAll(userId: string): Promise<IKoskWithStats[]> {
-    const rows = await this.db.select(this.statsSelect(userId)).from(kosks);
+  async findAll(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<IKoskWithStats[]> {
+    const rows = await this.db
+      .select(this.statsSelect(userId))
+      .from(kosks)
+      .orderBy(desc(kosks.featured), desc(kosks.createdAt))
+      .limit(limit)
+      .offset(offset);
     return rows.map((r) => this.toStats(r));
+  }
+
+  async count(): Promise<number> {
+    const [row] = await this.db
+      .select({ value: sql<number>`count(*)`.mapWith(Number) })
+      .from(kosks);
+    return row?.value ?? 0;
   }
 
   async findById(id: string, userId: string): Promise<IKoskWithStats | null> {
@@ -78,6 +94,15 @@ export class KoskRepository implements IKoskRepository {
       .from(kosks)
       .where(eq(kosks.id, id));
     return rows[0] ? this.toStats(rows[0]) : null;
+  }
+
+  async findOwnerId(id: string): Promise<string | null> {
+    const rows = await this.db
+      .select({ ownerId: kosks.ownerId })
+      .from(kosks)
+      .where(eq(kosks.id, id))
+      .limit(1);
+    return rows[0]?.ownerId ?? null;
   }
 
   async create(kosk: ICreateKosk): Promise<IKosk> {

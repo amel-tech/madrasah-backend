@@ -25,6 +25,13 @@ export interface IKoskWithStats extends IKosk {
   isFollowing: boolean;
 }
 
+export interface IPaginatedKosks {
+  items: IKoskWithStats[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface ICreateKosk {
   ownerId: string;
   name: string;
@@ -57,8 +64,14 @@ export interface IUpdateKosk {
 }
 
 export interface IKoskRepository {
-  findAll(userId: string): Promise<IKoskWithStats[]>;
+  findAll(
+    userId: string,
+    limit: number,
+    offset: number,
+  ): Promise<IKoskWithStats[]>;
+  count(): Promise<number>;
   findById(id: string, userId: string): Promise<IKoskWithStats | null>;
+  findOwnerId(id: string): Promise<string | null>;
   create(kosk: ICreateKosk): Promise<IKosk>;
   update(id: string, updates: IUpdateKosk): Promise<IKosk | null>;
   delete(id: string): Promise<boolean>;

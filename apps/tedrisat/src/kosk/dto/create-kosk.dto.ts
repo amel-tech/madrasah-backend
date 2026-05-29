@@ -2,7 +2,6 @@ import {
   IsArray,
   IsBoolean,
   IsInt,
-  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -66,27 +65,4 @@ export class CreateKoskDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-
-  @ApiPropertyOptional({ example: false })
-  @IsOptional()
-  @IsBoolean()
-  verified?: boolean;
-
-  @ApiPropertyOptional({ example: false })
-  @IsOptional()
-  @IsBoolean()
-  featured?: boolean;
-
-  @ApiPropertyOptional({ example: 4.8, minimum: 0, maximum: 5 })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  rating?: number;
-
-  @ApiPropertyOptional({ example: 132, minimum: 0 })
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  ratingCount?: number;
 }

@@ -59,6 +59,7 @@ export interface ICourse {
   durationWeeks: number;
   status: CourseStatus;
   grantsCertificate: boolean;
+  requiresApproval: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,16 +79,37 @@ export interface ICourseSummary extends ICourse {
   enrollment: IEnrollment | null;
 }
 
+export interface IEnrolledCourse extends ICourse {
+  koskName: string;
+  weekCount: number;
+  lessonCount: number;
+  muderris: IMuderris[];
+  enrollment: IEnrollment;
+}
+
 export interface IEnrollment {
   userId: string;
   courseId: string;
+  studentName: string | null;
+  studentEmail: string | null;
   progress: number;
   status: EnrollmentStatus;
   createdAt: Date;
   updatedAt: Date;
 }
 
+export interface IPendingEnrollment extends IEnrollment {
+  courseTitle: string;
+}
+
+export interface IEnrollOptions {
+  status?: EnrollmentStatus;
+  studentName?: string | null;
+  studentEmail?: string | null;
+}
+
 export interface ICreateLesson {
+  id?: string;
   title: string;
   type: LessonType;
   duration?: string;
@@ -96,6 +118,7 @@ export interface ICreateLesson {
 }
 
 export interface ICreateWeek {
+  id?: string;
   weekNumber: number;
   title: string;
   summary?: string;
@@ -103,6 +126,7 @@ export interface ICreateWeek {
 }
 
 export interface ICreateMuderris {
+  id?: string;
   userId?: string;
   name: string;
   title?: string;
@@ -111,6 +135,7 @@ export interface ICreateMuderris {
 }
 
 export interface ICreateResource {
+  id?: string;
   name: string;
   meta?: string;
   type?: string;
@@ -130,6 +155,7 @@ export interface ICreateCourse {
   durationWeeks?: number;
   status?: CourseStatus;
   grantsCertificate?: boolean;
+  requiresApproval?: boolean;
   weeks?: ICreateWeek[];
   muderris?: ICreateMuderris[];
   resources?: ICreateResource[];
@@ -146,6 +172,7 @@ export interface IUpdateCourse {
   durationWeeks?: number;
   status?: CourseStatus;
   grantsCertificate?: boolean;
+  requiresApproval?: boolean;
 }
 
 export type IReplaceCourse = Omit<ICreateCourse, 'koskId' | 'authorId'>;
@@ -156,7 +183,9 @@ export interface ICourseRepository {
     userId: string,
   ): Promise<ICourseSummary[]>;
   findDetailById(id: string, userId: string): Promise<ICourseDetail | null>;
+  findEnrolledByUser(userId: string): Promise<IEnrolledCourse[]>;
   create(course: ICreateCourse): Promise<ICourseDetail>;
+  findKoskId(id: string): Promise<string | null>;
   update(id: string, updates: IUpdateCourse): Promise<ICourse | null>;
   replace(
     id: string,
@@ -164,8 +193,19 @@ export interface ICourseRepository {
     data: IReplaceCourse,
   ): Promise<ICourseDetail>;
   delete(id: string): Promise<boolean>;
-  enroll(userId: string, courseId: string): Promise<IEnrollment>;
+  enroll(
+    userId: string,
+    courseId: string,
+    options?: IEnrollOptions,
+  ): Promise<IEnrollment>;
   findEnrollment(userId: string, courseId: string): Promise<IEnrollment | null>;
+  findPendingByKosk(koskId: string): Promise<IPendingEnrollment[]>;
+  setEnrollmentStatus(
+    userId: string,
+    courseId: string,
+    status: EnrollmentStatus,
+  ): Promise<IEnrollment | null>;
+  deleteEnrollment(userId: string, courseId: string): Promise<boolean>;
   updateProgress(
     userId: string,
     courseId: string,

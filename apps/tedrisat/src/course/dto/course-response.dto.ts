@@ -49,10 +49,16 @@ export class ResourceResponse {
 export class EnrollmentResponse {
   @ApiProperty() userId!: string;
   @ApiProperty() courseId!: string;
+  @ApiPropertyOptional({ type: String }) studentName!: string | null;
+  @ApiPropertyOptional({ type: String }) studentEmail!: string | null;
   @ApiProperty({ description: 'Percent complete, 0-100' }) progress!: number;
   @ApiProperty({ enum: EnrollmentStatus }) status!: EnrollmentStatus;
   @ApiProperty() createdAt!: Date;
   @ApiProperty() updatedAt!: Date;
+}
+
+export class PendingEnrollmentResponse extends EnrollmentResponse {
+  @ApiProperty() courseTitle!: string;
 }
 
 class CourseBase {
@@ -69,6 +75,7 @@ class CourseBase {
   @ApiProperty() durationWeeks!: number;
   @ApiProperty({ enum: CourseStatus }) status!: CourseStatus;
   @ApiProperty() grantsCertificate!: boolean;
+  @ApiProperty() requiresApproval!: boolean;
   @ApiProperty() createdAt!: Date;
   @ApiProperty() updatedAt!: Date;
 }
@@ -88,4 +95,12 @@ export class CourseSummaryResponse extends CourseBase {
   @ApiProperty({ type: [MuderrisResponse] }) muderris!: MuderrisResponse[];
   @ApiPropertyOptional({ type: EnrollmentResponse })
   enrollment!: EnrollmentResponse | null;
+}
+
+export class EnrolledCourseResponse extends CourseBase {
+  @ApiProperty() koskName!: string;
+  @ApiProperty() weekCount!: number;
+  @ApiProperty() lessonCount!: number;
+  @ApiProperty({ type: [MuderrisResponse] }) muderris!: MuderrisResponse[];
+  @ApiProperty({ type: EnrollmentResponse }) enrollment!: EnrollmentResponse;
 }

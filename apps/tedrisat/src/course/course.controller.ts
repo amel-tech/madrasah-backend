@@ -29,7 +29,9 @@ import { UpdateProgressDto } from './dto/update-progress.dto';
 import {
   CourseDetailResponse,
   CourseSummaryResponse,
+  EnrolledCourseResponse,
   EnrollmentResponse,
+  PendingEnrollmentResponse,
 } from './dto/course-response.dto';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 
@@ -71,6 +73,18 @@ export class CourseController {
   }
 
   @ApiOperation({
+    summary: 'List the courses the current talebe is enrolled in',
+    operationId: 'getEnrolledCourses',
+  })
+  @ApiOkResponse({ type: EnrolledCourseResponse, isArray: true })
+  @Get('courses/enrolled')
+  async findEnrolled(
+    @Req() request: AuthorizedRequest,
+  ): Promise<EnrolledCourseResponse[]> {
+    return this.courseService.findEnrolledCourses(request.user.sub);
+  }
+
+  @ApiOperation({
     summary: 'Get a course with its full syllabus, müderris and resources',
     operationId: 'getCourseById',
   })
@@ -96,7 +110,7 @@ export class CourseController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() courseDto: UpdateCourseDto,
   ): Promise<CourseDetailResponse> {
-    await this.courseService.update(id, courseDto);
+    await this.courseService.update(id, request.user.sub, courseDto);
     return this.courseService.getDetail(id, request.user.sub);
   }
 
@@ -122,9 +136,13 @@ export class CourseController {
     operationId: 'deleteCourse',
   })
   @ApiOkResponse({ type: Boolean })
+  @ApiNotFoundResponse()
   @Delete('courses/:id')
-  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<boolean> {
-    return this.courseService.delete(id);
+  async delete(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<boolean> {
+    return this.courseService.delete(id, request.user.sub);
   }
 
   @ApiOperation({
@@ -138,7 +156,59 @@ export class CourseController {
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<EnrollmentResponse> {
-    return this.courseService.enroll(request.user.sub, id);
+    const { user } = request;
+    const name =
+      user.name ??
+      [user.given_name, user.family_name].filter(Boolean).join(' ').trim() ??
+      user.preferred_username;
+    return this.courseService.enroll(user.sub, id, {
+      name: name || user.preferred_username || null,
+      email: user.email ?? null,
+    });
+  }
+
+  @ApiOperation({
+    summary: 'List pending enrollment requests for a köşk (owner only)',
+    operationId: 'getPendingEnrollments',
+  })
+  @ApiOkResponse({ type: PendingEnrollmentResponse, isArray: true })
+  @ApiNotFoundResponse()
+  @Get('kosks/:koskId/enrollments/pending')
+  async pendingEnrollments(
+    @Req() request: AuthorizedRequest,
+    @Param('koskId', ParseUUIDPipe) koskId: string,
+  ): Promise<PendingEnrollmentResponse[]> {
+    return this.courseService.findPendingEnrollments(koskId, request.user.sub);
+  }
+
+  @ApiOperation({
+    summary: 'Approve a pending enrollment (köşk owner only)',
+    operationId: 'approveEnrollment',
+  })
+  @ApiOkResponse({ type: EnrollmentResponse })
+  @ApiNotFoundResponse()
+  @Post('courses/:id/enrollments/:userId/approve')
+  async approveEnrollment(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<EnrollmentResponse> {
+    return this.courseService.approveEnrollment(id, request.user.sub, userId);
+  }
+
+  @ApiOperation({
+    summary: 'Reject a pending enrollment, deleting it (köşk owner only)',
+    operationId: 'rejectEnrollment',
+  })
+  @ApiOkResponse({ type: Boolean })
+  @ApiNotFoundResponse()
+  @Delete('courses/:id/enrollments/:userId')
+  async rejectEnrollment(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<boolean> {
+    return this.courseService.rejectEnrollment(id, request.user.sub, userId);
   }
 
   @ApiOperation({
