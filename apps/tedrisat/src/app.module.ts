@@ -8,6 +8,8 @@ import { ExampleModule } from './example/example.module';
 import { DatabaseModule } from './database/database.module';
 import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardLabelModule } from './flashcard/flashcard-label.module';
+import { KoskModule } from './kosk/kosk.module';
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { FlashcardLabelModule } from './flashcard/flashcard-label.module';
     ExampleModule,
     FlashcardModule,
     FlashcardLabelModule,
+    KoskModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

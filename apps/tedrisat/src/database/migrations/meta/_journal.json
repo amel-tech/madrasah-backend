@@ -57,6 +57,13 @@
       "when": 1764710160768,
       "tag": "0007_equal_amazoness",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780055836017,
+      "tag": "0008_courses_kosks",
+      "breakpoints": true
     }
   ]
 }
