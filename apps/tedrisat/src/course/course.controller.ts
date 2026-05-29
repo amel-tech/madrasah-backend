@@ -101,6 +101,23 @@ export class CourseController {
   }
 
   @ApiOperation({
+    summary:
+      'Replace a course, including its full syllabus, müderris and resources',
+    operationId: 'replaceCourse',
+  })
+  @ApiOkResponse({ type: CourseDetailResponse })
+  @ApiNotFoundResponse()
+  @Put('courses/:id')
+  @UsePipes(new MedarisValidationPipe({ transform: true }))
+  async replace(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() courseDto: CreateCourseDto,
+  ): Promise<CourseDetailResponse> {
+    return this.courseService.replace(id, request.user.sub, courseDto);
+  }
+
+  @ApiOperation({
     summary: 'Delete a course',
     operationId: 'deleteCourse',
   })

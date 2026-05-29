@@ -214,6 +214,45 @@ describe('CourseController (e2e)', () => {
         });
     });
 
+    it('replaces a course including its curriculum', async () => {
+      const created = await createCourse().expect(201)
+      const id = created.body.id
+
+      const payload = coursePayload()
+      payload.title = 'Güncellenmiş Kurs'
+      payload.status = 'PUBLISHED'
+      payload.muderris = []
+      payload.resources = []
+      payload.weeks = [
+        {
+          weekNumber: 1,
+          title: 'Tek Hafta',
+          lessons: [{ title: 'Yeni Ders', type: 'VIDEO', duration: '20 dk' }],
+        },
+      ]
+
+      return request(app.getHttpServer())
+        .put(`/courses/${id}`)
+        .send(payload)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('title', 'Güncellenmiş Kurs')
+          expect(res.body).toHaveProperty('status', 'PUBLISHED')
+          // curriculum fully replaced (was 2 weeks / 1 müderris / 1 resource)
+          expect(res.body.weeks).toHaveLength(1)
+          expect(res.body.weeks[0].lessons).toHaveLength(1)
+          expect(res.body.muderris).toHaveLength(0)
+          expect(res.body.resources).toHaveLength(0)
+        })
+    })
+
+    it('returns 404 when replacing a missing course', () => {
+      return request(app.getHttpServer())
+        .put(`/courses/${MISSING_UUID}`)
+        .send(coursePayload())
+        .expect(404)
+    })
+
     it('deletes a course', async () => {
       const created = await createCourse().expect(201);
       await request(app.getHttpServer())

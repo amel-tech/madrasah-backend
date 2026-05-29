@@ -148,6 +148,8 @@ export interface IUpdateCourse {
   grantsCertificate?: boolean;
 }
 
+export type IReplaceCourse = Omit<ICreateCourse, 'koskId' | 'authorId'>;
+
 export interface ICourseRepository {
   findSummariesByKosk(
     koskId: string,
@@ -156,6 +158,11 @@ export interface ICourseRepository {
   findDetailById(id: string, userId: string): Promise<ICourseDetail | null>;
   create(course: ICreateCourse): Promise<ICourseDetail>;
   update(id: string, updates: IUpdateCourse): Promise<ICourse | null>;
+  replace(
+    id: string,
+    userId: string,
+    data: IReplaceCourse,
+  ): Promise<ICourseDetail>;
   delete(id: string): Promise<boolean>;
   enroll(userId: string, courseId: string): Promise<IEnrollment>;
   findEnrollment(userId: string, courseId: string): Promise<IEnrollment | null>;

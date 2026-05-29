@@ -6,12 +6,23 @@ export interface IKosk {
   description: string | null;
   coverHue: number;
   isPrivate: boolean;
+  field: string | null;
+  level: string | null;
+  tags: string[];
+  verified: boolean;
+  featured: boolean;
+  rating: number;
+  ratingCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IKoskWithStats extends IKosk {
   courseCount: number;
+  studentCount: number;
+  muderrisCount: number;
+  followerCount: number;
+  isFollowing: boolean;
 }
 
 export interface ICreateKosk {
@@ -21,6 +32,13 @@ export interface ICreateKosk {
   description?: string;
   coverHue?: number;
   isPrivate?: boolean;
+  field?: string;
+  level?: string;
+  tags?: string[];
+  verified?: boolean;
+  featured?: boolean;
+  rating?: number;
+  ratingCount?: number;
 }
 
 export interface IUpdateKosk {
@@ -29,12 +47,21 @@ export interface IUpdateKosk {
   description?: string;
   coverHue?: number;
   isPrivate?: boolean;
+  field?: string;
+  level?: string;
+  tags?: string[];
+  verified?: boolean;
+  featured?: boolean;
+  rating?: number;
+  ratingCount?: number;
 }
 
 export interface IKoskRepository {
-  findAll(): Promise<IKoskWithStats[]>;
-  findById(id: string): Promise<IKoskWithStats | null>;
+  findAll(userId: string): Promise<IKoskWithStats[]>;
+  findById(id: string, userId: string): Promise<IKoskWithStats | null>;
   create(kosk: ICreateKosk): Promise<IKosk>;
   update(id: string, updates: IUpdateKosk): Promise<IKosk | null>;
   delete(id: string): Promise<boolean>;
+  follow(userId: string, koskId: string): Promise<boolean>;
+  unfollow(userId: string, koskId: string): Promise<boolean>;
 }

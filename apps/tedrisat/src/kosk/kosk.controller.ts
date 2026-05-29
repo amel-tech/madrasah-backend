@@ -38,8 +38,8 @@ export class KoskController {
   })
   @ApiOkResponse({ type: KoskResponse, isArray: true })
   @Get()
-  async findAll(): Promise<KoskResponse[]> {
-    return this.koskService.findAll();
+  async findAll(@Req() request: AuthorizedRequest): Promise<KoskResponse[]> {
+    return this.koskService.findAll(request.user.sub);
   }
 
   @ApiOperation({
@@ -50,9 +50,10 @@ export class KoskController {
   @ApiNotFoundResponse()
   @Get(':id')
   async findById(
+    @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<KoskResponse> {
-    return this.koskService.findById(id);
+    return this.koskService.findById(id, request.user.sub);
   }
 
   @ApiOperation({
@@ -66,7 +67,8 @@ export class KoskController {
     @Body() koskDto: CreateKoskDto,
   ): Promise<KoskResponse> {
     const ownerId = request.user.sub;
-    return this.koskService.create({ ownerId, ...koskDto });
+    const created = await this.koskService.create({ ownerId, ...koskDto });
+    return this.koskService.findById(created.id, ownerId);
   }
 
   @ApiOperation({
@@ -77,10 +79,12 @@ export class KoskController {
   @ApiNotFoundResponse()
   @Patch(':id')
   async update(
+    @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() koskDto: UpdateKoskDto,
   ): Promise<KoskResponse> {
-    return this.koskService.update(id, koskDto);
+    await this.koskService.update(id, koskDto);
+    return this.koskService.findById(id, request.user.sub);
   }
 
   @ApiOperation({
@@ -91,5 +95,32 @@ export class KoskController {
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string): Promise<boolean> {
     return this.koskService.delete(id);
+  }
+
+  @ApiOperation({
+    summary: 'Follow a köşk as the current talebe',
+    operationId: 'followKosk',
+  })
+  @ApiCreatedResponse({ type: Boolean })
+  @ApiNotFoundResponse()
+  @Post(':id/follow')
+  async follow(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<boolean> {
+    return this.koskService.follow(request.user.sub, id);
+  }
+
+  @ApiOperation({
+    summary: 'Unfollow a köşk',
+    operationId: 'unfollowKosk',
+  })
+  @ApiOkResponse({ type: Boolean })
+  @Delete(':id/follow')
+  async unfollow(
+    @Req() request: AuthorizedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<boolean> {
+    return this.koskService.unfollow(request.user.sub, id);
   }
 }

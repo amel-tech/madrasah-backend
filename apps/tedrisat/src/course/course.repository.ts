@@ -16,6 +16,7 @@ import {
   ICourseSummary,
   ICreateCourse,
   IEnrollment,
+  IReplaceCourse,
   IUpdateCourse,
 } from './course.repository.interface';
 import { EnrollmentStatus } from './domain/enrollment-status.enum';
@@ -148,6 +149,82 @@ export class CourseRepository implements ICourseRepository {
     // authorId is the creator; enrollment is irrelevant at creation time.
     const detail = await this.findDetailById(courseId, course.authorId);
     return detail as ICourseDetail;
+  }
+
+  async replace(
+    id: string,
+    userId: string,
+    data: IReplaceCourse,
+  ): Promise<ICourseDetail> {
+    const { weeks, muderris, resources, ...courseData } = data;
+
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(courses)
+        .set({ ...courseData, updatedAt: new Date() })
+        .where(eq(courses.id, id));
+
+      // Replace nested content: cascading delete then reinsert.
+      await tx.delete(courseWeeks).where(eq(courseWeeks.courseId, id));
+      await tx.delete(courseMuderris).where(eq(courseMuderris.courseId, id));
+      await tx.delete(courseResources).where(eq(courseResources.courseId, id));
+
+      if (muderris?.length) {
+        await tx.insert(courseMuderris).values(
+          muderris.map((m, i) => ({
+            courseId: id,
+            userId: m.userId,
+            name: m.name,
+            title: m.title,
+            bio: m.bio,
+            avatarHue: m.avatarHue,
+            orderIndex: i,
+          })),
+        );
+      }
+
+      if (resources?.length) {
+        await tx.insert(courseResources).values(
+          resources.map((r, i) => ({
+            courseId: id,
+            name: r.name,
+            meta: r.meta,
+            type: r.type,
+            url: r.url,
+            orderIndex: i,
+          })),
+        );
+      }
+
+      for (const [wi, week] of (weeks ?? []).entries()) {
+        const [createdWeek] = await tx
+          .insert(courseWeeks)
+          .values({
+            courseId: id,
+            weekNumber: week.weekNumber,
+            title: week.title,
+            summary: week.summary,
+            orderIndex: wi,
+          })
+          .returning();
+
+        if (week.lessons?.length) {
+          await tx.insert(lessons).values(
+            week.lessons.map((l, li) => ({
+              weekId: createdWeek.id,
+              title: l.title,
+              type: l.type,
+              duration: l.duration,
+              kaynak: l.kaynak,
+              isPreview: l.isPreview ?? false,
+              orderIndex: li,
+            })),
+          );
+        }
+      }
+    });
+
+    return (await this.findDetailById(id, userId)) as ICourseDetail;
   }
 
   async update(id: string, updates: IUpdateCourse): Promise<ICourse | null> {

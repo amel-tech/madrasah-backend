@@ -40,8 +40,38 @@ describe('KoskController (e2e)', () => {
           expect(res.body).toHaveProperty('ownerId', TEST_USER_ID);
           expect(res.body).toHaveProperty('coverHue', 215);
           expect(res.body).toHaveProperty('isPrivate', true);
+          // discovery defaults + derived stats
+          expect(res.body).toHaveProperty('tags', []);
+          expect(res.body).toHaveProperty('verified', false);
+          expect(res.body).toHaveProperty('rating', 0);
+          expect(res.body).toHaveProperty('studentCount', 0);
+          expect(res.body).toHaveProperty('muderrisCount', 0);
+          expect(res.body).toHaveProperty('followerCount', 0);
+          expect(res.body).toHaveProperty('isFollowing', false);
         });
     });
+
+    it('persists discovery fields', () => {
+      return createKosk({
+        field: 'Tefsir & Hadis',
+        level: 'ADVANCED',
+        tags: ['Tefsir', 'Hadis'],
+        verified: true,
+        featured: true,
+        rating: 4.8,
+        ratingCount: 132,
+      })
+        .expect(201)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('field', 'Tefsir & Hadis')
+          expect(res.body).toHaveProperty('level', 'ADVANCED')
+          expect(res.body).toHaveProperty('tags', ['Tefsir', 'Hadis'])
+          expect(res.body).toHaveProperty('verified', true)
+          expect(res.body).toHaveProperty('featured', true)
+          expect(res.body).toHaveProperty('rating', 4.8)
+          expect(res.body).toHaveProperty('ratingCount', 132)
+        })
+    })
 
     it('rejects an empty name', () => {
       return createKosk({ name: '' })
@@ -129,6 +159,45 @@ describe('KoskController (e2e)', () => {
 
       return request(app.getHttpServer())
         .get(`/kosks/${created.body.id}`)
+        .expect(404);
+    });
+  });
+
+  describe('/kosks/:id/follow', () => {
+    it('follows and unfollows a köşk, reflected in isFollowing/followerCount', async () => {
+      const created = await createKosk().expect(201);
+      const id = created.body.id;
+
+      await request(app.getHttpServer()).post(`/kosks/${id}/follow`).expect(201);
+
+      await request(app.getHttpServer())
+        .get(`/kosks/${id}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('isFollowing', true);
+          expect(res.body).toHaveProperty('followerCount', 1);
+        });
+
+      // idempotent: following again does not duplicate
+      await request(app.getHttpServer()).post(`/kosks/${id}/follow`).expect(201);
+      await request(app.getHttpServer())
+        .get(`/kosks/${id}`)
+        .expect(200)
+        .expect((res) => expect(res.body).toHaveProperty('followerCount', 1));
+
+      await request(app.getHttpServer()).delete(`/kosks/${id}/follow`).expect(200);
+      return request(app.getHttpServer())
+        .get(`/kosks/${id}`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('isFollowing', false);
+          expect(res.body).toHaveProperty('followerCount', 0);
+        });
+    });
+
+    it('returns 404 when following a missing köşk', () => {
+      return request(app.getHttpServer())
+        .post(`/kosks/${MISSING_UUID}/follow`)
         .expect(404);
     });
   });

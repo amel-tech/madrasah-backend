@@ -7,6 +7,7 @@ import {
   ICourseSummary,
   ICreateCourse,
   IEnrollment,
+  IReplaceCourse,
   IUpdateCourse,
 } from './course.repository.interface';
 import { CourseNotFoundError } from './errors/course-not-found.error';
@@ -23,7 +24,7 @@ export class CourseService {
     koskId: string,
     userId: string,
   ): Promise<ICourseSummary[]> {
-    await this.koskService.findById(koskId); // throws if köşk is missing
+    await this.koskService.findById(koskId, userId); // throws if köşk is missing
     return this.courseRepo.findSummariesByKosk(koskId, userId);
   }
 
@@ -40,7 +41,7 @@ export class CourseService {
     authorId: string,
     course: Omit<ICreateCourse, 'koskId' | 'authorId'>,
   ): Promise<ICourseDetail> {
-    await this.koskService.findById(koskId); // throws if köşk is missing
+    await this.koskService.findById(koskId, authorId); // throws if köşk is missing
     return this.courseRepo.create({ ...course, koskId, authorId });
   }
 
@@ -50,6 +51,18 @@ export class CourseService {
       throw new CourseNotFoundError(id);
     }
     return updated;
+  }
+
+  async replace(
+    id: string,
+    userId: string,
+    data: IReplaceCourse,
+  ): Promise<ICourseDetail> {
+    const existing = await this.courseRepo.findDetailById(id, userId);
+    if (!existing) {
+      throw new CourseNotFoundError(id);
+    }
+    return this.courseRepo.replace(id, userId, data);
   }
 
   async delete(id: string): Promise<boolean> {

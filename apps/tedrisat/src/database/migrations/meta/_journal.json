@@ -64,6 +64,13 @@
       "when": 1780055836017,
       "tag": "0008_courses_kosks",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1780061512633,
+      "tag": "0009_kosk_discovery",
+      "breakpoints": true
     }
   ]
 }

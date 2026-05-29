@@ -12,12 +12,12 @@ import { KoskNotFoundError } from './errors/kosk-not-found.error';
 export class KoskService {
   constructor(private readonly koskRepo: KoskRepository) {}
 
-  async findAll(): Promise<IKoskWithStats[]> {
-    return this.koskRepo.findAll();
+  async findAll(userId: string): Promise<IKoskWithStats[]> {
+    return this.koskRepo.findAll(userId);
   }
 
-  async findById(id: string): Promise<IKoskWithStats> {
-    const kosk = await this.koskRepo.findById(id);
+  async findById(id: string, userId: string): Promise<IKoskWithStats> {
+    const kosk = await this.koskRepo.findById(id, userId);
     if (!kosk) {
       throw new KoskNotFoundError(id);
     }
@@ -38,5 +38,14 @@ export class KoskService {
 
   async delete(id: string): Promise<boolean> {
     return this.koskRepo.delete(id);
+  }
+
+  async follow(userId: string, koskId: string): Promise<boolean> {
+    await this.findById(koskId, userId); // throws if köşk is missing
+    return this.koskRepo.follow(userId, koskId);
+  }
+
+  async unfollow(userId: string, koskId: string): Promise<boolean> {
+    return this.koskRepo.unfollow(userId, koskId);
   }
 }

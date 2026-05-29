@@ -1,6 +1,8 @@
 import {
+  IsArray,
   IsBoolean,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -43,4 +45,48 @@ export class CreateKoskDto {
   @IsOptional()
   @IsBoolean()
   isPrivate?: boolean;
+
+  @ApiPropertyOptional({ example: 'Tefsir & Hadis', description: 'İlim alanı' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  field?: string;
+
+  @ApiPropertyOptional({
+    example: 'ALL',
+    description: "'ALL' | 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'",
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  level?: string;
+
+  @ApiPropertyOptional({ type: [String], example: ['Tefsir', 'Hadis'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @IsBoolean()
+  verified?: boolean;
+
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @IsBoolean()
+  featured?: boolean;
+
+  @ApiPropertyOptional({ example: 4.8, minimum: 0, maximum: 5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  rating?: number;
+
+  @ApiPropertyOptional({ example: 132, minimum: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  ratingCount?: number;
 }
