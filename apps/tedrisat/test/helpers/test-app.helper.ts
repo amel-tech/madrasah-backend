@@ -1,15 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import { join } from 'path';
 import {
   PostgreSqlContainer,
   StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
 import {
+  AuthGuard,
   GlobalExceptionFilter,
   LoggerFactory,
   MedarisValidationPipe,
 } from '@madrasah/common';
+
+// Fixed user id injected by the stubbed AuthGuard in tests.
+export const TEST_USER_ID = '623fdf08-fd0e-481b-a927-4a1c15135e62';
 
 // Global container instance to be shared across all tests
 let globalPostgresContainer: StartedPostgreSqlContainer | null = null;
@@ -85,16 +89,37 @@ export async function stopTestDatabase(): Promise<void> {
  * Creates a test application backed by the Testcontainers postgres instance.
  * AppModule is imported after environment variables are populated so its
  * ConfigModule reads the container's connection details directly.
+ *
+ * Pass `authUserId` to stub the AuthGuard so guarded endpoints run as that
+ * user (the guard only auto-bypasses when NODE_ENV === 'development', which is
+ * not the case under Jest).
  */
-export async function createTestApp(): Promise<INestApplication> {
+export async function createTestApp(options?: {
+  authUserId?: string;
+}): Promise<INestApplication> {
   await startTestDatabase();
 
   // Import AppModule lazily so configuration() runs after env vars are set.
   const { AppModule } = await import('../../src/app.module');
 
-  const moduleFixture: TestingModule = await Test.createTestingModule({
+  const builder = Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  });
+
+  if (options?.authUserId !== undefined) {
+    const userId = options.authUserId;
+    builder.overrideGuard(AuthGuard).useValue({
+      canActivate: (context: ExecutionContext) => {
+        const request = context
+          .switchToHttp()
+          .getRequest<{ user: { sub: string; preferred_username: string } }>();
+        request.user = { sub: userId, preferred_username: 'test' };
+        return true;
+      },
+    });
+  }
+
+  const moduleFixture: TestingModule = await builder.compile();
 
   const app = moduleFixture.createNestApplication();
 

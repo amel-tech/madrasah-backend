@@ -27,7 +27,8 @@
     "db:check": "drizzle-kit check",
     "db:push": "drizzle-kit push",
     "db:introspect": "drizzle-kit introspect",
-    "db:drop": "drizzle-kit drop"
+    "db:drop": "drizzle-kit drop",
+    "db:seed": "node scripts/seed.mjs"
   },
   "dependencies": {
     "@madrasah/common": "1.0.0",

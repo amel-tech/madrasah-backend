@@ -15,9 +15,7 @@ import {
 import { DatabaseService } from '../database/database.service';
 
 @Injectable()
-export class FlashcardDeckLabelRepository
-  implements IFlashcardDeckLabelRepository
-{
+export class FlashcardDeckLabelRepository implements IFlashcardDeckLabelRepository {
   constructor(private readonly databaseService: DatabaseService) {}
   async getById(tagId: string): Promise<IFlashcardDeckLabel> {
     const [result] = await this.databaseService.db
