@@ -96,6 +96,12 @@ export async function stopTestDatabase(): Promise<void> {
  */
 export async function createTestApp(options?: {
   authUserId?: string;
+  /** Set to false to drop the implicit SYSTEM_ADMIN realm role from the
+   *  stubbed user. Defaults to true so fixture creation that needs
+   *  SYSTEM_ADMIN-only scopes (`CREATE_KOSK`) does not have to mock the
+   *  authz layer separately. Set to false for tests that exercise
+   *  non-admin behaviour (matrix denials, ownership checks). */
+  asSystemAdmin?: boolean;
 }): Promise<INestApplication> {
   await startTestDatabase();
 
@@ -108,12 +114,21 @@ export async function createTestApp(options?: {
 
   if (options?.authUserId !== undefined) {
     const userId = options.authUserId;
+    const asAdmin = options.asSystemAdmin ?? true;
     builder.overrideGuard(AuthGuard).useValue({
       canActivate: (context: ExecutionContext) => {
-        const request = context
-          .switchToHttp()
-          .getRequest<{ user: { sub: string; preferred_username: string } }>();
-        request.user = { sub: userId, preferred_username: 'test' };
+        const request = context.switchToHttp().getRequest<{
+          user: {
+            sub: string;
+            preferred_username: string;
+            realm_access: { roles: string[] };
+          };
+        }>();
+        request.user = {
+          sub: userId,
+          preferred_username: 'test',
+          realm_access: { roles: asAdmin ? ['SYSTEM_ADMIN'] : [] },
+        };
         return true;
       },
     });

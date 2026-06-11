@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -17,6 +18,15 @@ export class CreateKoskDto {
   @MinLength(2)
   @MaxLength(120)
   name!: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Caller (SYSTEM_ADMIN) may assign the köşk to a specific user; that user becomes KOSK_MANAGER. Ignored for non-admin callers (and only SYSTEM_ADMIN can reach this endpoint per the matrix anyway).',
+    example: '00000000-0000-0000-0000-000000000000',
+  })
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string;
 
   @ApiPropertyOptional({ example: '@suleymaniye' })
   @IsOptional()

@@ -28,13 +28,23 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { UpdateFlashcardDeckDto } from './dto/update-flashcard-deck.dto';
+import {
+  ReplaceFlashcardDeckDto,
+  UpdateFlashcardDeckDto,
+} from './dto/update-flashcard-deck.dto';
 import { FlashcardDeckService } from './flashcard-deck.service';
 import {
   IncludeApiQuery,
   IncludeQuery,
 } from './decorators/include-query.decorator';
-import { AuthGuard } from '@madrasah/common';
+import {
+  AuthGuard,
+  Authz,
+  AuthzGuard,
+  byParam,
+  ENTITIES,
+  SCOPES,
+} from '@madrasah/common';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 import { FlashcardDeckUserResponse } from './dto/flashcard-deck-user-response.dto';
 
@@ -44,7 +54,7 @@ export enum DeckIncludeEnum {
 
 @ApiTags('flashcard-decks')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AuthzGuard)
 @Controller('flashcard/decks')
 export class FlashcardDeckController {
   constructor(private readonly deckService: FlashcardDeckService) {}
@@ -56,6 +66,9 @@ export class FlashcardDeckController {
     operationId: 'getAllFlashcardDecksByUser',
   })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
+  // Self-scoped: the repository filters by `decksUsers.userId = caller`
+  // AND (isPublic OR authorId = caller), so visibility is enforced at
+  // the data layer. AuthGuard suffices.
   @Get('/collections')
   async findAllUserCollections(
     @Req() request: AuthorizedRequest,
@@ -72,7 +85,9 @@ export class FlashcardDeckController {
   })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
   @IncludeApiQuery(DeckIncludeEnum)
+  @Authz(SCOPES.VIEW, byParam(ENTITIES.FLASHCARD_DECK))
   @Get(':id')
   async findById(
     @Param('id', ParseUUIDPipe) deckId: string,
@@ -102,6 +117,7 @@ export class FlashcardDeckController {
     description:
       'When omitted returns public decks and user-owned private decks. When true returns only public decks. When false returns only user-owned private decks.',
   })
+  // Self-scoped listing — repository filters by `isPublic OR authorId`.
   @Get()
   @IncludeApiQuery(DeckIncludeEnum)
   async findAll(
@@ -120,20 +136,25 @@ export class FlashcardDeckController {
   @ApiOperation({
     summary: 'Create a new flashcard deck',
     description:
-      'Creates a new flashcard deck with the provided details. Tags can be optionally associated with the deck.',
+      'Creates a new flashcard deck. Publishing (`isPublic = true`) requires the SYSTEM_ADMIN realm role; non-admin callers can only create private decks.',
     operationId: 'createFlashcardDeck',
   })
   @ApiCreatedResponse({ type: FlashcardDeckResponse })
+  @ApiForbiddenResponse()
+  // `create_private_deck` is granted to PUBLIC in the matrix → any
+  // authenticated caller may create their own private deck.
+  // Publishing (`isPublic: true`) is gated by the service.
+  @Authz(SCOPES.CREATE_PRIVATE_DECK, () => ({
+    entity: ENTITIES.FLASHCARD_DECK,
+    id: 'new',
+  }))
   @Post()
   async create(
     @Req() request: AuthorizedRequest,
     @Body() deckDto: CreateFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
-    const userId = request.user.sub;
-    const newDeck = { authorId: userId, ...deckDto };
-    const createdDeck = await this.deckService.create(newDeck);
-
-    return createdDeck;
+    const newDeck = { authorId: request.user.sub, ...deckDto };
+    return this.deckService.create(request.user, newDeck);
   }
 
   @ApiOperation({
@@ -143,13 +164,16 @@ export class FlashcardDeckController {
     operationId: 'createFlashcardDeckUser',
   })
   @ApiCreatedResponse({ type: FlashcardDeckUserResponse })
+  @ApiForbiddenResponse()
+  // Attaching a deck to your own collection requires the same right as
+  // viewing it: public decks open to all, private decks only to owners.
+  @Authz(SCOPES.VIEW, byParam(ENTITIES.FLASHCARD_DECK))
   @Post(':id/collections')
   async addToUserCollection(
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) deckId: string,
   ): Promise<FlashcardDeckUserResponse> {
-    const userId = request.user.sub;
-    return this.deckService.addToUserCollection(userId, deckId);
+    return this.deckService.addToUserCollection(request.user.sub, deckId);
   }
 
   // PUT Requests
@@ -160,13 +184,14 @@ export class FlashcardDeckController {
       'Replaces all properties of an existing flashcard deck with new values. This is a complete replacement operation.',
     operationId: 'replaceFlashcardDeck',
   })
-  @ApiBody({ type: CreateFlashcardDeckDto })
-  // @ApiCreatedResponse({ type: FlashcardDeckResponse })
+  @ApiBody({ type: ReplaceFlashcardDeckDto })
   @ApiOkResponse({ type: FlashcardDeckResponse, isArray: true })
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_PRIVATE_DECK, byParam(ENTITIES.FLASHCARD_DECK))
   @Put(':id')
   async replace(
     @Param('id', ParseUUIDPipe) deckId: string,
-    @Body() deckDto: CreateFlashcardDeckDto,
+    @Body() deckDto: ReplaceFlashcardDeckDto,
   ): Promise<FlashcardDeckResponse> {
     const updatedDeck = await this.deckService.update(deckId, deckDto);
     if (!updatedDeck) {
@@ -189,6 +214,7 @@ export class FlashcardDeckController {
   @ApiBody({ type: UpdateFlashcardDeckDto })
   @ApiOkResponse({ type: FlashcardDeckResponse })
   @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_PRIVATE_DECK, byParam(ENTITIES.FLASHCARD_DECK))
   @Patch(':id')
   async updateDeck(
     @Param('id', ParseUUIDPipe) deckId: string,
@@ -213,6 +239,8 @@ export class FlashcardDeckController {
     operationId: 'deleteFlashcardDeck',
   })
   @ApiOkResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_PRIVATE_DECK, byParam(ENTITIES.FLASHCARD_DECK))
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) deckId: string): Promise<boolean> {
     return this.deckService.delete(deckId);
@@ -228,7 +256,6 @@ export class FlashcardDeckController {
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) deckId: string,
   ): Promise<FlashcardDeckUserResponse> {
-    const userId = request.user.sub;
-    return this.deckService.removeFromUserCollection(userId, deckId);
+    return this.deckService.removeFromUserCollection(request.user.sub, deckId);
   }
 }

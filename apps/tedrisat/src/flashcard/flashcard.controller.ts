@@ -27,6 +27,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -43,7 +44,18 @@ import {
   IncludeApiQuery,
   IncludeQuery,
 } from './decorators/include-query.decorator';
-import { AuthGuard, ExcelService } from '@madrasah/common';
+import {
+  AuthGuard,
+  Authz,
+  AuthzGuard,
+  byParam,
+  byQuery,
+  ENTITIES,
+  ExcelService,
+  ResourceRef,
+  SCOPES,
+} from '@madrasah/common';
+import { Request } from 'express';
 import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 import { FlashcardBulkService } from './flashcard-bulk.service';
 import {
@@ -59,10 +71,38 @@ import { FlashcardDeckService } from './flashcard-deck.service';
 import { DeckNotFoundError } from './errors/deck-not-found.error';
 import { BulkValidationError } from './errors/bulk-validation.error';
 import { CardIncludeEnum } from './domain/card-include.enum';
+import { FlashcardRepository } from './flashcard.repository';
+import { ModuleRef } from '@nestjs/core';
+
+/**
+ * Resolver: a card endpoint authorizes against the card's parent deck.
+ * Card → deck lookup happens inside the resolver via ModuleRef; if the
+ * card is missing it raises NotFoundException, which the guard
+ * propagates as 404.
+ *
+ * Defined here (next to the controller) instead of in a shared file so
+ * the coupling between the route shape and the lookup is explicit.
+ */
+const cardParentDeck =
+  (param = 'id') =>
+  async (req: Request, mod: ModuleRef): Promise<ResourceRef> => {
+    const rawCardId = (req.params as Record<string, unknown>)[param];
+    const cardId = typeof rawCardId === 'string' ? rawCardId : '';
+    const userId = (req as unknown as AuthorizedRequest).user?.sub ?? '';
+    const cardRepo = mod.get(FlashcardRepository, { strict: false });
+    const card = await cardRepo.findById(cardId, userId);
+    if (!card) {
+      throw new HttpException(
+        `Flashcard with id ${cardId} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return { entity: ENTITIES.FLASHCARD_DECK, id: card.deckId };
+  };
 
 @ApiTags('flashcard-cards')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AuthzGuard)
 @Controller('flashcard/')
 export class FlashcardController {
   constructor(
@@ -81,15 +121,20 @@ export class FlashcardController {
   })
   @ApiOkResponse({ type: FlashcardResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
   @IncludeApiQuery(CardIncludeEnum)
+  @Authz(SCOPES.VIEW, cardParentDeck())
   @Get('cards/:id')
   async findById(
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) cardId: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardResponse> {
-    const userId = request.user.sub;
-    const card = await this.cardService.findById(cardId, userId, include);
+    const card = await this.cardService.findById(
+      cardId,
+      request.user.sub,
+      include,
+    );
     if (!card) {
       throw new HttpException(
         `could not find card #${cardId}`,
@@ -105,16 +150,17 @@ export class FlashcardController {
     operationId: 'getFlashcardByDeckId',
   })
   @ApiOkResponse({ type: [FlashcardResponse] })
+  @ApiForbiddenResponse()
   @ApiQuery({ name: 'deckId', required: true, type: String })
   @IncludeApiQuery(CardIncludeEnum)
+  @Authz(SCOPES.VIEW, byQuery(ENTITIES.FLASHCARD_DECK, 'deckId'))
   @Get('cards')
   async findByDeckId(
     @Req() request: AuthorizedRequest,
     @Query('deckId', ParseUUIDPipe) deckId: string,
     @IncludeQuery() include?: string[],
   ): Promise<FlashcardResponse[]> {
-    const userId = request.user.sub;
-    return this.cardService.findByDeckId(deckId, userId, include);
+    return this.cardService.findByDeckId(deckId, request.user.sub, include);
   }
 
   // POST Requests
@@ -127,6 +173,8 @@ export class FlashcardController {
   })
   @ApiBody({ type: [CreateFlashcardDto] })
   @ApiCreatedResponse({ type: FlashcardResponse, isArray: true })
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.CREATE_FLASHCARD, byParam(ENTITIES.FLASHCARD_DECK, 'deckId'))
   @Post('decks/:deckId/cards')
   async createMany(
     @Req() request: AuthorizedRequest,
@@ -134,8 +182,7 @@ export class FlashcardController {
     @Body(new ParseArrayPipe({ items: CreateFlashcardDto }))
     cardsDto: CreateFlashcardDto[],
   ): Promise<FlashcardResponse[]> {
-    const authorId = request.user.sub;
-    return this.cardService.createMany(deckId, authorId, cardsDto);
+    return this.cardService.createMany(deckId, request.user.sub, cardsDto);
   }
 
   // PUT Requests
@@ -146,14 +193,18 @@ export class FlashcardController {
   })
   @ApiOkResponse({ type: [FlashcardProgressResponse] })
   @ApiBody({ type: [CreateFlashcardProgressDto] })
+  @ApiForbiddenResponse()
+  // Multi-resource batch: each flashcardId may live in a different
+  // deck. The single-resource @Authz decorator cannot express this;
+  // FlashcardService verifies every parent deck is reachable before
+  // persisting.
   @Put('cards/progress')
   async replaceManyProgress(
     @Req() request: AuthorizedRequest,
     @Body(new ParseArrayPipe({ items: CreateFlashcardProgressDto }))
     progressDto: CreateFlashcardProgressDto[],
   ): Promise<FlashcardProgressResponse[]> {
-    const userId = request.user.sub;
-    return this.cardService.replaceManyProgress(userId, progressDto);
+    return this.cardService.replaceManyProgress(request.user, progressDto);
   }
 
   @ApiOperation({
@@ -165,6 +216,8 @@ export class FlashcardController {
   @ApiBody({ type: CreateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_FLASHCARDS, cardParentDeck())
   @Put('cards/:id')
   async replace(
     @Param('id', ParseUUIDPipe) cardId: string,
@@ -190,6 +243,8 @@ export class FlashcardController {
   @ApiBody({ type: UpdateFlashcardDto })
   @ApiOkResponse({ type: FlashcardResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_FLASHCARDS, cardParentDeck())
   @Patch('cards/:id')
   async update(
     @Param('id', ParseUUIDPipe) cardId: string,
@@ -214,6 +269,8 @@ export class FlashcardController {
     operationId: 'deleteFlashcard',
   })
   @ApiOkResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_FLASHCARDS, cardParentDeck())
   @Delete('cards/:id')
   async deleteDeck(
     @Param('id', ParseUUIDPipe) cardId: string,
@@ -229,6 +286,8 @@ export class FlashcardController {
   })
   @ApiBody({ type: [CreateFlashcardDto] })
   @ApiCreatedResponse({ type: BulkFlashcardResponse })
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.CREATE_FLASHCARD, byParam(ENTITIES.FLASHCARD_DECK, 'deckId'))
   @Post('decks/:deckId/cards/bulk')
   async bulk(
     @Req() request: AuthorizedRequest,
@@ -270,6 +329,7 @@ export class FlashcardController {
   }
 
   // Get Export File
+  @Authz(SCOPES.VIEW, byParam(ENTITIES.FLASHCARD_DECK, 'deckId'))
   @Get('decks/:deckId/cards/bulk/export')
   @ApiOperation({
     summary: 'Export flashcards from a deck',
@@ -277,6 +337,7 @@ export class FlashcardController {
   })
   @ApiOkResponse({ type: StreamableFile })
   @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiForbiddenResponse()
   @ApiQuery({
     name: 'format',
     required: false,
@@ -301,6 +362,7 @@ export class FlashcardController {
   }
 
   // Post Import File
+  @Authz(SCOPES.CREATE_FLASHCARD, byParam(ENTITIES.FLASHCARD_DECK, 'deckId'))
   @Post('decks/:deckId/cards/bulk/import')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({
@@ -309,6 +371,7 @@ export class FlashcardController {
   })
   @ApiCreatedResponse({ type: BulkFlashcardResponse })
   @ApiNotFoundResponse({ description: 'Deck not found' })
+  @ApiForbiddenResponse()
   @ApiUnprocessableEntityResponse({ type: BulkFlashcardErrorResponse })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -340,9 +403,6 @@ export class FlashcardController {
     @Param('deckId', ParseUUIDPipe) deckId: string,
     @Req() request: AuthorizedRequest,
   ) {
-    const deck = await this.deckService.findById(deckId);
-    if (!deck) throw new DeckNotFoundError(deckId);
-
     const format = this.excelService.detectFormat(
       file.mimetype,
       file.originalname,

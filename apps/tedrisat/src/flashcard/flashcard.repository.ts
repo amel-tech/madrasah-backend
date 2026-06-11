@@ -5,11 +5,13 @@ import {
   IFlashcard,
   IFlashcardProgress,
   IFlashcardRepository,
+  IFlashcardWithDeckVisibility,
   IUpdateFlashcard,
 } from './flashcard.repository.interface';
 import { DatabaseService } from '../database/database.service';
+import { decks } from '../database/schema/flashcard-deck.schema';
 import { flashcardProgress, flashcards } from '../database/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { CardIncludeEnum } from './domain/card-include.enum';
 
 /** Overrides for includes that need custom config (e.g. a where clause). */
@@ -97,5 +99,21 @@ export class FlashcardRepository implements IFlashcardRepository {
         set: { status: sql.raw(`excluded.${flashcardProgress.status.name}`) },
       })
       .returning();
+  }
+
+  async findVisibilityByIds(
+    cardIds: string[],
+  ): Promise<IFlashcardWithDeckVisibility[]> {
+    if (cardIds.length === 0) return [];
+    return this.databaseService.db
+      .select({
+        cardId: flashcards.id,
+        deckId: decks.id,
+        isPublic: decks.isPublic,
+        authorId: decks.authorId,
+      })
+      .from(flashcards)
+      .innerJoin(decks, eq(decks.id, flashcards.deckId))
+      .where(inArray(flashcards.id, cardIds));
   }
 }

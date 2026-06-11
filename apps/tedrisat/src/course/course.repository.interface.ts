@@ -212,4 +212,9 @@ export interface ICourseRepository {
     progress: number,
     status: EnrollmentStatus,
   ): Promise<IEnrollment | null>;
+  assignMuderris(
+    courseId: string,
+    muderris: ICreateMuderris,
+  ): Promise<IMuderris>;
+  removeMuderris(courseId: string, muderrisId: string): Promise<boolean>;
 }

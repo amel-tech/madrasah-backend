@@ -6,8 +6,10 @@ import {
   ICourseDetail,
   ICourseSummary,
   ICreateCourse,
+  ICreateMuderris,
   IEnrolledCourse,
   IEnrollment,
+  IMuderris,
   IPendingEnrollment,
   IReplaceCourse,
   IUpdateCourse,
@@ -21,6 +23,16 @@ export interface StudentIdentity {
   email?: string | null;
 }
 
+/**
+ * Course CRUD. Authorization is enforced upstream by `@Authz` on the
+ * controller: EDIT / DELETE / MANAGE_ENROLLMENTS reach this service only
+ * when the caller is KOSK_MANAGER or MUDERRIS (per matrix.course).
+ * Self-bounded paths (enroll, updateProgress, findEnrolled) take the
+ * caller's userId explicitly because the operation is keyed by it.
+ *
+ * `assertCourseOwner` is preserved as a cross-module helper for callers
+ * outside the HTTP path.
+ */
 @Injectable()
 export class CourseService {
   constructor(
@@ -48,7 +60,8 @@ export class CourseService {
     return course;
   }
 
-  /** Ensures the course exists and its köşk is owned by `userId`, else throws. */
+  /** Cross-module helper: ensures the course exists and its parent
+   *  köşk is owned by `userId`. */
   async assertCourseOwner(courseId: string, userId: string): Promise<void> {
     const koskId = await this.courseRepo.findKoskId(courseId);
     if (koskId === null) {
@@ -62,16 +75,14 @@ export class CourseService {
     authorId: string,
     course: Omit<ICreateCourse, 'koskId' | 'authorId'>,
   ): Promise<ICourseDetail> {
-    await this.koskService.assertOwner(koskId, authorId); // köşk owner only
+    // Existence check on the parent köşk surfaces a clean 404 when the
+    // ID is missing — authz already gated ownership; this avoids a raw
+    // FK violation for SYSTEM_ADMIN callers (who bypass the matrix).
+    await this.koskService.findById(koskId, authorId);
     return this.courseRepo.create({ ...course, koskId, authorId });
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updates: IUpdateCourse,
-  ): Promise<ICourse> {
-    await this.assertCourseOwner(id, userId);
+  async update(id: string, updates: IUpdateCourse): Promise<ICourse> {
     const updated = await this.courseRepo.update(id, updates);
     if (!updated) {
       throw new CourseNotFoundError(id);
@@ -84,12 +95,16 @@ export class CourseService {
     userId: string,
     data: IReplaceCourse,
   ): Promise<ICourseDetail> {
-    await this.assertCourseOwner(id, userId);
+    // `userId` is forwarded as the syllabus author when the repository
+    // rewrites course_weeks/lessons/etc. — not for authorization.
+    // Existence check first so a missing UUID surfaces as 404 (matrix
+    // already gated ownership for non-admin callers).
+    const exists = await this.courseRepo.findKoskId(id);
+    if (exists === null) throw new CourseNotFoundError(id);
     return this.courseRepo.replace(id, userId, data);
   }
 
-  async delete(id: string, userId: string): Promise<boolean> {
-    await this.assertCourseOwner(id, userId);
+  async delete(id: string): Promise<boolean> {
     return this.courseRepo.delete(id);
   }
 
@@ -113,16 +128,18 @@ export class CourseService {
     koskId: string,
     userId: string,
   ): Promise<IPendingEnrollment[]> {
-    await this.koskService.assertOwner(koskId, userId); // köşk owner only
+    // The @Authz on the controller already verified the caller manages
+    // this köşk; reading köşk existence here would only narrow a 403 to
+    // 404 — for now we trust the matrix and let the repository handle
+    // empty results naturally. `userId` is kept for future repo filters.
+    void userId;
     return this.courseRepo.findPendingByKosk(koskId);
   }
 
   async approveEnrollment(
     courseId: string,
-    ownerId: string,
     studentId: string,
   ): Promise<IEnrollment> {
-    await this.assertCourseOwner(courseId, ownerId);
     const updated = await this.courseRepo.setEnrollmentStatus(
       studentId,
       courseId,
@@ -136,10 +153,8 @@ export class CourseService {
 
   async rejectEnrollment(
     courseId: string,
-    ownerId: string,
     studentId: string,
   ): Promise<boolean> {
-    await this.assertCourseOwner(courseId, ownerId);
     // Only pending requests can be rejected; deleting an active or completed
     // enrollment must go through a deliberate unenroll flow, not "reject".
     const existing = await this.courseRepo.findEnrollment(studentId, courseId);
@@ -147,6 +162,21 @@ export class CourseService {
       throw new EnrollmentNotFoundError(courseId);
     }
     return this.courseRepo.deleteEnrollment(studentId, courseId);
+  }
+
+  async assignMuderris(
+    courseId: string,
+    muderris: ICreateMuderris,
+  ): Promise<IMuderris> {
+    const koskId = await this.courseRepo.findKoskId(courseId);
+    if (koskId === null) {
+      throw new CourseNotFoundError(courseId);
+    }
+    return this.courseRepo.assignMuderris(courseId, muderris);
+  }
+
+  async removeMuderris(courseId: string, muderrisId: string): Promise<boolean> {
+    return this.courseRepo.removeMuderris(courseId, muderrisId);
   }
 
   async updateProgress(
