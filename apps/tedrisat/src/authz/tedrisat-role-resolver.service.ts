@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
-import { ENTITIES, ResourceRef, Role, ROLES, RoleResolver } from '@madrasah/common';
+import {
+  ENTITIES,
+  ResourceRef,
+  Role,
+  ROLES,
+  RoleResolver,
+} from '@madrasah/common';
 import { DatabaseService } from '../database/database.service';
 import { decks } from '../database/schema/flashcard-deck.schema';
 import { kosks } from '../database/schema/kosk.schema';

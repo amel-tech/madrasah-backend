@@ -97,7 +97,7 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
               ),
             ),
         ),
-        or(eq(decks.isPublic, true), eq(decks.authorId, userId))!,
+        or(eq(decks.isPublic, true), eq(decks.authorId, userId)),
       ),
     });
   }

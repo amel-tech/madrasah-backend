@@ -8,10 +8,9 @@ import { CreateFlashcardDeckDto } from './create-flashcard-deck.dto';
  * managing a public deck. A dedicated publish endpoint (admin-only)
  * will land separately.
  */
-export class ReplaceFlashcardDeckDto extends OmitType(
-  CreateFlashcardDeckDto,
-  ['isPublic'] as const,
-) {}
+export class ReplaceFlashcardDeckDto extends OmitType(CreateFlashcardDeckDto, [
+  'isPublic',
+] as const) {}
 
 export class UpdateFlashcardDeckDto extends PartialType(
   ReplaceFlashcardDeckDto,

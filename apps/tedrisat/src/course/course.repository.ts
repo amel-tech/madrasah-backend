@@ -537,13 +537,10 @@ export class CourseRepository implements ICourseRepository {
         orderIndex: nextOrder,
       })
       .returning();
-    return created as IMuderris;
+    return created;
   }
 
-  async removeMuderris(
-    courseId: string,
-    muderrisId: string,
-  ): Promise<boolean> {
+  async removeMuderris(courseId: string, muderrisId: string): Promise<boolean> {
     const deleted = await this.db
       .delete(courseMuderris)
       .where(
