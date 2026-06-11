@@ -348,6 +348,96 @@ describe('CourseController (e2e)', () => {
         .expect(404)
     })
 
+    it('round-trips live-session fields through create, read and replace', async () => {
+      const scheduledAt = '2026-08-10T18:00:00.000Z';
+      const agenda = [
+        { time: '21:00', title: 'Açılış ve geçen haftanın özeti' },
+        { time: '21:15', title: 'Metin müzakeresi' },
+      ];
+      const payload = {
+        ...coursePayload(),
+        weeks: [
+          {
+            weekNumber: 1,
+            title: 'Birinci Bab',
+            lessons: [
+              {
+                title: 'Açılış halkası',
+                type: 'LIVE',
+                duration: '60 dk',
+                scheduledAt,
+                meetingUrl: 'https://meet.google.com/bqx-mfzn-rde',
+                agenda,
+              },
+            ],
+          },
+        ],
+      };
+
+      const created = (
+        await request(app.getHttpServer())
+          .post(`/kosks/${koskId}/courses`)
+          .send(payload)
+          .expect(201)
+      ).body;
+      const lesson = created.weeks[0].lessons[0];
+      expect(new Date(lesson.scheduledAt).toISOString()).toBe(scheduledAt);
+      expect(lesson.meetingUrl).toBe('https://meet.google.com/bqx-mfzn-rde');
+      expect(lesson.agenda).toEqual(agenda);
+
+      // Replace keeps the lesson row (same id) and updates the live fields.
+      const newScheduledAt = '2026-08-17T18:00:00.000Z';
+      const replaced = (
+        await request(app.getHttpServer())
+          .put(`/courses/${created.id}`)
+          .send({
+            title: created.title,
+            weeks: [
+              {
+                id: created.weeks[0].id,
+                weekNumber: 1,
+                title: 'Birinci Bab',
+                lessons: [
+                  {
+                    id: lesson.id,
+                    title: lesson.title,
+                    type: 'LIVE',
+                    scheduledAt: newScheduledAt,
+                    meetingUrl: 'https://zoom.us/j/8842031567',
+                    agenda: [{ time: '21:00', title: 'Tek adım' }],
+                  },
+                ],
+              },
+            ],
+          })
+          .expect(200)
+      ).body;
+      const updatedLesson = replaced.weeks[0].lessons[0];
+      expect(updatedLesson.id).toBe(lesson.id);
+      expect(new Date(updatedLesson.scheduledAt).toISOString()).toBe(newScheduledAt);
+      expect(updatedLesson.meetingUrl).toBe('https://zoom.us/j/8842031567');
+      expect(updatedLesson.agenda).toEqual([{ time: '21:00', title: 'Tek adım' }]);
+    });
+
+    it('rejects a malformed meeting URL', () => {
+      const payload = {
+        ...coursePayload(),
+        weeks: [
+          {
+            weekNumber: 1,
+            title: 'Birinci Bab',
+            lessons: [
+              { title: 'Canlı ders', type: 'LIVE', meetingUrl: 'not-a-url' },
+            ],
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .post(`/kosks/${koskId}/courses`)
+        .send(payload)
+        .expect(400);
+    });
+
     it('deletes a course', async () => {
       const created = await createCourse().expect(201);
       await request(app.getHttpServer())
