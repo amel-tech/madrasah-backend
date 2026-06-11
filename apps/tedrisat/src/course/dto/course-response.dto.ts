@@ -4,6 +4,11 @@ import { CourseStatus } from '../domain/course-status.enum';
 import { EnrollmentStatus } from '../domain/enrollment-status.enum';
 import { LessonType } from '../domain/lesson-type.enum';
 
+export class AgendaStepResponse {
+  @ApiProperty({ example: '21:00' }) time!: string;
+  @ApiProperty({ example: 'Açılış ve geçen haftanın özeti' }) title!: string;
+}
+
 export class LessonResponse {
   @ApiProperty() id!: string;
   @ApiProperty() weekId!: string;
@@ -11,6 +16,10 @@ export class LessonResponse {
   @ApiProperty({ enum: LessonType }) type!: LessonType;
   @ApiPropertyOptional({ type: String }) duration!: string | null;
   @ApiPropertyOptional({ type: String }) kaynak!: string | null;
+  @ApiPropertyOptional({ type: Date }) scheduledAt!: Date | null;
+  @ApiPropertyOptional({ type: String }) meetingUrl!: string | null;
+  @ApiPropertyOptional({ type: [AgendaStepResponse] })
+  agenda!: AgendaStepResponse[] | null;
   @ApiProperty() isPreview!: boolean;
   @ApiProperty() orderIndex!: number;
 }

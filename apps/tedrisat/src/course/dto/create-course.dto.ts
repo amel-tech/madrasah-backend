@@ -1,10 +1,12 @@
 import {
   IsArray,
   IsBoolean,
+  IsDate,
   IsEnum,
   IsInt,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
   Max,
   MaxLength,
@@ -17,6 +19,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CourseLevel } from '../domain/course-level.enum';
 import { CourseStatus } from '../domain/course-status.enum';
 import { LessonType } from '../domain/lesson-type.enum';
+
+export class AgendaStepDto {
+  @ApiProperty({ example: '21:00' })
+  @IsString()
+  @MaxLength(40)
+  time!: string;
+
+  @ApiProperty({ example: 'Açılış ve geçen haftanın özeti' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  title!: string;
+}
 
 export class CreateLessonDto {
   @ApiPropertyOptional({
@@ -47,6 +62,35 @@ export class CreateLessonDto {
   @IsString()
   @MaxLength(120)
   kaynak?: string;
+
+  @ApiPropertyOptional({
+    example: '2026-06-18T19:00:00.000Z',
+    description: 'When the live session starts (type = LIVE).',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  scheduledAt?: Date;
+
+  @ApiPropertyOptional({
+    example: 'https://meet.google.com/bqx-mfzn-rde',
+    description:
+      'External meeting link (Meet/Zoom/Jitsi…). The platform is resolved from the URL on the client.',
+  })
+  @IsOptional()
+  @IsUrl({ require_protocol: true })
+  @MaxLength(500)
+  meetingUrl?: string;
+
+  @ApiPropertyOptional({
+    type: [AgendaStepDto],
+    description: 'Müzakere akışı — agenda steps shown to students.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AgendaStepDto)
+  agenda?: AgendaStepDto[];
 
   @ApiPropertyOptional({ example: false })
   @IsOptional()

@@ -3,6 +3,12 @@ import { CourseStatus } from './domain/course-status.enum';
 import { EnrollmentStatus } from './domain/enrollment-status.enum';
 import { LessonType } from './domain/lesson-type.enum';
 
+/** One step of a live lesson's müzakere akışı (agenda). */
+export interface IAgendaStep {
+  time: string;
+  title: string;
+}
+
 export interface ILesson {
   id: string;
   weekId: string;
@@ -10,6 +16,9 @@ export interface ILesson {
   type: LessonType;
   duration: string | null;
   kaynak: string | null;
+  scheduledAt: Date | null;
+  meetingUrl: string | null;
+  agenda: IAgendaStep[] | null;
   isPreview: boolean;
   orderIndex: number;
 }
@@ -114,6 +123,9 @@ export interface ICreateLesson {
   type: LessonType;
   duration?: string;
   kaynak?: string;
+  scheduledAt?: Date;
+  meetingUrl?: string;
+  agenda?: IAgendaStep[];
   isPreview?: boolean;
 }
 
