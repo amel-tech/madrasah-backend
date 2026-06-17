@@ -193,6 +193,7 @@ export interface ICourseRepository {
   findSummariesByKosk(
     koskId: string,
     userId: string,
+    includeDrafts: boolean,
   ): Promise<ICourseSummary[]>;
   findDetailById(id: string, userId: string): Promise<ICourseDetail | null>;
   findEnrolledByUser(userId: string): Promise<IEnrolledCourse[]>;

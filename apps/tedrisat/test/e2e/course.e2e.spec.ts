@@ -3,6 +3,7 @@ import request from 'supertest';
 import { DatabaseService } from '../../src/database/database.service';
 import { kosks } from '../../src/database/schema/kosk.schema';
 import { courses } from '../../src/database/schema/course.schema';
+import { CourseStatus } from '../../src/course/domain/course-status.enum';
 import { createTestApp, TEST_USER_ID } from '../helpers/test-app.helper';
 import { TestDatabaseUtils } from '../helpers/test-database.helper';
 
@@ -641,6 +642,50 @@ describe('CourseController (e2e)', () => {
       await request(app.getHttpServer())
         .delete(`/courses/${otherCourse.id}`)
         .expect(403);
+    });
+
+    it('hides DRAFT courses from non-owners', async () => {
+      const [otherKosk] = await databaseService.db
+        .insert(kosks)
+        .values({ ownerId: OTHER_USER_ID, name: 'Başka Köşk' })
+        .returning();
+      const [draft] = await databaseService.db
+        .insert(courses)
+        .values({
+          koskId: otherKosk.id,
+          authorId: OTHER_USER_ID,
+          title: 'Taslak Kurs',
+          status: CourseStatus.DRAFT,
+        })
+        .returning();
+      const [published] = await databaseService.db
+        .insert(courses)
+        .values({
+          koskId: otherKosk.id,
+          authorId: OTHER_USER_ID,
+          title: 'Yayınlanmış Kurs',
+          status: CourseStatus.PUBLISHED,
+        })
+        .returning();
+
+      // detail of a DRAFT course is surfaced as not-found to a non-owner
+      await request(app.getHttpServer())
+        .get(`/courses/${draft.id}`)
+        .expect(404);
+
+      // a PUBLISHED course in the same köşk is still visible
+      await request(app.getHttpServer())
+        .get(`/courses/${published.id}`)
+        .expect(200);
+
+      // summaries omit the DRAFT for a non-owner
+      await request(app.getHttpServer())
+        .get(`/kosks/${otherKosk.id}/courses`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(1);
+          expect(res.body[0]).toHaveProperty('id', published.id);
+        });
     });
   });
 });
