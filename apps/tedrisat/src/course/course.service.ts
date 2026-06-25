@@ -16,6 +16,7 @@ import {
 } from './course.repository.interface';
 import { CourseNotFoundError } from './errors/course-not-found.error';
 import { EnrollmentNotFoundError } from './errors/enrollment-not-found.error';
+import { CourseStatus } from './domain/course-status.enum';
 import { EnrollmentStatus } from './domain/enrollment-status.enum';
 
 export interface StudentIdentity {
@@ -44,8 +45,10 @@ export class CourseService {
     koskId: string,
     userId: string,
   ): Promise<ICourseSummary[]> {
-    await this.koskService.findById(koskId, userId); // throws if köşk is missing
-    return this.courseRepo.findSummariesByKosk(koskId, userId);
+    const kosk = await this.koskService.findById(koskId, userId); // throws if köşk is missing
+    // Only the köşk owner sees DRAFT courses; everyone else gets PUBLISHED only.
+    const includeDrafts = kosk.ownerId === userId;
+    return this.courseRepo.findSummariesByKosk(koskId, userId, includeDrafts);
   }
 
   async findEnrolledCourses(userId: string): Promise<IEnrolledCourse[]> {
@@ -56,6 +59,14 @@ export class CourseService {
     const course = await this.courseRepo.findDetailById(id, userId);
     if (!course) {
       throw new CourseNotFoundError(id);
+    }
+    // A DRAFT course is invisible to anyone but its köşk owner — surface it as
+    // not-found rather than forbidden so its existence isn't leaked.
+    if (course.status === CourseStatus.DRAFT) {
+      const isOwner = await this.koskService.isOwner(course.koskId, userId);
+      if (!isOwner) {
+        throw new CourseNotFoundError(id);
+      }
     }
     return course;
   }

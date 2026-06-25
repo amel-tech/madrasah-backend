@@ -45,9 +45,15 @@ export class KoskService {
     return kosk;
   }
 
+  /** True if `userId` owns the köşk; false if not (incl. a missing köşk). */
+  async isOwner(koskId: string, userId: string): Promise<boolean> {
+    const ownerId = await this.koskRepo.findOwnerId(koskId);
+    return ownerId !== null && ownerId === userId;
+  }
+
   /** Cross-module helper: ensures the köşk exists and is owned by
-   *  `userId`. Used by services that need to verify parent-köşk
-   *  ownership (e.g. course creation). */
+   *  `userId`, else throws. Used by services that need to verify
+   *  parent-köşk ownership (e.g. course creation). */
   async assertOwner(koskId: string, userId: string): Promise<void> {
     const ownerId = await this.koskRepo.findOwnerId(koskId);
     if (ownerId === null) {

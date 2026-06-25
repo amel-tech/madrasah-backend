@@ -24,6 +24,7 @@ import {
   IReplaceCourse,
   IUpdateCourse,
 } from './course.repository.interface';
+import { CourseStatus } from './domain/course-status.enum';
 import { EnrollmentStatus } from './domain/enrollment-status.enum';
 
 @Injectable()
@@ -37,9 +38,16 @@ export class CourseRepository implements ICourseRepository {
   async findSummariesByKosk(
     koskId: string,
     userId: string,
+    includeDrafts: boolean,
   ): Promise<ICourseSummary[]> {
     const rows = await this.db.query.courses.findMany({
-      where: eq(courses.koskId, koskId),
+      // DRAFT courses are only visible to the köşk owner.
+      where: includeDrafts
+        ? eq(courses.koskId, koskId)
+        : and(
+            eq(courses.koskId, koskId),
+            eq(courses.status, CourseStatus.PUBLISHED),
+          ),
       with: {
         weeks: { with: { lessons: true } },
         muderris: { orderBy: (m, { asc }) => [asc(m.orderIndex)] },
@@ -180,6 +188,9 @@ export class CourseRepository implements ICourseRepository {
               type: l.type,
               duration: l.duration,
               kaynak: l.kaynak,
+              scheduledAt: l.scheduledAt,
+              meetingUrl: l.meetingUrl,
+              agenda: l.agenda,
               isPreview: l.isPreview ?? false,
               orderIndex: li,
             })),
@@ -346,6 +357,9 @@ export class CourseRepository implements ICourseRepository {
               type: l.type,
               duration: l.duration,
               kaynak: l.kaynak,
+              scheduledAt: l.scheduledAt,
+              meetingUrl: l.meetingUrl,
+              agenda: l.agenda,
               isPreview: l.isPreview ?? false,
               orderIndex: li,
             };
@@ -372,6 +386,9 @@ export class CourseRepository implements ICourseRepository {
                 type: l.type,
                 duration: l.duration,
                 kaynak: l.kaynak,
+                scheduledAt: l.scheduledAt,
+                meetingUrl: l.meetingUrl,
+                agenda: l.agenda,
                 isPreview: l.isPreview ?? false,
                 orderIndex: li,
               })),

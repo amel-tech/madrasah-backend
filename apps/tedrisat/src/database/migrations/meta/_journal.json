@@ -78,6 +78,13 @@
       "when": 1780061512634,
       "tag": "0010_enrollment_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1781197547000,
+      "tag": "0011_live_lessons",
+      "breakpoints": true
     }
   ]
 }

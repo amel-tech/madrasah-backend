@@ -5,6 +5,7 @@ import {
   integer,
   boolean,
   timestamp,
+  jsonb,
   pgEnum,
   primaryKey,
 } from 'drizzle-orm/pg-core';
@@ -65,6 +66,12 @@ export const lessons = table('lessons', {
   type: lessonType().notNull(),
   duration: text('duration'),
   kaynak: text('kaynak'),
+  // Live-session fields (type = LIVE). `withTimezone` because students and
+  // müderris may be in different zones; created/updated remain naive for
+  // backward compatibility with the original migration.
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }),
+  meetingUrl: text('meeting_url'),
+  agenda: jsonb('agenda').$type<{ time: string; title: string }[]>(),
   isPreview: boolean('is_preview').default(false).notNull(),
   orderIndex: integer('order_index').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

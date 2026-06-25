@@ -3,6 +3,7 @@ import request from 'supertest';
 import { DatabaseService } from '../../src/database/database.service';
 import { kosks } from '../../src/database/schema/kosk.schema';
 import { courses } from '../../src/database/schema/course.schema';
+import { CourseStatus } from '../../src/course/domain/course-status.enum';
 import { createTestApp, TEST_USER_ID } from '../helpers/test-app.helper';
 import { TestDatabaseUtils } from '../helpers/test-database.helper';
 
@@ -348,6 +349,96 @@ describe('CourseController (e2e)', () => {
         .expect(404)
     })
 
+    it('round-trips live-session fields through create, read and replace', async () => {
+      const scheduledAt = '2026-08-10T18:00:00.000Z';
+      const agenda = [
+        { time: '21:00', title: 'Açılış ve geçen haftanın özeti' },
+        { time: '21:15', title: 'Metin müzakeresi' },
+      ];
+      const payload = {
+        ...coursePayload(),
+        weeks: [
+          {
+            weekNumber: 1,
+            title: 'Birinci Bab',
+            lessons: [
+              {
+                title: 'Açılış halkası',
+                type: 'LIVE',
+                duration: '60 dk',
+                scheduledAt,
+                meetingUrl: 'https://meet.google.com/bqx-mfzn-rde',
+                agenda,
+              },
+            ],
+          },
+        ],
+      };
+
+      const created = (
+        await request(app.getHttpServer())
+          .post(`/kosks/${koskId}/courses`)
+          .send(payload)
+          .expect(201)
+      ).body;
+      const lesson = created.weeks[0].lessons[0];
+      expect(new Date(lesson.scheduledAt).toISOString()).toBe(scheduledAt);
+      expect(lesson.meetingUrl).toBe('https://meet.google.com/bqx-mfzn-rde');
+      expect(lesson.agenda).toEqual(agenda);
+
+      // Replace keeps the lesson row (same id) and updates the live fields.
+      const newScheduledAt = '2026-08-17T18:00:00.000Z';
+      const replaced = (
+        await request(app.getHttpServer())
+          .put(`/courses/${created.id}`)
+          .send({
+            title: created.title,
+            weeks: [
+              {
+                id: created.weeks[0].id,
+                weekNumber: 1,
+                title: 'Birinci Bab',
+                lessons: [
+                  {
+                    id: lesson.id,
+                    title: lesson.title,
+                    type: 'LIVE',
+                    scheduledAt: newScheduledAt,
+                    meetingUrl: 'https://zoom.us/j/8842031567',
+                    agenda: [{ time: '21:00', title: 'Tek adım' }],
+                  },
+                ],
+              },
+            ],
+          })
+          .expect(200)
+      ).body;
+      const updatedLesson = replaced.weeks[0].lessons[0];
+      expect(updatedLesson.id).toBe(lesson.id);
+      expect(new Date(updatedLesson.scheduledAt).toISOString()).toBe(newScheduledAt);
+      expect(updatedLesson.meetingUrl).toBe('https://zoom.us/j/8842031567');
+      expect(updatedLesson.agenda).toEqual([{ time: '21:00', title: 'Tek adım' }]);
+    });
+
+    it('rejects a malformed meeting URL', () => {
+      const payload = {
+        ...coursePayload(),
+        weeks: [
+          {
+            weekNumber: 1,
+            title: 'Birinci Bab',
+            lessons: [
+              { title: 'Canlı ders', type: 'LIVE', meetingUrl: 'not-a-url' },
+            ],
+          },
+        ],
+      };
+      return request(app.getHttpServer())
+        .post(`/kosks/${koskId}/courses`)
+        .send(payload)
+        .expect(400);
+    });
+
     it('deletes a course', async () => {
       const created = await createCourse().expect(201);
       await request(app.getHttpServer())
@@ -514,5 +605,51 @@ describe('CourseController (e2e)', () => {
     // `createTestApp` grants SYSTEM_ADMIN by default to keep fixture
     // setup terse — that bypass is exactly what these tests need to
     // disable. Not worth the wiring for behaviour covered downstream.
+  });
+
+  describe('DRAFT visibility (service-layer filter, not matrix)', () => {
+    it('hides DRAFT courses from non-owners', async () => {
+      const [otherKosk] = await databaseService.db
+        .insert(kosks)
+        .values({ ownerId: OTHER_USER_ID, name: 'Başka Köşk' })
+        .returning();
+      const [draft] = await databaseService.db
+        .insert(courses)
+        .values({
+          koskId: otherKosk.id,
+          authorId: OTHER_USER_ID,
+          title: 'Taslak Kurs',
+          status: CourseStatus.DRAFT,
+        })
+        .returning();
+      const [published] = await databaseService.db
+        .insert(courses)
+        .values({
+          koskId: otherKosk.id,
+          authorId: OTHER_USER_ID,
+          title: 'Yayınlanmış Kurs',
+          status: CourseStatus.PUBLISHED,
+        })
+        .returning();
+
+      // detail of a DRAFT course is surfaced as not-found to a non-owner
+      await request(app.getHttpServer())
+        .get(`/courses/${draft.id}`)
+        .expect(404);
+
+      // a PUBLISHED course in the same köşk is still visible
+      await request(app.getHttpServer())
+        .get(`/courses/${published.id}`)
+        .expect(200);
+
+      // summaries omit the DRAFT for a non-owner
+      await request(app.getHttpServer())
+        .get(`/kosks/${otherKosk.id}/courses`)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(1);
+          expect(res.body[0]).toHaveProperty('id', published.id);
+        });
+    });
   });
 });

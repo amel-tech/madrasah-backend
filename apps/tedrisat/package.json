@@ -1,6 +1,6 @@
 {
   "name": "tedrisat",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "",
   "author": "",
   "private": true,
@@ -27,8 +27,7 @@
     "db:check": "drizzle-kit check",
     "db:push": "drizzle-kit push",
     "db:introspect": "drizzle-kit introspect",
-    "db:drop": "drizzle-kit drop",
-    "db:seed": "node scripts/seed.mjs"
+    "db:drop": "drizzle-kit drop"
   },
   "dependencies": {
     "@madrasah/common": "1.0.0",
