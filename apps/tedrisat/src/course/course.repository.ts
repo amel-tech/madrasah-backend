@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, inArray, ne } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import {
   courseMuderris,
@@ -15,9 +15,11 @@ import {
   ICourseRepository,
   ICourseSummary,
   ICreateCourse,
+  ICreateMuderris,
   IEnrolledCourse,
   IEnrollment,
   IEnrollOptions,
+  IMuderris,
   IPendingEnrollment,
   IReplaceCourse,
   IUpdateCourse,
@@ -526,5 +528,45 @@ export class CourseRepository implements ICourseRepository {
       )
       .returning()
       .then((result) => result[0] || null);
+  }
+
+  async assignMuderris(
+    courseId: string,
+    muderris: ICreateMuderris,
+  ): Promise<IMuderris> {
+    // Push the new entry to the end of the existing ordering.
+    const [tail] = await this.db
+      .select({ orderIndex: courseMuderris.orderIndex })
+      .from(courseMuderris)
+      .where(eq(courseMuderris.courseId, courseId))
+      .orderBy(desc(courseMuderris.orderIndex))
+      .limit(1);
+    const nextOrder = (tail?.orderIndex ?? -1) + 1;
+    const [created] = await this.db
+      .insert(courseMuderris)
+      .values({
+        courseId,
+        userId: muderris.userId ?? null,
+        name: muderris.name,
+        title: muderris.title ?? null,
+        bio: muderris.bio ?? null,
+        avatarHue: muderris.avatarHue ?? 220,
+        orderIndex: nextOrder,
+      })
+      .returning();
+    return created;
+  }
+
+  async removeMuderris(courseId: string, muderrisId: string): Promise<boolean> {
+    const deleted = await this.db
+      .delete(courseMuderris)
+      .where(
+        and(
+          eq(courseMuderris.id, muderrisId),
+          eq(courseMuderris.courseId, courseId),
+        ),
+      )
+      .returning({ id: courseMuderris.id });
+    return deleted.length > 0;
   }
 }

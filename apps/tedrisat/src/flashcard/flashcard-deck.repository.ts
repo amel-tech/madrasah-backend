@@ -75,18 +75,29 @@ export class FlashcardDeckRepository implements IFlashcardDeckRepository {
   }
 
   async findAllByUser(userId: string): Promise<IFlashcardDeck[]> {
+    // Defense-in-depth: only surface attached decks that the caller can
+    // see (public OR owned). Combined with the @Authz view check on
+    // `addToUserCollection`, this prevents a leaked or guessed private
+    // deck ID from being attached to a foreign user's collection and
+    // then read through this listing.
     return this.databaseService.db.query.decks.findMany({
       with: {
         decksUsers: true,
       },
-      where: exists(
-        // using simple `eq(decksUsers.userId, userId)` instead of `exists(...)` causes bug in drizzle
-        this.databaseService.db
-          .select()
-          .from(decksUsers)
-          .where(
-            and(eq(decksUsers.deckId, decks.id), eq(decksUsers.userId, userId)),
-          ),
+      where: and(
+        exists(
+          // using simple `eq(decksUsers.userId, userId)` instead of `exists(...)` causes bug in drizzle
+          this.databaseService.db
+            .select()
+            .from(decksUsers)
+            .where(
+              and(
+                eq(decksUsers.deckId, decks.id),
+                eq(decksUsers.userId, userId),
+              ),
+            ),
+        ),
+        or(eq(decks.isPublic, true), eq(decks.authorId, userId)),
       ),
     });
   }

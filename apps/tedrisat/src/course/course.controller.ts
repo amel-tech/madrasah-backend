@@ -16,16 +16,25 @@ import { MedarisValidationPipe } from '@madrasah/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@madrasah/common';
+import {
+  AuthGuard,
+  Authz,
+  AuthzGuard,
+  byParam,
+  ENTITIES,
+  SCOPES,
+} from '@madrasah/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { UpdateProgressDto } from './dto/update-progress.dto';
+import { AssignMuderrisDto } from './dto/assign-muderris.dto';
 import {
   CourseDetailResponse,
   CourseSummaryResponse,
@@ -37,7 +46,7 @@ import { AuthorizedRequest } from './interfaces/authorized-request.interface';
 
 @ApiTags('courses')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AuthzGuard)
 @Controller()
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
@@ -48,6 +57,9 @@ export class CourseController {
   })
   @ApiOkResponse({ type: CourseSummaryResponse, isArray: true })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  // Anyone who can view the köşk can see its course summaries.
+  @Authz(SCOPES.VIEW, byParam(ENTITIES.KOSK, 'koskId'))
   @Get('kosks/:koskId/courses')
   async findByKosk(
     @Req() request: AuthorizedRequest,
@@ -62,6 +74,10 @@ export class CourseController {
   })
   @ApiCreatedResponse({ type: CourseDetailResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  // Creating a course is authorized against the parent köşk —
+  // matrix.kosk.MANAGE_COURSES is granted to KOSK_MANAGER and MADRASAH_NAZIR.
+  @Authz(SCOPES.MANAGE_COURSES, byParam(ENTITIES.KOSK, 'koskId'))
   @Post('kosks/:koskId/courses')
   @UsePipes(new MedarisValidationPipe({ transform: true }))
   async create(
@@ -77,6 +93,7 @@ export class CourseController {
     operationId: 'getEnrolledCourses',
   })
   @ApiOkResponse({ type: EnrolledCourseResponse, isArray: true })
+  // Self-bounded: returns the caller's own enrollments.
   @Get('courses/enrolled')
   async findEnrolled(
     @Req() request: AuthorizedRequest,
@@ -90,6 +107,8 @@ export class CourseController {
   })
   @ApiOkResponse({ type: CourseDetailResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.VIEW, byParam(ENTITIES.COURSE))
   @Get('courses/:id')
   async findById(
     @Req() request: AuthorizedRequest,
@@ -104,13 +123,15 @@ export class CourseController {
   })
   @ApiOkResponse({ type: CourseDetailResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.EDIT, byParam(ENTITIES.COURSE))
   @Patch('courses/:id')
   async update(
     @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() courseDto: UpdateCourseDto,
   ): Promise<CourseDetailResponse> {
-    await this.courseService.update(id, request.user.sub, courseDto);
+    await this.courseService.update(id, courseDto);
     return this.courseService.getDetail(id, request.user.sub);
   }
 
@@ -121,6 +142,8 @@ export class CourseController {
   })
   @ApiOkResponse({ type: CourseDetailResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.EDIT, byParam(ENTITIES.COURSE))
   @Put('courses/:id')
   @UsePipes(new MedarisValidationPipe({ transform: true }))
   async replace(
@@ -137,12 +160,11 @@ export class CourseController {
   })
   @ApiOkResponse({ type: Boolean })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.DELETE, byParam(ENTITIES.COURSE))
   @Delete('courses/:id')
-  async delete(
-    @Req() request: AuthorizedRequest,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<boolean> {
-    return this.courseService.delete(id, request.user.sub);
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<boolean> {
+    return this.courseService.delete(id);
   }
 
   @ApiOperation({
@@ -151,6 +173,10 @@ export class CourseController {
   })
   @ApiCreatedResponse({ type: EnrollmentResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  // matrix.course.ENROLL is granted to PUBLIC — any authenticated caller
+  // may request enrollment in any course that exists.
+  @Authz(SCOPES.ENROLL, byParam(ENTITIES.COURSE))
   @Post('courses/:id/enroll')
   async enroll(
     @Req() request: AuthorizedRequest,
@@ -173,6 +199,10 @@ export class CourseController {
   })
   @ApiOkResponse({ type: PendingEnrollmentResponse, isArray: true })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  // matrix.kosk.MANAGE_COURSES is granted to KOSK_MANAGER + MADRASAH_NAZIR;
+  // listing pending requests across the köşk's courses is part of that.
+  @Authz(SCOPES.MANAGE_COURSES, byParam(ENTITIES.KOSK, 'koskId'))
   @Get('kosks/:koskId/enrollments/pending')
   async pendingEnrollments(
     @Req() request: AuthorizedRequest,
@@ -187,13 +217,14 @@ export class CourseController {
   })
   @ApiOkResponse({ type: EnrollmentResponse })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_ENROLLMENTS, byParam(ENTITIES.COURSE, 'id'))
   @Post('courses/:id/enrollments/:userId/approve')
   async approveEnrollment(
-    @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<EnrollmentResponse> {
-    return this.courseService.approveEnrollment(id, request.user.sub, userId);
+    return this.courseService.approveEnrollment(id, userId);
   }
 
   @ApiOperation({
@@ -202,13 +233,48 @@ export class CourseController {
   })
   @ApiOkResponse({ type: Boolean })
   @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.MANAGE_ENROLLMENTS, byParam(ENTITIES.COURSE, 'id'))
   @Delete('courses/:id/enrollments/:userId')
   async rejectEnrollment(
-    @Req() request: AuthorizedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<boolean> {
-    return this.courseService.rejectEnrollment(id, request.user.sub, userId);
+    return this.courseService.rejectEnrollment(id, userId);
+  }
+
+  @ApiOperation({
+    summary: 'Assign a müderris to a course',
+    description:
+      'KOSK_MANAGER of the parent köşk may assign a müderris. Pass `userId` so the authz layer can grant MUDERRIS to that person on this course.',
+    operationId: 'assignMuderris',
+  })
+  @ApiCreatedResponse()
+  @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.ASSIGN_MUDERRIS, byParam(ENTITIES.COURSE, 'id'))
+  @Post('courses/:id/muderris')
+  async assignMuderris(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: AssignMuderrisDto,
+  ) {
+    return this.courseService.assignMuderris(id, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Remove a müderris from a course',
+    operationId: 'removeMuderris',
+  })
+  @ApiOkResponse({ type: Boolean })
+  @ApiNotFoundResponse()
+  @ApiForbiddenResponse()
+  @Authz(SCOPES.ASSIGN_MUDERRIS, byParam(ENTITIES.COURSE, 'id'))
+  @Delete('courses/:id/muderris/:muderrisId')
+  async removeMuderris(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('muderrisId', ParseUUIDPipe) muderrisId: string,
+  ): Promise<boolean> {
+    return this.courseService.removeMuderris(id, muderrisId);
   }
 
   @ApiOperation({
@@ -216,6 +282,8 @@ export class CourseController {
     operationId: 'updateCourseProgress',
   })
   @ApiOkResponse({ type: EnrollmentResponse })
+  // Self-bounded: the caller updates their own (userId, courseId) row.
+  // Service rejects unless an ENROLLED enrollment exists.
   @Put('courses/:id/progress')
   async updateProgress(
     @Req() request: AuthorizedRequest,

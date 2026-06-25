@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule, AuthGuardModule } from '@madrasah/common';
+import { LoggerModule, AuthGuardModule, AuthzModule } from '@madrasah/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -10,6 +10,7 @@ import { FlashcardModule } from './flashcard/flashcard.module';
 import { FlashcardLabelModule } from './flashcard/flashcard-label.module';
 import { KoskModule } from './kosk/kosk.module';
 import { CourseModule } from './course/course.module';
+import { AuthzBindingsModule } from './authz/authz-bindings.module';
 
 @Module({
   imports: [
@@ -20,6 +21,8 @@ import { CourseModule } from './course/course.module';
     }),
     LoggerModule.forRoot(),
     AuthGuardModule,
+    AuthzModule,
+    AuthzBindingsModule,
     DatabaseModule,
     ExampleModule,
     FlashcardModule,

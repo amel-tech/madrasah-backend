@@ -10,6 +10,16 @@ import {
 import { KoskNotFoundError } from './errors/kosk-not-found.error';
 import { KoskForbiddenError } from './errors/kosk-forbidden.error';
 
+/**
+ * Köşk CRUD. Authorization is enforced upstream by `@Authz` on the
+ * controller — `EDIT` / `DELETE` reach this service only when the
+ * caller is the KOSK_MANAGER (or SYSTEM_ADMIN). The service therefore
+ * does not re-check ownership on mutations.
+ *
+ * `assertOwner` is preserved as a defence-in-depth helper for callers
+ * outside the HTTP path (cross-module checks like
+ * `CourseService.create` which gates by parent köşk ownership).
+ */
 @Injectable()
 export class KoskService {
   constructor(private readonly koskRepo: KoskRepository) {}
@@ -41,7 +51,9 @@ export class KoskService {
     return ownerId !== null && ownerId === userId;
   }
 
-  /** Ensures the köşk exists and is owned by `userId`, else throws. */
+  /** Cross-module helper: ensures the köşk exists and is owned by
+   *  `userId`, else throws. Used by services that need to verify
+   *  parent-köşk ownership (e.g. course creation). */
   async assertOwner(koskId: string, userId: string): Promise<void> {
     const ownerId = await this.koskRepo.findOwnerId(koskId);
     if (ownerId === null) {
@@ -56,12 +68,7 @@ export class KoskService {
     return this.koskRepo.create(newKosk);
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updates: IUpdateKosk,
-  ): Promise<IKosk> {
-    await this.assertOwner(id, userId);
+  async update(id: string, updates: IUpdateKosk): Promise<IKosk> {
     const updated = await this.koskRepo.update(id, updates);
     if (!updated) {
       throw new KoskNotFoundError(id);
@@ -69,8 +76,7 @@ export class KoskService {
     return updated;
   }
 
-  async delete(id: string, userId: string): Promise<boolean> {
-    await this.assertOwner(id, userId);
+  async delete(id: string): Promise<boolean> {
     return this.koskRepo.delete(id);
   }
 

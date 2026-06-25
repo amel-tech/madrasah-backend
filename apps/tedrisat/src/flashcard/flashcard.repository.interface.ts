@@ -44,6 +44,13 @@ export interface ICreateFlashcardProgress {
   status: FlashcardProgressStatus;
 }
 
+export interface IFlashcardWithDeckVisibility {
+  cardId: string;
+  deckId: string;
+  isPublic: boolean;
+  authorId: string;
+}
+
 export interface IFlashcardRepository {
   findById(
     id: string,
@@ -62,4 +69,11 @@ export interface IFlashcardRepository {
   replaceManyProgress(
     updates: ICreateFlashcardProgress[],
   ): Promise<IFlashcardProgress[]>;
+
+  /** Join each requested card with its parent deck and return the
+   *  visibility-relevant fields. Used by progress writes to verify the
+   *  caller can reach every card in a batch before persisting. */
+  findVisibilityByIds(
+    cardIds: string[],
+  ): Promise<IFlashcardWithDeckVisibility[]>;
 }
